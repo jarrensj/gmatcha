@@ -382,7 +382,11 @@ export default function MatchaBackground() {
       // create several clusters of powder
       const clusterCount = 15
       for (let i = 0; i < clusterCount; i++) {
-        const clusterX = Math.random() * width
+        // ensure clusters are distributed across the full width
+        // by dividing the width into sections and placing clusters within each section
+        const sectionWidth = width / clusterCount
+        const sectionStart = i * sectionWidth
+        const clusterX = sectionStart + Math.random() * sectionWidth
         const clusterY = height - Math.random() * (powderHeight * 0.7)
         const clusterRadius = 10 + Math.random() * 30
         const particleCount = 50 + Math.floor(Math.random() * 100)
@@ -393,8 +397,8 @@ export default function MatchaBackground() {
           clusterRadius,
           particleCount,
           i + 1,
-          0.2, // Min size
-          1.2, // Max size
+          0.2, // min size
+          1.2, // max size
         )
 
         particles.push(...clusterParticles)
@@ -482,6 +486,10 @@ export default function MatchaBackground() {
   }
 
   useEffect(() => {
+    // reset animation state and reinitialize on component mount
+    isCleaningUpRef.current = false
+    isInitializedRef.current = false
+    
     // initial setup
     handleResize()
 
@@ -502,6 +510,12 @@ export default function MatchaBackground() {
       !fluidVelocityRef.current[0]?.length
     ) {
       return () => {}
+    }
+
+    // reset animation frame reference when starting new animation
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current)
+      animationRef.current = 0
     }
 
     let isActive = true
@@ -658,7 +672,7 @@ export default function MatchaBackground() {
   }
 
   return (
-    <div className="w-full h-screen relative">
+    <div className="w-full h-full absolute top-0 left-0 bottom-0 right-0">
       <canvas
         ref={canvasRef}
         className="w-full h-full absolute top-0 left-0"

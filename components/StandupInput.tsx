@@ -205,38 +205,6 @@ export default function StandupInput() {
     }
   };
 
-  const generateMonthOptions = () => {
-    return [
-      { value: 0, label: 'January' },
-      { value: 1, label: 'February' },
-      { value: 2, label: 'March' },
-      { value: 3, label: 'April' },
-      { value: 4, label: 'May' },
-      { value: 5, label: 'June' },
-      { value: 6, label: 'July' },
-      { value: 7, label: 'August' },
-      { value: 8, label: 'September' },
-      { value: 9, label: 'October' },
-      { value: 10, label: 'November' },
-      { value: 11, label: 'December' }
-    ];
-  };
-
-  const generateDayOptions = () => {
-    const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
-    return Array.from({ length: daysInMonth }, (_, i) => ({
-      value: i + 1,
-      label: (i + 1).toString()
-    }));
-  };
-
-  const generateYearOptions = () => {
-    return [
-      { value: 2024, label: "2024" },
-      { value: 2025, label: "2025" }
-    ];
-  };
-
   const startRecording = async (shouldAppend = false) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });

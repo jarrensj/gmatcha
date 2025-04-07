@@ -341,7 +341,7 @@ export default function StandupInput() {
                   value={update}
                   onChange={(e) => setUpdate(e.target.value)}
                   className="min-h-[200px] mb-6 text-lg leading-relaxed"
-                  disabled={isTranscribing}
+                  disabled={isTranscribing || isRecording}
                 />
               </div>
               <div className="flex flex-wrap gap-3 items-center">

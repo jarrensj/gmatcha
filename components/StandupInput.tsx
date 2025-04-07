@@ -51,6 +51,7 @@ export default function StandupInput() {
     year: number;
   } | null>(null);
   const [date, setDate] = useState<Date>(new Date())
+  const [isVoiceDialogOpen, setIsVoiceDialogOpen] = useState(false);
 
   useEffect(() => {
     jsConfettiRef.current = new JSConfetti();
@@ -344,64 +345,26 @@ export default function StandupInput() {
                 />
               </div>
               <div className="flex flex-wrap gap-3 items-center">
-                {update.trim() && !isRecording ? (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                      >
-                        <FaMicrophoneAlt />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <div className="flex justify-between items-start">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Voice Recording Options</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            How would you like to add your voice recording?
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 w-8 p-0 rounded-full"
-                          onClick={() => document.querySelector<HTMLButtonElement>('[data-alert-dialog-cancel]')?.click()}
-                        >
-                          ✕
-                        </Button>
-                      </div>
-                      <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
-                        <AlertDialogCancel className="hidden" />
-                        <Button
-                          onClick={() => {
-                            setTimeout(() => {
-                              startRecording(false);
-                            }, 100);
-                          }}
-                          variant="destructive"
-                        >
-                          Overwrite
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            setTimeout(() => {
-                              startRecording(true);
-                            }, 100);
-                          }}
-                          variant="default"
-                        >
-                          Append
-                        </Button>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                {!isRecording ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      if (update.trim()) {
+                        setIsVoiceDialogOpen(true);
+                      } else {
+                        startRecording(true);
+                      }
+                    }}
+                  >
+                    <FaMicrophoneAlt />
+                  </Button>
                 ) : (
                   <Button
                     variant="outline"
-                    onClick={isRecording ? stopRecording : () => startRecording()}
-                    className={isRecording ? "bg-red-100" : ""}
+                    onClick={stopRecording}
+                    className="bg-red-100"
                   >
-                    {isRecording ? 'Stop Recording' : <FaMicrophoneAlt />}
+                    Stop Recording
                   </Button>
                 )}
                 <TooltipProvider delayDuration={500}>
@@ -576,6 +539,54 @@ export default function StandupInput() {
           </Link>
         </div>
       )}
+      <AlertDialog open={isVoiceDialogOpen} onOpenChange={setIsVoiceDialogOpen}>
+        <AlertDialogTrigger asChild>
+          <div />
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <div className="flex justify-between items-start">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Voice Recording Options</AlertDialogTitle>
+              <AlertDialogDescription>
+                How would you like to add your voice recording as there is already text in the input field?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0 rounded-full"
+              onClick={() => setIsVoiceDialogOpen(false)}
+            >
+              ✕
+            </Button>
+          </div>
+          <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="hidden" />
+            <Button
+              onClick={() => {
+                setIsVoiceDialogOpen(false);
+                setTimeout(() => {
+                  startRecording(false);
+                }, 100);
+              }}
+              variant="destructive"
+            >
+              Overwrite
+            </Button>
+            <Button
+              onClick={() => {
+                setIsVoiceDialogOpen(false);
+                setTimeout(() => {
+                  startRecording(true);
+                }, 100);
+              }}
+              variant="default"
+            >
+              Append
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

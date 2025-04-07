@@ -51,6 +51,7 @@ export default function StandupInput() {
     year: number;
   } | null>(null);
   const [date, setDate] = useState<Date>(new Date())
+  const [isVoiceDialogOpen, setIsVoiceDialogOpen] = useState(false);
 
   useEffect(() => {
     jsConfettiRef.current = new JSConfetti();
@@ -345,10 +346,11 @@ export default function StandupInput() {
               </div>
               <div className="flex flex-wrap gap-3 items-center">
                 {update.trim() && !isRecording ? (
-                  <AlertDialog>
+                  <AlertDialog open={isVoiceDialogOpen} onOpenChange={setIsVoiceDialogOpen}>
                     <AlertDialogTrigger asChild>
                       <Button
                         variant="outline"
+                        onClick={() => setIsVoiceDialogOpen(true)}
                       >
                         <FaMicrophoneAlt />
                       </Button>
@@ -365,7 +367,7 @@ export default function StandupInput() {
                           variant="ghost" 
                           size="sm" 
                           className="h-8 w-8 p-0 rounded-full"
-                          onClick={() => document.querySelector<HTMLButtonElement>('[data-alert-dialog-cancel]')?.click()}
+                          onClick={() => setIsVoiceDialogOpen(false)}
                         >
                           ✕
                         </Button>

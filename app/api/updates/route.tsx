@@ -6,13 +6,11 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY || "";
 
 async function createClerkSupabaseClient(req: NextRequest) {
-  const { getToken } = getAuth(req);
-  const supabaseToken = await getToken({ template: "supabase" });
   return createClient(supabaseUrl, supabaseKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${supabaseToken}`,
-      },
+    async accessToken() {
+      const { getToken } = getAuth(req);
+      const token = await getToken();
+      return token || '';
     },
   });
 }

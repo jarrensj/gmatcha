@@ -5,8 +5,7 @@ import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { SendIcon, Loader2Icon, LightbulbIcon } from "lucide-react"
+import { Loader2Icon } from "lucide-react"
 
 interface Message {
   id: string
@@ -18,32 +17,37 @@ interface Message {
 interface ExamplePrompt {
   text: string
   description: string
+  days: number
 }
 
 export default function ChatInterface() {
   const { user } = useUser()
   const [messages, setMessages] = useState<Message[]>([])
-  const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [loadingPromptIndex, setLoadingPromptIndex] = useState<number | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [isInitialRender, setIsInitialRender] = useState(true)
 
   const examplePrompts: ExamplePrompt[] = [
     { 
-      text: "Summarize last week's updates", 
-      description: "Get a summary of your recent work" 
+      text: "Summarize last 7 days", 
+      description: "Get a summary of your recent work",
+      days: 7
     },
     { 
-      text: "List my biggest accomplishments this quarter", 
-      description: "View your key achievements" 
+      text: "Summarize last 30 days", 
+      description: "View updates from the past month",
+      days: 30 
     },
     { 
-      text: "What have I been working on in the last month?", 
-      description: "Review your recent focus areas" 
+      text: "Summarize last 90 days", 
+      description: "Review your quarterly activity",
+      days: 90
     },
     { 
-      text: "Identify any recurring blockers from my updates", 
-      description: "Find patterns in challenges" 
+      text: "Summarize last 365 days", 
+      description: "See your progress over the past year",
+      days: 365
     }
   ]
 
@@ -61,25 +65,22 @@ export default function ChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const handlePromptClick = (promptText: string) => {
-    setInputValue(promptText)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (promptText: string, promptIndex: number) => {
+    if (!promptText.trim() || !user || isLoading) return
     
-    if (!inputValue.trim() || !user) return
+    const selectedPrompt = examplePrompts[promptIndex]
+    
+    setLoadingPromptIndex(promptIndex)
+    setIsLoading(true)
     
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: inputValue,
+      content: promptText,
       timestamp: new Date()
     }
     
     setMessages(prev => [...prev, userMessage])
-    setInputValue('')
-    setIsLoading(true)
     
     try {
       const response = await fetch('/api/chat', {
@@ -88,8 +89,9 @@ export default function ChatInterface() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: userMessage.content,
-          userId: user.id
+          message: promptText,
+          userId: user.id,
+          days: selectedPrompt.days
         }),
       })
       
@@ -120,6 +122,7 @@ export default function ChatInterface() {
       setMessages(prev => [...prev, errorMessage])
     } finally {
       setIsLoading(false)
+      setLoadingPromptIndex(null)
     }
   }
 
@@ -130,14 +133,37 @@ export default function ChatInterface() {
           key={index}
           variant="outline" 
           className="h-auto py-2 px-3 w-full flex flex-col items-center justify-center"
-          onClick={() => handlePromptClick(prompt.text)}
+          onClick={() => handleSubmit(prompt.text, index)}
+          disabled={isLoading}
         >
           <div className="w-full overflow-hidden text-center">
-            <p className="font-medium text-sm break-words line-clamp-2">{prompt.text}</p>
-            <p className="text-xs text-muted-foreground mt-1">{prompt.description}</p>
+            {loadingPromptIndex === index ? (
+              <Loader2Icon className="h-5 w-5 animate-spin mx-auto" />
+            ) : (
+              <>
+                <p className="font-medium text-sm break-words line-clamp-2">{prompt.text}</p>
+                <p className="text-xs text-muted-foreground mt-1">{prompt.description}</p>
+              </>
+            )}
           </div>
         </Button>
       ))}
+    </div>
+  )
+
+  const renderPromptInputArea = () => (
+    <div className="mt-4 border-t pt-4">
+      <div className="flex-1">
+        <Textarea
+          placeholder="Ask about your standup updates..."
+          value=""
+          disabled={true}
+          className="min-h-[60px] opacity-50 bg-muted"
+        />
+        <p className="text-xs text-muted-foreground mt-2 text-center">
+          Please use one of the predefined options above to query your updates
+        </p>
+      </div>
     </div>
   )
 
@@ -150,91 +176,48 @@ export default function ChatInterface() {
         <div className="flex-1 overflow-y-auto py-4 space-y-4">
           {messages.length === 0 ? (
             <div className="text-center text-muted-foreground py-6">
-              <p className="mb-4">Ask me anything about your standup updates!</p>
+              <p className="mb-4">Select one of these options to analyze your standup updates:</p>
               
               <div className="w-full max-w-2xl mx-auto px-2">
                 {renderExamplePromptButtons()}
               </div>
             </div>
           ) : (
-            messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
-              >
+            <>
+              {messages.map((message) => (
                 <div
-                  className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                  key={message.id}
+                  className={`flex ${
+                    message.role === 'user' ? 'justify-end' : 'justify-start'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{message.content}</p>
-                  <div className="text-xs mt-1 opacity-70">
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                  <div
+                    className={`max-w-[80%] px-4 py-2 rounded-lg ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap">{message.content}</p>
+                    <div className="text-xs mt-1 opacity-70">
+                      {message.timestamp.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
                   </div>
                 </div>
+              ))}
+              <div className="w-full max-w-2xl mx-auto px-2 mt-6">
+                <p className="text-center text-sm text-muted-foreground mb-3">Try another option:</p>
+                {renderExamplePromptButtons()}
               </div>
-            ))
+            </>
           )}
           <div ref={messagesEndRef} />
         </div>
         
-        <form onSubmit={handleSubmit} className="mt-4 border-t pt-4">
-          <div className="flex items-end gap-2">
-            <div className="flex-1 flex">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button 
-                    type="button" 
-                    size="icon" 
-                    variant="ghost" 
-                    className="h-10 w-10 rounded-r-none border-r-0"
-                    title="Suggestion prompts"
-                  >
-                    <LightbulbIcon className="h-5 w-5 text-muted-foreground" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-[350px] p-3" align="start" side="top">
-                  <div className="space-y-2">
-                    <h3 className="font-medium">Try asking about:</h3>
-                    {renderExamplePromptButtons()}
-                  </div>
-                </PopoverContent>
-              </Popover>
-              
-              <Textarea
-                placeholder="Ask about your standup updates..."
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                className="min-h-[60px] rounded-l-none"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    handleSubmit(e)
-                  }
-                }}
-              />
-            </div>
-            
-            <Button 
-              type="submit" 
-              disabled={isLoading || !inputValue.trim()}
-              className="h-10"
-            >
-              {isLoading ? (
-                <Loader2Icon className="h-5 w-5 animate-spin" />
-              ) : (
-                <SendIcon className="h-5 w-5" />
-              )}
-            </Button>
-          </div>
-        </form>
+        {renderPromptInputArea()}
       </CardContent>
     </Card>
   )

@@ -20,63 +20,15 @@ async function createClerkSupabaseClient(req: NextRequest) {
   })
 }
 
-function getDateRangeFromQuery(query: string): { startDate: string | null; endDate: string | null } {
+function getDateRangeFromDays(days: number): { startDate: string; endDate: string } {
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  let startDate: Date | null = null
-  let endDate: Date | null = today
-  
-  const lowerQuery = query.toLowerCase()
-  
-  if (lowerQuery.includes('yesterday')) {
-    const yesterday = new Date(today)
-    yesterday.setDate(yesterday.getDate() - 1)
-    startDate = yesterday
-    endDate = yesterday
-  } 
-  else if (lowerQuery.includes('last week') || lowerQuery.includes('past week')) {
-    const lastWeekStart = new Date(today)
-    lastWeekStart.setDate(lastWeekStart.getDate() - 7)
-    startDate = lastWeekStart
-  } 
-  else if (lowerQuery.includes('last month') || lowerQuery.includes('past month')) {
-    const lastMonthStart = new Date(today)
-    lastMonthStart.setMonth(lastMonthStart.getMonth() - 1)
-    startDate = lastMonthStart
-  } 
-  else if (lowerQuery.includes('this quarter') || lowerQuery.includes('current quarter')) {
-    const currentMonth = today.getMonth()
-    const quarterStartMonth = Math.floor(currentMonth / 3) * 3
-    startDate = new Date(today.getFullYear(), quarterStartMonth, 1)
-  } 
-  else if (lowerQuery.includes('last quarter') || lowerQuery.includes('previous quarter')) {
-    const currentMonth = today.getMonth()
-    const previousQuarterStartMonth = Math.floor((currentMonth - 3) / 3) * 3
-    startDate = new Date(today.getFullYear(), previousQuarterStartMonth, 1)
-    
-    const quarterEndMonth = previousQuarterStartMonth + 2
-    const quarterEndDate = new Date(today.getFullYear(), quarterEndMonth + 1, 0)
-    endDate = quarterEndDate
-  } 
-  else if (lowerQuery.includes('this year') || lowerQuery.includes('current year')) {
-    startDate = new Date(today.getFullYear(), 0, 1)
-  } 
-  else if (lowerQuery.includes('last year') || lowerQuery.includes('previous year')) {
-    startDate = new Date(today.getFullYear() - 1, 0, 1)
-    endDate = new Date(today.getFullYear() - 1, 11, 31)
-  }
-  else {
-    startDate = null
-  }
-  
-  const formatDate = (date: Date | null): string | null => {
-    if (!date) return null
-    return date.toISOString().split('T')[0]
-  }
+  const startDate = new Date(today)
+  startDate.setDate(startDate.getDate() - days)
   
   return { 
-    startDate: formatDate(startDate), 
-    endDate: formatDate(endDate) 
+    startDate: startDate.toISOString().split('T')[0], 
+    endDate: today.toISOString().split('T')[0] 
   }
 }
 
@@ -88,7 +40,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json()
-    const { message } = body
+    const { message, days } = body
     
     if (!message) {
       return NextResponse.json(
@@ -96,23 +48,24 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       )
     }
-
-    const { startDate, endDate } = getDateRangeFromQuery(message)
+    
+    if (!days || isNaN(parseInt(days))) {
+      return NextResponse.json({ 
+        response: "Please specify a valid number of days." 
+      })
+    }
+    
+    const daysNum = parseInt(days)
+    const { startDate, endDate } = getDateRangeFromDays(daysNum)
 
     const supabase = await createClerkSupabaseClient(req)
-    let query = supabase
+    const { data: updates, error } = await supabase
       .from('standupupdates')
       .select('id, text, date, created_at, updated_at, user_id')
       .eq('user_id', userId)
-      
-    if (startDate) {
-      query = query.gte('date', startDate)
-    }
-    if (endDate) {
-      query = query.lte('date', endDate)
-    }
-    
-    const { data: updates, error } = await query.order('date', { ascending: false })
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: false })
     
     if (error) {
       return NextResponse.json(
@@ -121,22 +74,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    let dateRangeInfo = ""
-    if (startDate && endDate && startDate === endDate) {
-      dateRangeInfo = `for ${startDate}`
-    } else if (startDate && endDate) {
-      dateRangeInfo = `from ${startDate} to ${endDate}`
-    } else if (startDate) {
-      dateRangeInfo = `since ${startDate}`
-    } else if (endDate) {
-      dateRangeInfo = `until ${endDate}`
-    } else {
-      dateRangeInfo = `from all time`
-    }
+    const dateRangeInfo = `from ${startDate} to ${endDate} (last ${daysNum} days)`
 
     if (updates.length === 0) {
       return NextResponse.json({ 
-        response: `I couldn't find any standup updates ${dateRangeInfo}. Try asking about a different time period or check if you have any updates recorded.` 
+        response: `I couldn't find any standup updates in the last ${daysNum} days. Try asking about a different time period or check if you have any updates recorded.` 
       })
     }
 
@@ -147,17 +89,20 @@ export async function POST(req: NextRequest) {
           role: "system",
           content: 
             "You are an AI assistant that helps users analyze their standup updates. " +
-            "Answer questions about their work history, summarize accomplishments, " +
-            "identify trends, and extract insights from their updates. " +
-            "When responding, make reference to specific dates and items from their updates to provide context. " + 
-            "Be concise but thorough, and focus on providing actionable insights."
+            "Provide a comprehensive summary organized into three sections:\n\n" +
+            "1. Key Accomplishments: List significant achievements and completed work in detail with a focus on impact and value and the dates associated with the successes\n" +
+            "2. Minor Accomplishments: List minor achievements and completed work succinctly\n" +
+            "3. Blockers & Challenges: Highlight any issues that have slowed progress\n\n" +
+            "4. Current Priorities: Identify ongoing projects and areas of focus\n" +
+            "When responding, include specific dates and concrete examples from the updates. " + 
+            "Be concise but thorough, and focus on telling a compelling story of the user's impact and value."
         },
         {
           role: "user",
           content: `Here are my standup updates ${dateRangeInfo} (${updates.length} updates total): 
                    ${JSON.stringify(updates, null, 2)}. 
                    
-                   My question is: ${message}`
+                   Please summarize my accomplishments, priorities, and blockers from these updates.`
         }
       ],
     })

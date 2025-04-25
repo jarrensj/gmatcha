@@ -2,17 +2,12 @@
 
 import StandupInput from "../components/StandupInput"
 import ChatInterface from "../components/ChatInterface"
-import MatchaBackground from "../components/MatchaBackground"
 import Footer from "../components/Footer"
 import { SignedIn } from "@clerk/nextjs"
 
 export default function Home() {
   return (
     <main className="relative min-h-screen w-full flex flex-col">
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <MatchaBackground key="home-background" />
-      </div>
-
       <h1 className="absolute top-6 left-6 text-3xl font-bold z-20">gmatcha</h1>
 
       <div className="flex-grow flex flex-col items-center pt-20 pb-10">

@@ -108,6 +108,23 @@ export async function POST(req: NextRequest) {
     })
 
     const aiResponse = completion.choices[0].message.content || "Sorry, I couldn't process your request."
+    
+    try {
+      await supabase
+        .from('chat_logs')
+        .insert([{
+          user_id: userId,
+          message: message,
+          response: aiResponse,
+          context: {
+            days: daysNum,
+            date_range: { startDate, endDate },
+            updates_count: updates.length
+          }
+        }])
+    } catch (logError) {
+      console.error('Error logging chat:', logError)
+    }
 
     return NextResponse.json({ response: aiResponse })
   } catch (error) {

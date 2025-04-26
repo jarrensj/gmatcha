@@ -84,19 +84,12 @@ export default function StandupInput() {
 
   useEffect(() => {
     if (!isLoaded) return;
-
-    if (!user) {
-      const savedData = localStorage.getItem('standupUpdate');
-      if (savedData) {
-        setSavedUpdates(JSON.parse(savedData));
-      } else {
-        setSavedUpdates([]);
-      }
-      setIsEditing(false);
-      setIsLoading(false);
-    } 
-    else {
+    
+    if (user) {
       fetchUserUpdates();
+    } else {
+      setIsLoading(false);
+      setSavedUpdates([]);
     }
   }, [user, isLoaded, fetchUserUpdates]);
 
@@ -107,42 +100,25 @@ export default function StandupInput() {
   }, [date]);
 
   const handleSave = async () => {
-    const now = new Date().toISOString();
+    if (!user) return;
     
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-    
-    const updateBeingEdited = editingUpdateId 
-      ? savedUpdates.find(update => update.id === editingUpdateId)
-      : null;
-
-    const updateData: StandupUpdate = {
-      text: update,
-      created_at: updateBeingEdited?.created_at || now,
-      date: dateStr,
-      user_id: user?.id,
-      ...(isEditing ? { updated_at: now } : {})
-    };
 
     try {
-      if (user) {
-        const response = await fetch('/api/updates', {
-          method: isEditing ? 'PUT' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            text: update,
-            user_id: user.id,
-            date: dateStr,
-            ...(isEditing && editingUpdateId && { id: editingUpdateId }),
-          }),
-        });
+      const response = await fetch('/api/updates', {
+        method: isEditing ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: update,
+          user_id: user.id,
+          date: dateStr,
+          ...(isEditing && editingUpdateId && { id: editingUpdateId }),
+        }),
+      });
 
-        if (!response.ok) throw new Error('Failed to save update');
-        await fetchUserUpdates();
-        setEditingUpdateId(null);
-      } else {
-        localStorage.setItem('standupUpdate', JSON.stringify(updateData));
-        setSavedUpdates([updateData]);
-      }
+      if (!response.ok) throw new Error('Failed to save update');
+      await fetchUserUpdates();
+      setEditingUpdateId(null);
 
       setUpdate('');
       setIsEditing(false);
@@ -183,23 +159,20 @@ export default function StandupInput() {
   };
 
   const handleDelete = async (updateId: string) => {
+    if (!user) return;
+    
     try {
-      if (user) {
-        const response = await fetch(`/api/updates?id=${updateId}&user_id=${user.id}`, {
-          method: 'DELETE',
-        });
-        if (!response.ok) throw new Error('Failed to delete update');
-        
-        setSavedUpdates(prev => prev.filter(update => update.id !== updateId));
-        
-        if (editingUpdateId === updateId) {
-          setIsEditing(false);
-          setUpdate('');
-          setEditingUpdateId(null);
-        }
-      } else {
-        localStorage.removeItem('standupUpdate');
-        setSavedUpdates([]);
+      const response = await fetch(`/api/updates?id=${updateId}&user_id=${user.id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete update');
+      
+      setSavedUpdates(prev => prev.filter(update => update.id !== updateId));
+      
+      if (editingUpdateId === updateId) {
+        setIsEditing(false);
+        setUpdate('');
+        setEditingUpdateId(null);
       }
     } catch (error) {
       console.error('Error deleting update:', error);

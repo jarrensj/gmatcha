@@ -27,13 +27,13 @@ export default function Home() {
         </div>
         
         <div className="w-full flex justify-center pb-16">
-          <div className="relative z-10 w-full max-w-4xl px-4">
+          <div className="relative z-30 w-full max-w-4xl px-4">
             <ChatInterface />
           </div>
         </div>
       </SignedIn>
 
-      <div className="relative z-20 w-full py-4">
+      <div className="relative z-10 w-full py-4">
         <Footer />
       </div>
     </main>

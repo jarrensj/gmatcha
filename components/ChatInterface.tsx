@@ -135,21 +135,21 @@ export default function ChatInterface() {
     <Card
       className={cn(
         "fixed right-4 transition-all duration-300 shadow-lg flex flex-col",
-        isMinimized ? "bottom-4 h-14 w-80" : "bottom-4 h-[500px] w-80 max-h-[80vh]",
+        isMinimized ? "bottom-4 h-14 w-80" : "bottom-4 h-[400px] w-80 max-h-[80vh]",
       )}
     >
       {/* Chat Header */}
-      <div className="flex items-center justify-between p-3 border-b">
+      <div className="flex items-center justify-between p-2 border-b">
         <div className="flex items-center gap-2">
-          <MessageSquare className="h-5 w-5" />
-          <h3 className="font-medium">AI Assistant</h3>
+          <MessageSquare className="h-4 w-4" />
+          <h3 className="text-sm font-medium">AI Assistant</h3>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsMinimized(!isMinimized)}>
-            {isMinimized ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsMinimized(!isMinimized)}>
+            {isMinimized ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsOpen(false)}>
-            <X className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsOpen(false)}>
+            <X className="h-3 w-3" />
           </Button>
         </div>
       </div>
@@ -158,31 +158,11 @@ export default function ChatInterface() {
       {!isMinimized && (
         <>
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-4">
+          <div className="flex-1 overflow-y-auto p-2 space-y-2">
             {messages.length === 0 ? (
-              <div className="text-center text-muted-foreground py-6">
-                <p className="mb-4">Select one of these options to analyze your standup updates:</p>
-                <div className="grid grid-cols-1 gap-2">
-                  {examplePrompts.map((prompt, index) => (
-                    <Button 
-                      key={index}
-                      variant="outline" 
-                      className="h-auto py-2 px-3 w-full flex flex-col items-center justify-center"
-                      onClick={() => handleSubmit(prompt.text, index)}
-                      disabled={isLoading}
-                    >
-                      <div className="w-full overflow-hidden text-center">
-                        {loadingPromptIndex === index ? (
-                          <Loader2Icon className="h-5 w-5 animate-spin mx-auto" />
-                        ) : (
-                          <>
-                            <p className="font-medium text-sm break-words line-clamp-2">{prompt.text}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{prompt.description}</p>
-                          </>
-                        )}
-                      </div>
-                    </Button>
-                  ))}
+              <div className="text-muted-foreground">
+                <div className="bg-muted p-2 rounded-lg text-sm max-w-[80%] mr-auto">
+                  Hello! How can I help you today? Please select one of the options below.
                 </div>
               </div>
             ) : (
@@ -191,14 +171,14 @@ export default function ChatInterface() {
                   <div
                     key={message.id}
                     className={cn(
-                      "max-w-[80%] p-3 rounded-lg",
+                      "max-w-[80%] p-2 rounded-lg text-sm",
                       message.role === 'user' 
                         ? "bg-primary text-primary-foreground ml-auto" 
                         : "bg-muted mr-auto"
                     )}
                   >
                     <p className="whitespace-pre-wrap">{message.content}</p>
-                    <div className="text-xs mt-1 opacity-70">
+                    <div className="text-[10px] mt-1 opacity-70">
                       {message.timestamp.toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit'
@@ -206,34 +186,63 @@ export default function ChatInterface() {
                     </div>
                   </div>
                 ))}
-                <div className="w-full">
-                  <p className="text-center text-sm text-muted-foreground mb-3">Try another option:</p>
-                  <div className="grid grid-cols-1 gap-2">
-                    {examplePrompts.map((prompt, index) => (
-                      <Button 
-                        key={index}
-                        variant="outline" 
-                        className="h-auto py-2 px-3 w-full flex flex-col items-center justify-center"
-                        onClick={() => handleSubmit(prompt.text, index)}
-                        disabled={isLoading}
-                      >
-                        <div className="w-full overflow-hidden text-center">
-                          {loadingPromptIndex === index ? (
-                            <Loader2Icon className="h-5 w-5 animate-spin mx-auto" />
-                          ) : (
-                            <>
-                              <p className="font-medium text-sm break-words line-clamp-2">{prompt.text}</p>
-                              <p className="text-xs text-muted-foreground mt-1">{prompt.description}</p>
-                            </>
-                          )}
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
-                </div>
               </>
             )}
             <div ref={messagesEndRef} />
+          </div>
+
+          {/* Options Area */}
+          <div className="p-2 border-t">
+            {messages.length === 0 ? (
+              <div className="grid grid-cols-1 gap-1.5">
+                {examplePrompts.map((prompt, index) => (
+                  <Button 
+                    key={index}
+                    variant="outline" 
+                    className="justify-start text-left h-auto py-1.5 px-3 text-sm"
+                    onClick={() => handleSubmit(prompt.text, index)}
+                    disabled={isLoading}
+                  >
+                    <div className="w-full overflow-hidden">
+                      {loadingPromptIndex === index ? (
+                        <Loader2Icon className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          <p className="font-medium">{prompt.text}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{prompt.description}</p>
+                        </>
+                      )}
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-center text-xs text-muted-foreground">Try another option:</p>
+                <div className="grid grid-cols-1 gap-1.5">
+                  {examplePrompts.map((prompt, index) => (
+                    <Button 
+                      key={index}
+                      variant="outline" 
+                      className="justify-start text-left h-auto py-1.5 px-3 text-sm"
+                      onClick={() => handleSubmit(prompt.text, index)}
+                      disabled={isLoading}
+                    >
+                      <div className="w-full overflow-hidden">
+                        {loadingPromptIndex === index ? (
+                          <Loader2Icon className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <p className="font-medium">{prompt.text}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{prompt.description}</p>
+                          </>
+                        )}
+                      </div>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}

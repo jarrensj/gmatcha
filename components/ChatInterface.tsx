@@ -26,7 +26,7 @@ export default function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false)
   const [loadingPromptIndex, setLoadingPromptIndex] = useState<number | null>(null)
   const [isOpen, setIsOpen] = useState(true)
-  const [isMinimized, setIsMinimized] = useState(false)
+  const [isMinimized, setIsMinimized] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [isInitialRender, setIsInitialRender] = useState(true)
 

@@ -135,8 +135,9 @@ export default function ChatInterface() {
     <Card
       className={cn(
         "fixed right-4 transition-all duration-300 shadow-lg flex flex-col",
-        isMinimized ? "bottom-4 h-14 w-80" : "bottom-4 h-[400px] w-80 max-h-[80vh]",
+        isMinimized ? "bottom-4 h-14 w-80 cursor-pointer" : "bottom-4 h-[400px] w-80 max-h-[80vh]",
       )}
+      onClick={() => isMinimized && setIsMinimized(false)}
     >
       {/* Chat Header */}
       <div className="flex items-center justify-between p-2 border-b">
@@ -145,10 +146,16 @@ export default function ChatInterface() {
           <h3 className="text-sm font-medium">AI Assistant</h3>
         </div>
         <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsMinimized(!isMinimized)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
+            e.stopPropagation();
+            setIsMinimized(!isMinimized);
+          }}>
             {isMinimized ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
           </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsOpen(false)}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
+            e.stopPropagation();
+            setIsOpen(false);
+          }}>
             <X className="h-3 w-3" />
           </Button>
         </div>

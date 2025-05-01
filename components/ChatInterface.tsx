@@ -138,110 +138,129 @@ export default function ChatInterface() {
         isMinimized ? "bottom-4 h-14 w-80" : "bottom-4 h-[400px] w-80 max-h-[80vh]",
       )}
     >
-      {/* Chat Header */}
-      <div className="flex items-center justify-between p-2 border-b">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4" />
-          <h3 className="text-sm font-medium">AI Assistant</h3>
-        </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsMinimized(!isMinimized)}>
-            {isMinimized ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsOpen(false)}>
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Chat Content - only visible when not minimized */}
-      {!isMinimized && (
-        <>
-          {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-2 space-y-2">
-            {messages.length === 0 ? (
-              <div className="text-muted-foreground">
-                <div className="bg-muted p-2 rounded-lg text-sm max-w-[80%] mr-auto">
-                  Hello! How can I help you today? Please select one of the options below.
-                </div>
-              </div>
-            ) : (
-              <>
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={cn(
-                      "max-w-[80%] p-2 rounded-lg text-sm",
-                      message.role === 'user' 
-                        ? "bg-primary text-primary-foreground ml-auto" 
-                        : "bg-muted mr-auto"
-                    )}
-                  >
-                    <p className="whitespace-pre-wrap">{message.content}</p>
-                    <div className="text-[10px] mt-1 opacity-70">
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-            <div ref={messagesEndRef} />
+      <div 
+        className={cn(
+          "flex flex-col h-full",
+          isMinimized && "cursor-pointer"
+        )}
+        onClick={() => isMinimized && setIsMinimized(false)}
+      >
+        {/* Chat Header */}
+        <div className="flex items-center justify-between p-2 border-b" onClick={(e) => {
+          if (!isMinimized) {
+            e.stopPropagation();
+            setIsMinimized(true);
+          }
+        }}>
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            <h3 className="text-sm font-medium">AI Assistant</h3>
           </div>
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
+              e.stopPropagation();
+              setIsMinimized(!isMinimized);
+            }}>
+              {isMinimized ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(false);
+            }}>
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
 
-          {/* Options Area */}
-          <div className="p-2 border-t">
-            {messages.length === 0 ? (
-              <div className="grid grid-cols-1 gap-1.5">
-                {examplePrompts.map((prompt, index) => (
-                  <Button 
-                    key={index}
-                    variant="outline" 
-                    className="justify-start text-left h-auto py-1.5 px-3 text-sm"
-                    onClick={() => handleSubmit(prompt.text, index)}
-                    disabled={isLoading}
-                  >
-                    <div className="w-full overflow-hidden">
-                      {loadingPromptIndex === index ? (
-                        <Loader2Icon className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <p className="font-medium">{prompt.text}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{prompt.description}</p>
-                        </>
+        {/* Chat Content - only visible when not minimized */}
+        {!isMinimized && (
+          <>
+            {/* Messages Area */}
+            <div className="flex-1 overflow-y-auto p-2 space-y-2">
+              {messages.length === 0 ? (
+                <div className="text-muted-foreground">
+                  <div className="bg-muted p-2 rounded-lg text-sm max-w-[80%] mr-auto">
+                    Hello! How can I help you today? Please select one of the options below.
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {messages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={cn(
+                        "max-w-[80%] p-2 rounded-lg text-sm",
+                        message.role === 'user' 
+                          ? "bg-primary text-primary-foreground ml-auto" 
+                          : "bg-muted mr-auto"
                       )}
+                    >
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                      <div className="text-[10px] mt-1 opacity-70">
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </div>
                     </div>
-                  </Button>
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-1">
-                <p className="text-center text-xs text-muted-foreground">Try another option:</p>
-                <div className="flex flex-wrap gap-1.5">
+                  ))}
+                </>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Options Area */}
+            <div className="p-2 border-t">
+              {messages.length === 0 ? (
+                <div className="grid grid-cols-1 gap-1.5">
                   {examplePrompts.map((prompt, index) => (
                     <Button 
                       key={index}
                       variant="outline" 
-                      size="sm"
-                      className="h-7 px-2 text-xs"
+                      className="justify-start text-left h-auto py-1.5 px-3 text-sm"
                       onClick={() => handleSubmit(prompt.text, index)}
                       disabled={isLoading}
                     >
-                      {loadingPromptIndex === index ? (
-                        <Loader2Icon className="h-3 w-3 animate-spin" />
-                      ) : (
-                        prompt.text
-                      )}
+                      <div className="w-full overflow-hidden">
+                        {loadingPromptIndex === index ? (
+                          <Loader2Icon className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <p className="font-medium">{prompt.text}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{prompt.description}</p>
+                          </>
+                        )}
+                      </div>
                     </Button>
                   ))}
                 </div>
-              </div>
-            )}
-          </div>
-        </>
-      )}
+              ) : (
+                <div className="space-y-1">
+                  <p className="text-center text-xs text-muted-foreground">Try another option:</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {examplePrompts.map((prompt, index) => (
+                      <Button 
+                        key={index}
+                        variant="outline" 
+                        size="sm"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => handleSubmit(prompt.text, index)}
+                        disabled={isLoading}
+                      >
+                        {loadingPromptIndex === index ? (
+                          <Loader2Icon className="h-3 w-3 animate-spin" />
+                        ) : (
+                          prompt.text
+                        )}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
     </Card>
   )
 } 

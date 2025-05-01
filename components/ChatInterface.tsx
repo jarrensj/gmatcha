@@ -45,11 +45,6 @@ export default function ChatInterface() {
       text: "Summarize last 90 days", 
       description: "Review your quarterly activity",
       days: 90
-    },
-    { 
-      text: "Summarize last 365 days", 
-      description: "See your progress over the past year",
-      days: 365
     }
   ]
 

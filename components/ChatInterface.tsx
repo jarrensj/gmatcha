@@ -137,10 +137,21 @@ export default function ChatInterface() {
         "fixed right-4 transition-all duration-300 shadow-lg flex flex-col",
         isMinimized ? "bottom-4 h-14 w-80 cursor-pointer" : "bottom-4 h-[400px] w-80 max-h-[80vh]",
       )}
-      onClick={() => isMinimized && setIsMinimized(false)}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (!isMinimized) {
+          setIsMinimized(true);
+        }
+      }}
     >
       {/* Chat Header */}
-      <div className="flex items-center justify-between p-2 border-b">
+      <div 
+        className="flex items-center justify-between p-2 border-b cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsMinimized(!isMinimized);
+        }}
+      >
         <div className="flex items-center gap-2">
           <MessageSquare className="h-4 w-4" />
           <h3 className="text-sm font-medium">AI Assistant</h3>

@@ -217,27 +217,23 @@ export default function ChatInterface() {
                 ))}
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <p className="text-center text-xs text-muted-foreground">Try another option:</p>
-                <div className="grid grid-cols-1 gap-1.5">
+                <div className="flex flex-wrap gap-1.5">
                   {examplePrompts.map((prompt, index) => (
                     <Button 
                       key={index}
                       variant="outline" 
-                      className="justify-start text-left h-auto py-1.5 px-3 text-sm"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
                       onClick={() => handleSubmit(prompt.text, index)}
                       disabled={isLoading}
                     >
-                      <div className="w-full overflow-hidden">
-                        {loadingPromptIndex === index ? (
-                          <Loader2Icon className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <>
-                            <p className="font-medium">{prompt.text}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{prompt.description}</p>
-                          </>
-                        )}
-                      </div>
+                      {loadingPromptIndex === index ? (
+                        <Loader2Icon className="h-3 w-3 animate-spin" />
+                      ) : (
+                        prompt.text
+                      )}
                     </Button>
                   ))}
                 </div>

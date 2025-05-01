@@ -3,9 +3,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import { Loader2Icon } from "lucide-react"
+import { Card } from "@/components/ui/card"
+import { Loader2Icon, MessageSquare, ChevronUp, ChevronDown, X } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface Message {
   id: string
@@ -25,6 +25,8 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [loadingPromptIndex, setLoadingPromptIndex] = useState<number | null>(null)
+  const [isOpen, setIsOpen] = useState(true)
+  const [isMinimized, setIsMinimized] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [isInitialRender, setIsInitialRender] = useState(true)
 
@@ -126,77 +128,79 @@ export default function ChatInterface() {
     }
   }
 
-  const renderExamplePromptButtons = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-      {examplePrompts.map((prompt, index) => (
-        <Button 
-          key={index}
-          variant="outline" 
-          className="h-auto py-2 px-3 w-full flex flex-col items-center justify-center"
-          onClick={() => handleSubmit(prompt.text, index)}
-          disabled={isLoading}
-        >
-          <div className="w-full overflow-hidden text-center">
-            {loadingPromptIndex === index ? (
-              <Loader2Icon className="h-5 w-5 animate-spin mx-auto" />
-            ) : (
-              <>
-                <p className="font-medium text-sm break-words line-clamp-2">{prompt.text}</p>
-                <p className="text-xs text-muted-foreground mt-1">{prompt.description}</p>
-              </>
-            )}
-          </div>
-        </Button>
-      ))}
-    </div>
-  )
-
-  const renderPromptInputArea = () => (
-    <div className="mt-4 border-t pt-4">
-      <div className="flex-1">
-        <Textarea
-          placeholder="Ask about your standup updates..."
-          value=""
-          disabled={true}
-          className="min-h-[60px] opacity-50 bg-muted"
-        />
-        <p className="text-xs text-muted-foreground mt-2 text-center">
-          Please use one of the predefined options above to query your updates
-        </p>
-      </div>
-    </div>
-  )
+  if (!isOpen) {
+    return (
+      <Button onClick={() => setIsOpen(true)} className="fixed bottom-4 right-4 rounded-full p-3 shadow-lg">
+        <MessageSquare className="h-6 w-6" />
+      </Button>
+    )
+  }
 
   return (
-    <Card className="shadow-lg border-2">
-      <CardHeader className="border-b pb-3">
-        <h2 className="text-xl font-semibold">AI Assistant</h2>
-      </CardHeader>
-      <CardContent className="flex flex-col h-[400px]">
-        <div className="flex-1 overflow-y-auto py-4 space-y-4">
-          {messages.length === 0 ? (
-            <div className="text-center text-muted-foreground py-6">
-              <p className="mb-4">Select one of these options to analyze your standup updates:</p>
-              
-              <div className="w-full max-w-2xl mx-auto px-2">
-                {renderExamplePromptButtons()}
+    <Card
+      className={cn(
+        "fixed right-4 transition-all duration-300 shadow-lg flex flex-col",
+        isMinimized ? "bottom-4 h-14 w-80" : "bottom-4 h-[500px] w-80 max-h-[80vh]",
+      )}
+    >
+      {/* Chat Header */}
+      <div className="flex items-center justify-between p-3 border-b">
+        <div className="flex items-center gap-2">
+          <MessageSquare className="h-5 w-5" />
+          <h3 className="font-medium">AI Assistant</h3>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsMinimized(!isMinimized)}>
+            {isMinimized ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsOpen(false)}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Chat Content - only visible when not minimized */}
+      {!isMinimized && (
+        <>
+          {/* Messages Area */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-4">
+            {messages.length === 0 ? (
+              <div className="text-center text-muted-foreground py-6">
+                <p className="mb-4">Select one of these options to analyze your standup updates:</p>
+                <div className="grid grid-cols-1 gap-2">
+                  {examplePrompts.map((prompt, index) => (
+                    <Button 
+                      key={index}
+                      variant="outline" 
+                      className="h-auto py-2 px-3 w-full flex flex-col items-center justify-center"
+                      onClick={() => handleSubmit(prompt.text, index)}
+                      disabled={isLoading}
+                    >
+                      <div className="w-full overflow-hidden text-center">
+                        {loadingPromptIndex === index ? (
+                          <Loader2Icon className="h-5 w-5 animate-spin mx-auto" />
+                        ) : (
+                          <>
+                            <p className="font-medium text-sm break-words line-clamp-2">{prompt.text}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{prompt.description}</p>
+                          </>
+                        )}
+                      </div>
+                    </Button>
+                  ))}
+                </div>
               </div>
-            </div>
-          ) : (
-            <>
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
+            ) : (
+              <>
+                {messages.map((message) => (
                   <div
-                    className={`max-w-[80%] px-4 py-2 rounded-lg ${
-                      message.role === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
-                    }`}
+                    key={message.id}
+                    className={cn(
+                      "max-w-[80%] p-3 rounded-lg",
+                      message.role === 'user' 
+                        ? "bg-primary text-primary-foreground ml-auto" 
+                        : "bg-muted mr-auto"
+                    )}
                   >
                     <p className="whitespace-pre-wrap">{message.content}</p>
                     <div className="text-xs mt-1 opacity-70">
@@ -206,19 +210,38 @@ export default function ChatInterface() {
                       })}
                     </div>
                   </div>
+                ))}
+                <div className="w-full">
+                  <p className="text-center text-sm text-muted-foreground mb-3">Try another option:</p>
+                  <div className="grid grid-cols-1 gap-2">
+                    {examplePrompts.map((prompt, index) => (
+                      <Button 
+                        key={index}
+                        variant="outline" 
+                        className="h-auto py-2 px-3 w-full flex flex-col items-center justify-center"
+                        onClick={() => handleSubmit(prompt.text, index)}
+                        disabled={isLoading}
+                      >
+                        <div className="w-full overflow-hidden text-center">
+                          {loadingPromptIndex === index ? (
+                            <Loader2Icon className="h-5 w-5 animate-spin mx-auto" />
+                          ) : (
+                            <>
+                              <p className="font-medium text-sm break-words line-clamp-2">{prompt.text}</p>
+                              <p className="text-xs text-muted-foreground mt-1">{prompt.description}</p>
+                            </>
+                          )}
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-              ))}
-              <div className="w-full max-w-2xl mx-auto px-2 mt-6">
-                <p className="text-center text-sm text-muted-foreground mb-3">Try another option:</p>
-                {renderExamplePromptButtons()}
-              </div>
-            </>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-        
-        {renderPromptInputArea()}
-      </CardContent>
+              </>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </>
+      )}
     </Card>
   )
 } 

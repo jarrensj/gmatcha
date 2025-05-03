@@ -44,7 +44,6 @@ export default function StandupInput() {
   const [currentWork, setCurrentWork] = useState('');
   const [yesterdayWork, setYesterdayWork] = useState('');
   const [blockers, setBlockers] = useState('');
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [updateToDelete, setUpdateToDelete] = useState<string | null>(null);
 
   useEffect(() => {
@@ -352,7 +351,6 @@ export default function StandupInput() {
                           className="h-8 text-xs text-red-500 hover:text-red-700 hover:bg-red-50"
                           onClick={() => {
                             setUpdateToDelete(update.id!);
-                            setIsDeleteDialogOpen(true);
                           }}
                         >
                           Delete
@@ -374,7 +372,6 @@ export default function StandupInput() {
                                 handleDelete(updateToDelete);
                                 setUpdateToDelete(null);
                               }
-                              setIsDeleteDialogOpen(false);
                             }}
                           >
                             Confirm

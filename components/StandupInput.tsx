@@ -7,9 +7,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import JSConfetti from 'js-confetti'
 import { useUser } from '@clerk/nextjs'
 import Link from 'next/link'
-import { FaMicrophoneAlt, FaMagic } from 'react-icons/fa'
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -27,7 +25,6 @@ interface StandupUpdate {
 
 export default function StandupInput() {
   const { user, isLoaded } = useUser()
-  const [update, setUpdate] = useState('')
   const [savedUpdates, setSavedUpdates] = useState<StandupUpdate[]>([])
   const [isEditing, setIsEditing] = useState(false)
   const [showLatestUpdate, setShowLatestUpdate] = useState(false)
@@ -36,10 +33,6 @@ export default function StandupInput() {
   const [selectedDay, setSelectedDay] = useState(new Date().getDate());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const jsConfettiRef = useRef<JSConfetti | null>(null)
-  const [isRecording, setIsRecording] = useState<boolean>(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
-  const [isFormatting, setIsFormatting] = useState<boolean>(false);
   const [showEditNotification, setShowEditNotification] = useState(false);
   const [editingUpdateId, setEditingUpdateId] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -52,6 +45,9 @@ export default function StandupInput() {
   } | null>(null);
   const [date, setDate] = useState<Date>(new Date())
   const [isVoiceDialogOpen, setIsVoiceDialogOpen] = useState(false);
+  const [currentWork, setCurrentWork] = useState('');
+  const [yesterdayWork, setYesterdayWork] = useState('');
+  const [blockers, setBlockers] = useState('');
 
   useEffect(() => {
     jsConfettiRef.current = new JSConfetti();
@@ -70,7 +66,6 @@ export default function StandupInput() {
         data.sort((a: StandupUpdate, b: StandupUpdate) => new Date(b.date).getTime() - new Date(a.date).getTime());
         setSavedUpdates(data.slice(0, 7));
         setIsEditing(false);
-        setUpdate('');
       } else {
         setSavedUpdates([]);
       }
@@ -103,13 +98,14 @@ export default function StandupInput() {
     if (!user) return;
     
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const combinedUpdate = `What are you working on?\n${currentWork}\n\nWhat did you work on yesterday?\n${yesterdayWork}\n\nWhat are your blockers?\n${blockers}`;
 
     try {
       const response = await fetch('/api/updates', {
         method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: update,
+          text: combinedUpdate,
           user_id: user.id,
           date: dateStr,
           ...(isEditing && editingUpdateId && { id: editingUpdateId }),
@@ -120,7 +116,9 @@ export default function StandupInput() {
       await fetchUserUpdates();
       setEditingUpdateId(null);
 
-      setUpdate('');
+      setCurrentWork('');
+      setYesterdayWork('');
+      setBlockers('');
       setIsEditing(false);
       if (jsConfettiRef.current) {
         jsConfettiRef.current.addConfetti({
@@ -136,15 +134,17 @@ export default function StandupInput() {
 
   const handleEdit = (updateToEdit: StandupUpdate) => {
     const [year, month, day] = updateToEdit.date.split('-').map(Number);
-    
     const updateDate = new Date(year, month - 1, day);
     setDate(updateDate);
-    
     setSelectedMonth(month - 1);
     setSelectedDay(day);
     setSelectedYear(year);
     
-    setUpdate(updateToEdit.text);
+    const [current, yesterday, blockers] = updateToEdit.text.split('\n\n');
+    setCurrentWork(current.replace('What are you working on?\n', ''));
+    setYesterdayWork(yesterday.replace('What did you work on yesterday?\n', ''));
+    setBlockers(blockers.replace('What are your blockers?\n', ''));
+    
     setOriginalText(updateToEdit.text);
     setOriginalDate({
       month: month - 1,
@@ -171,87 +171,10 @@ export default function StandupInput() {
       
       if (editingUpdateId === updateId) {
         setIsEditing(false);
-        setUpdate('');
         setEditingUpdateId(null);
       }
     } catch (error) {
       console.error('Error deleting update:', error);
-    }
-  };
-
-  const startRecording = async (shouldAppend = false) => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      const chunks: Blob[] = [];
-      
-      recorder.ondataavailable = (e) => chunks.push(e.data);
-      
-      recorder.onstop = async () => {
-        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
-        
-        try {
-          const response = await fetch('/api/transcribe', {
-            method: 'POST',
-            body: audioBlob,
-            headers: {
-              'Content-Type': 'audio/webm',
-            },
-          });
-          if (!response.ok) throw new Error('Transcription failed');
-          
-          const { text } = await response.json();
-          if (shouldAppend) {
-            setUpdate(prev => `${prev}\n\n${text}`);
-          } else {
-            setUpdate(text);
-          }
-        } catch (error) {
-          console.error('Transcription error:', error);
-        } finally {
-          setIsTranscribing(false);
-        }
-      };
-      
-      recorder.start();
-      setIsRecording(true);
-      setMediaRecorder(recorder);
-    } catch (error) {
-      alert('Failed to start recording');
-      console.error(error);
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorder && isRecording) {
-      setIsTranscribing(true);
-      mediaRecorder.stop();
-      mediaRecorder.stream.getTracks().forEach(track => track.stop());
-      setIsRecording(false);
-    }
-  };
-
-  const formatNote = async () => {
-    if (!update.trim()) return;
-    
-    setIsFormatting(true);
-    try {
-      const response = await fetch('/api/format-note', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ text: update }),
-      });
-      
-      if (!response.ok) throw new Error('Failed to format note');
-      
-      const { formattedText } = await response.json();
-      setUpdate(formattedText);
-    } catch (error) {
-      console.error('Error formatting note:', error);
-    } finally {
-      setIsFormatting(false);
     }
   };
 
@@ -266,11 +189,6 @@ export default function StandupInput() {
         <CardHeader className="pb-3 space-y-4">
           <div className="flex justify-between items-center w-full">
             <div className="flex items-center gap-3">
-              {isTranscribing && (
-                <div className="text-green-500 font-medium bg-green-50 px-3 py-1 rounded-md animate-pulse">
-                  Transcribing...
-                </div>
-              )}
             </div>
           </div>
         </CardHeader>
@@ -309,70 +227,42 @@ export default function StandupInput() {
                   </PopoverContent>
                 </Popover>
               </div>
-              <div className="relative">
+              <div className="relative mb-6">
                 <Textarea
-                  placeholder="What did you work on yesterday? What are you working on today? Do you have any blockers?"
-                  value={update}
-                  onChange={(e) => setUpdate(e.target.value)}
-                  className="min-h-[200px] mb-6 text-lg leading-relaxed"
-                  disabled={isTranscribing || isRecording}
+                  placeholder="What are you working on?"
+                  value={currentWork}
+                  onChange={(e) => setCurrentWork(e.target.value)}
+                  className="min-h-[100px] mb-3 text-lg leading-relaxed"
+                />
+                <Textarea
+                  placeholder="What did you work on yesterday?"
+                  value={yesterdayWork}
+                  onChange={(e) => setYesterdayWork(e.target.value)}
+                  className="min-h-[100px] mb-3 text-lg leading-relaxed"
+                />
+                <Textarea
+                  placeholder="What are your blockers?"
+                  value={blockers}
+                  onChange={(e) => setBlockers(e.target.value)}
+                  className="min-h-[100px] mb-6 text-lg leading-relaxed"
                 />
               </div>
               <div className="flex flex-wrap gap-3 items-center">
-                {!isRecording ? (
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      if (update.trim()) {
-                        setIsVoiceDialogOpen(true);
-                      } else {
-                        startRecording(true);
-                      }
-                    }}
-                  >
-                    <FaMicrophoneAlt />
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    onClick={stopRecording}
-                    className="bg-red-100"
-                  >
-                    Stop Recording
-                  </Button>
-                )}
-                <TooltipProvider delayDuration={500}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        onClick={formatNote}
-                        disabled={!update.trim() || isFormatting}
-                        className={isFormatting ? "bg-blue-100" : ""}
-                      >
-                        {isFormatting ? 'Formatting...' : <FaMagic className="mr-2" />}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Format your update with AI</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
                 <div className="flex-1 flex flex-wrap justify-end gap-3 w-full sm:w-auto mt-3 sm:mt-0">
                   <Button 
                     size="lg" 
                     onClick={handleSave} 
-                    disabled={!update.trim() || (
+                    disabled={!(currentWork.trim() || yesterdayWork.trim() || blockers.trim()) || (
                       isEditing && 
-                      update === originalText && 
+                      currentWork === originalText && 
                       selectedMonth === originalDate?.month &&
                       selectedDay === originalDate?.day &&
                       selectedYear === originalDate?.year
                     )} 
                     className={`w-full sm:w-32 transition-colors ${
-                      !update.trim() || (
+                      !(currentWork.trim() || yesterdayWork.trim() || blockers.trim()) || (
                         isEditing &&
-                        update === originalText &&
+                        currentWork === originalText &&
                         selectedMonth === originalDate?.month &&
                         selectedDay === originalDate?.day &&
                         selectedYear === originalDate?.year
@@ -390,7 +280,9 @@ export default function StandupInput() {
                       className="hover:bg-secondary w-full sm:w-32"
                       onClick={() => {
                         setIsEditing(false);
-                        setUpdate('');
+                        setCurrentWork('');
+                        setYesterdayWork('');
+                        setBlockers('');
                         setEditingUpdateId(null);
                       }}
                     >
@@ -539,9 +431,6 @@ export default function StandupInput() {
             <Button
               onClick={() => {
                 setIsVoiceDialogOpen(false);
-                setTimeout(() => {
-                  startRecording(false);
-                }, 100);
               }}
               variant="destructive"
             >
@@ -550,9 +439,6 @@ export default function StandupInput() {
             <Button
               onClick={() => {
                 setIsVoiceDialogOpen(false);
-                setTimeout(() => {
-                  startRecording(true);
-                }, 100);
               }}
               variant="default"
             >

@@ -134,13 +134,16 @@ export default function StandupInput() {
 
   const handleEdit = (updateToEdit: StandupUpdate) => {
     const [year, month, day] = updateToEdit.date.split('-').map(Number);
-    
     const updateDate = new Date(year, month - 1, day);
     setDate(updateDate);
-    
     setSelectedMonth(month - 1);
     setSelectedDay(day);
     setSelectedYear(year);
+    
+    const [current, yesterday, blockers] = updateToEdit.text.split('\n\n');
+    setCurrentWork(current.replace('What are you working on?\n', ''));
+    setYesterdayWork(yesterday.replace('What did you work on yesterday?\n', ''));
+    setBlockers(blockers.replace('What are your blockers?\n', ''));
     
     setOriginalText(updateToEdit.text);
     setOriginalDate({

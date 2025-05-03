@@ -52,6 +52,9 @@ export default function StandupInput() {
   } | null>(null);
   const [date, setDate] = useState<Date>(new Date())
   const [isVoiceDialogOpen, setIsVoiceDialogOpen] = useState(false);
+  const [currentWork, setCurrentWork] = useState('');
+  const [yesterdayWork, setYesterdayWork] = useState('');
+  const [blockers, setBlockers] = useState('');
 
   useEffect(() => {
     jsConfettiRef.current = new JSConfetti();
@@ -103,13 +106,14 @@ export default function StandupInput() {
     if (!user) return;
     
     const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const combinedUpdate = `What are you working on?\n${currentWork}\n\nWhat did you work on yesterday?\n${yesterdayWork}\n\nWhat are your blockers?\n${blockers}`;
 
     try {
       const response = await fetch('/api/updates', {
         method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: update,
+          text: combinedUpdate,
           user_id: user.id,
           date: dateStr,
           ...(isEditing && editingUpdateId && { id: editingUpdateId }),
@@ -120,7 +124,9 @@ export default function StandupInput() {
       await fetchUserUpdates();
       setEditingUpdateId(null);
 
-      setUpdate('');
+      setCurrentWork('');
+      setYesterdayWork('');
+      setBlockers('');
       setIsEditing(false);
       if (jsConfettiRef.current) {
         jsConfettiRef.current.addConfetti({
@@ -309,12 +315,26 @@ export default function StandupInput() {
                   </PopoverContent>
                 </Popover>
               </div>
-              <div className="relative">
+              <div className="relative mb-6">
                 <Textarea
-                  placeholder="What did you work on yesterday? What are you working on today? Do you have any blockers?"
-                  value={update}
-                  onChange={(e) => setUpdate(e.target.value)}
-                  className="min-h-[200px] mb-6 text-lg leading-relaxed"
+                  placeholder="What are you working on?"
+                  value={currentWork}
+                  onChange={(e) => setCurrentWork(e.target.value)}
+                  className="min-h-[100px] mb-3 text-lg leading-relaxed"
+                  disabled={isTranscribing || isRecording}
+                />
+                <Textarea
+                  placeholder="What did you work on yesterday?"
+                  value={yesterdayWork}
+                  onChange={(e) => setYesterdayWork(e.target.value)}
+                  className="min-h-[100px] mb-3 text-lg leading-relaxed"
+                  disabled={isTranscribing || isRecording}
+                />
+                <Textarea
+                  placeholder="What are your blockers?"
+                  value={blockers}
+                  onChange={(e) => setBlockers(e.target.value)}
+                  className="min-h-[100px] mb-6 text-lg leading-relaxed"
                   disabled={isTranscribing || isRecording}
                 />
               </div>
@@ -323,7 +343,7 @@ export default function StandupInput() {
                   <Button
                     variant="outline"
                     onClick={() => {
-                      if (update.trim()) {
+                      if (currentWork.trim() || yesterdayWork.trim() || blockers.trim()) {
                         setIsVoiceDialogOpen(true);
                       } else {
                         startRecording(true);
@@ -347,7 +367,7 @@ export default function StandupInput() {
                       <Button
                         variant="outline"
                         onClick={formatNote}
-                        disabled={!update.trim() || isFormatting}
+                        disabled={!(currentWork.trim() || yesterdayWork.trim() || blockers.trim()) || isFormatting}
                         className={isFormatting ? "bg-blue-100" : ""}
                       >
                         {isFormatting ? 'Formatting...' : <FaMagic className="mr-2" />}
@@ -362,17 +382,17 @@ export default function StandupInput() {
                   <Button 
                     size="lg" 
                     onClick={handleSave} 
-                    disabled={!update.trim() || (
+                    disabled={!(currentWork.trim() || yesterdayWork.trim() || blockers.trim()) || (
                       isEditing && 
-                      update === originalText && 
+                      currentWork === originalText && 
                       selectedMonth === originalDate?.month &&
                       selectedDay === originalDate?.day &&
                       selectedYear === originalDate?.year
                     )} 
                     className={`w-full sm:w-32 transition-colors ${
-                      !update.trim() || (
+                      !(currentWork.trim() || yesterdayWork.trim() || blockers.trim()) || (
                         isEditing &&
-                        update === originalText &&
+                        currentWork === originalText &&
                         selectedMonth === originalDate?.month &&
                         selectedDay === originalDate?.day &&
                         selectedYear === originalDate?.year
@@ -390,7 +410,9 @@ export default function StandupInput() {
                       className="hover:bg-secondary w-full sm:w-32"
                       onClick={() => {
                         setIsEditing(false);
-                        setUpdate('');
+                        setCurrentWork('');
+                        setYesterdayWork('');
+                        setBlockers('');
                         setEditingUpdateId(null);
                       }}
                     >

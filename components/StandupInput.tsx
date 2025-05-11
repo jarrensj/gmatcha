@@ -6,7 +6,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import JSConfetti from 'js-confetti'
 import { useUser } from '@clerk/nextjs'
-import Link from 'next/link'
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { Calendar } from '@/components/ui/calendar'
@@ -398,13 +397,6 @@ export default function StandupInput() {
           )}
         </CardContent>
       </Card>
-      {user && (
-        <div className="flex justify-end">
-          <Link href="/updates" className="text-sm text-muted-foreground hover:text-foreground">
-            View all updates →
-          </Link>
-        </div>
-      )}
       <AlertDialog open={isVoiceDialogOpen} onOpenChange={setIsVoiceDialogOpen}>
         <AlertDialogTrigger asChild>
           <div />

@@ -140,18 +140,12 @@ export default function ChatInterface() {
         "fixed right-4 transition-all duration-300 shadow-lg flex flex-col",
         isMinimized ? "bottom-4 h-14 w-14 rounded-full p-0 cursor-pointer" : "bottom-4 h-[400px] w-80 max-h-[80vh]",
       )}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (!isMinimized) {
-          setIsMinimized(true);
-        }
-      }}
     >
       {/* Chat Header */}
       <div 
         className={cn(
-          "flex items-center justify-between",
-          isMinimized ? "h-full w-full rounded-full" : "p-2 border-b cursor-pointer"
+          "flex items-center justify-between cursor-pointer",
+          isMinimized ? "h-full w-full rounded-full" : "p-2 border-b"
         )}
         onClick={(e) => {
           e.stopPropagation();
@@ -188,7 +182,7 @@ export default function ChatInterface() {
 
       {/* Chat Content - only visible when not minimized */}
       {!isMinimized && (
-        <>
+        <div className="flex-1 flex flex-col">
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-2 space-y-2">
             {messages.length === 0 ? (
@@ -272,7 +266,7 @@ export default function ChatInterface() {
               </div>
             )}
           </div>
-        </>
+        </div>
       )}
     </Card>
   )

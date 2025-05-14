@@ -8,21 +8,26 @@ import { cn } from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 
 interface UpdateDate {
-  date?: string | null;
+  id?: string;
+  text: string;
   created_at: string;
-  text?: string;
-  id?: number;
   updated_at?: string;
+  user_id?: string;
+  date: string;
 }
 
-export default function Calendar() {
+interface CalendarProps {
+  onDateSelect?: (date: Date, update: UpdateDate | null) => void;
+}
+
+export default function Calendar({ onDateSelect }: CalendarProps) {
   const { user } = useUser()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [datesWithUpdates, setDatesWithUpdates] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(false)
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
-  const [selectedDayUpdate, setSelectedDayUpdate] = useState<string | null>(null)
-  const [updatesData, setUpdatesData] = useState<Record<string, string>>({})
+  const [selectedDayUpdate, setSelectedDayUpdate] = useState<UpdateDate | null>(null)
+  const [updatesData, setUpdatesData] = useState<Record<string, UpdateDate>>({})
 
   const formatLocalDate = (date: Date) => {
     const year = date.getFullYear()
@@ -65,16 +70,13 @@ export default function Calendar() {
 
         const data = await response.json()
         const datesSet = new Set<string>()
-        const updatesMap: Record<string, string> = {}
+        const updatesMap: Record<string, UpdateDate> = {}
 
         data.forEach((item: UpdateDate) => {
           if (item.date) {
             const formatted = item.date.split("T")[0]
             datesSet.add(formatted)
-            
-            if (item.text) {
-              updatesMap[formatted] = item.text
-            }
+            updatesMap[formatted] = item
           }
         })
         setDatesWithUpdates(datesSet)
@@ -117,15 +119,19 @@ export default function Calendar() {
     if (!datesWithUpdates.has(formattedDate)) {
       setSelectedDay(formattedDate)
       setSelectedDayUpdate(null)
+      onDateSelect?.(date, null)
       return
     }
     
     if (selectedDay === formattedDate) {
       setSelectedDay(null)
       setSelectedDayUpdate(null)
+      onDateSelect?.(date, null)
     } else {
       setSelectedDay(formattedDate)
-      setSelectedDayUpdate(updatesData[formattedDate] || null)
+      const update = updatesData[formattedDate] || null
+      setSelectedDayUpdate(update)
+      onDateSelect?.(date, update)
     }
   }
 
@@ -209,7 +215,7 @@ export default function Calendar() {
             </CardHeader>
             <CardContent>
               {selectedDayUpdate ? (
-                <p className="whitespace-pre-wrap">{selectedDayUpdate}</p>
+                <p className="whitespace-pre-wrap">{selectedDayUpdate.text}</p>
               ) : (
                 <p className="text-muted-foreground">
                   No update found for {new Date(selectedDay + "T00:00:00").toLocaleDateString('en-US', {

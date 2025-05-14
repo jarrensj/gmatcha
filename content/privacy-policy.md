@@ -1,9 +1,9 @@
 # Privacy Policy
 
-_Last Updated: January 1st, 2025_
+_Last Updated: May 13th, 2025_
 
 ## 1. Introduction
-This Privacy Policy explains how StandupUpdate.com ("we," "our," "us") collects, uses, and protects your information when you use our Website.
+This Privacy Policy explains how gmatcha.com ("we," "our," "us") collects, uses, and protects your information when you use our Website.
 
 ## 2. Information We Collect
 - **Personal Information**: When you sign in or register, we may collect information such as your name, email address, and authentication credentials.
@@ -36,10 +36,10 @@ Depending on your location, you may have the following rights regarding your dat
 - Opt-out of certain data processing practices.
 
 ## 9. Children's Privacy
-StandupUpdate.com is not intended for users under the age of 13. We do not knowingly collect personal information from children.
+gmatcha.com is not intended for users under the age of 13. We do not knowingly collect personal information from children.
 
 ## 10. Changes to This Policy
 We may update this Privacy Policy from time to time. Changes will be posted on this page, and significant updates may be communicated via email or a notification on the Website.
 
 ## 11. Contact Us
-If you have questions or concerns about this Privacy Policy, please contact us contact@standupupdate.com
+If you have questions or concerns about this Privacy Policy, please contact us hello@gmatcha.com

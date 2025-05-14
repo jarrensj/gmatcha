@@ -1,12 +1,12 @@
 # Terms and Conditions
 
-_Last Updated: January 1, 2024_
+_Last Updated: May 13th, 2025_
 
 ## 1. Acceptance of Terms
-By accessing and using StandupUpdate.com ("the Website"), you agree to comply with and be bound by these Terms and Conditions. If you do not agree, you may not use the Website.
+By accessing and using gmatcha.com ("the Website"), you agree to comply with and be bound by these Terms and Conditions. If you do not agree, you may not use the Website.
 
 ## 2. Description of Services
-StandupUpdate.com provides a platform for users to store, manage, and organize their standup updates. The service is available as-is, and we reserve the right to modify or discontinue the Website at any time without notice.
+gmatcha.com provides a platform for users to store, manage, and organize their standup updates. The service is available as-is, and we reserve the right to modify or discontinue the Website at any time without notice.
 
 ## 3. User Responsibilities
 - You must be at least 18 years old or have the permission of a parent or guardian to use this Website.
@@ -14,7 +14,7 @@ StandupUpdate.com provides a platform for users to store, manage, and organize t
 - You agree not to use the Website for any unlawful activities or to upload harmful or offensive content.
 
 ## 4. Intellectual Property
-All content on the Website, including but not limited to text, graphics, and logos, is the property of StandupUpdate.com or its licensors and is protected by copyright, trademark, and other intellectual property laws. Unauthorized use of the content is prohibited.
+All content on the Website, including but not limited to text, graphics, and logos, is the property of gmatcha.com or its licensors and is protected by copyright, trademark, and other intellectual property laws. Unauthorized use of the content is prohibited.
 
 ## 5. User Content
 By submitting content to the Website:
@@ -25,7 +25,7 @@ By submitting content to the Website:
 Our use of your personal information is governed by our [Privacy Policy](/privacy-policy).
 
 ## 7. Limitation of Liability
-StandupUpdate.com is not liable for any damages arising from your use of the Website. This includes, but is not limited to, data loss or unauthorized access to your updates.
+gmatcha.com is not liable for any damages arising from your use of the Website. This includes, but is not limited to, data loss or unauthorized access to your updates.
 
 ## 8. Termination
 We reserve the right to terminate or suspend your access to the Website at our discretion, without notice, for violation of these terms or any applicable law.

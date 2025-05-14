@@ -35,6 +35,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
   const [yesterdayWork, setYesterdayWork] = useState('')
   const [blockers, setBlockers] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [dateAnimation, setDateAnimation] = useState<{ text: string; visible: boolean }>({ text: '', visible: false })
   const jsConfettiRef = useRef<JSConfetti | null>(null)
 
   useEffect(() => {
@@ -139,6 +140,11 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
   const handleDayClick = (day: number) => {
     const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
     const formattedDate = formatLocalDate(date)
+    
+    // Show date animation
+    const dateText = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+    setDateAnimation({ text: dateText, visible: true })
+    setTimeout(() => setDateAnimation(prev => ({ ...prev, visible: false })), 1200)
     
     if (!datesWithUpdates.has(formattedDate)) {
       setSelectedDay(formattedDate)
@@ -273,6 +279,20 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
       {errorMessage && (
         <div className="fixed top-4 right-4 bg-red-500 text-white p-3 rounded-md shadow-lg z-50">
           {errorMessage}
+        </div>
+      )}
+      {dateAnimation.visible && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="animate-in slide-in-from-top-4 duration-300 animate-out slide-out-to-top-4 duration-300 bg-white rounded-xl shadow-xl border border-[#4A7856]/20 overflow-hidden">
+            <div className="bg-[#4A7856] text-white px-4 py-2 text-center font-medium">
+              {dateAnimation.text.split(',')[0]}
+            </div>
+            <div className="p-4 text-center">
+              <div className="text-3xl font-bold text-[#2C5530]">
+                {new Date(dateAnimation.text).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              </div>
+            </div>
+          </div>
         </div>
       )}
       <div className="bg-[#4A7856] p-4 flex items-center justify-between">

@@ -407,7 +407,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="bg-white">
+            <CardContent className="bg-white pt-8">
               {isEditing ? (
                 <div className="space-y-4 animate-in fade-in duration-200">
                   <Textarea
@@ -458,9 +458,44 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                   </div>
                 </div>
               ) : selectedDayUpdate ? (
-                <div className="space-y-4">
-                  <p className="whitespace-pre-wrap text-[#2C5530]">{selectedDayUpdate.text}</p>
-                  <div className="flex justify-end">
+                <div className="space-y-6">
+                  <div className="bg-[#F5F5F0] rounded-xl p-4 border border-[#4A7856]/20 hover:border-[#4A7856]/40 transition-all duration-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-[#4A7856] flex items-center justify-center">
+                        <span className="text-white text-sm">✨</span>
+                      </div>
+                      <h3 className="text-sm font-medium text-[#4A7856]">What are you working on?</h3>
+                    </div>
+                    <p className="text-[#2C5530] pl-10 leading-relaxed">
+                      {selectedDayUpdate.text.split('\n\n')[0].replace('What are you working on?\n', '')}
+                    </p>
+                  </div>
+
+                  <div className="bg-[#F5F5F0] rounded-xl p-4 border border-[#4A7856]/20 hover:border-[#4A7856]/40 transition-all duration-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-[#A4C095] flex items-center justify-center">
+                        <span className="text-[#2C5530] text-sm">📝</span>
+                      </div>
+                      <h3 className="text-sm font-medium text-[#4A7856]">What did you work on yesterday?</h3>
+                    </div>
+                    <p className="text-[#2C5530] pl-10 leading-relaxed">
+                      {selectedDayUpdate.text.split('\n\n')[1].replace('What did you work on yesterday?\n', '')}
+                    </p>
+                  </div>
+
+                  <div className="bg-[#F5F5F0] rounded-xl p-4 border border-[#4A7856]/20 hover:border-[#4A7856]/40 transition-all duration-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-[#E8E8E0] flex items-center justify-center">
+                        <span className="text-[#2C5530] text-sm">🚧</span>
+                      </div>
+                      <h3 className="text-sm font-medium text-[#4A7856]">What are your blockers?</h3>
+                    </div>
+                    <p className="text-[#2C5530] pl-10 leading-relaxed">
+                      {selectedDayUpdate.text.split('\n\n')[2].replace('What are your blockers?\n', '')}
+                    </p>
+                  </div>
+
+                  <div className="flex justify-end pt-2">
                     <Button
                       variant="destructive"
                       size="sm"

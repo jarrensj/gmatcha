@@ -117,6 +117,27 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
         })
         setDatesWithUpdates(datesSet)
         setUpdatesData(updatesMap)
+        
+        if (selectedDay === null) {
+          const today = formatLocalDate(new Date())
+          setSelectedDay(today)
+          
+          if (datesSet.has(today)) {
+            const update = updatesMap[today]
+            setSelectedDayUpdate(update)
+            if (update) {
+              const [current, yesterday, blockers] = update.text.split('\n\n')
+              setCurrentWork(current.replace('What are you working on?\n', ''))
+              setYesterdayWork(yesterday.replace('What did you work on yesterday?\n', ''))
+              setBlockers(blockers.replace('What are your blockers?\n', ''))
+            }
+          } else {
+            setSelectedDayUpdate(null)
+            setIsEditing(false)
+          }
+          
+          onDateSelect?.(new Date(), updatesMap[today] || null)
+        }
       } catch (error) {
         console.error("Error fetching dates with updates:", error)
       } finally {
@@ -125,12 +146,18 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
     }
 
     fetchDatesWithUpdates()
-  }, [currentDate, user])
+  }, [currentDate, user, selectedDay, onDateSelect])
 
   useEffect(() => {
-    setSelectedDay(null)
-    setSelectedDayUpdate(null)
-  }, [currentDate])
+    if (selectedDay !== null) {
+      const selectedDate = new Date(selectedDay)
+      if (selectedDate.getMonth() !== currentDate.getMonth() || 
+          selectedDate.getFullYear() !== currentDate.getFullYear()) {
+        setSelectedDay(null)
+        setSelectedDayUpdate(null)
+      }
+    }
+  }, [currentDate, selectedDay])
 
   const monthName = currentDate.toLocaleString("default", { month: "long" })
   const year = currentDate.getFullYear()

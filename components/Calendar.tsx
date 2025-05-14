@@ -47,6 +47,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [dateAnimation, setDateAnimation] = useState<{ text: string; visible: boolean }>({ text: '', visible: false })
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showStandupReminder, setShowStandupReminder] = useState(true)
   const jsConfettiRef = useRef<JSConfetti | null>(null)
 
   useEffect(() => {
@@ -64,6 +65,13 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
       return () => clearTimeout(timer);
     }
   }, [errorMessage]);
+
+  useEffect(() => {
+    // Check if user has recorded standup today
+    const today = formatLocalDate(new Date());
+    const hasRecordedToday = datesWithUpdates.has(today);
+    setShowStandupReminder(!hasRecordedToday);
+  }, [datesWithUpdates]);
 
   const formatLocalDate = (date: Date) => {
     const year = date.getFullYear()
@@ -287,6 +295,41 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
 
   return (
     <div className="w-full max-w-md mx-auto rounded-lg shadow-md overflow-hidden border border-[#2C5530] relative">
+      {showStandupReminder && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in slide-in-from-top-4 duration-300">
+          <div className="bg-white rounded-xl shadow-xl border border-[#4A7856]/20 overflow-hidden">
+            <div className="bg-[#4A7856] text-white px-4 py-2 text-center font-medium">
+              Standup Reminder
+            </div>
+            <div className="p-4 flex items-center gap-4">
+              <div className="flex-1">
+                <p className="text-[#2C5530]">You haven&apos;t recorded your standup for today yet!</p>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowStandupReminder(false)}
+                  className="border-[#2C5530] text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530]"
+                >
+                  Dismiss
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const today = new Date();
+                    handleDayClick(today.getDate());
+                    setShowStandupReminder(false);
+                  }}
+                  className="bg-[#4A7856] text-white hover:bg-[#2C5530]"
+                >
+                  Record Now
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {errorMessage && (
         <div className="fixed top-4 right-4 bg-red-500 text-white p-3 rounded-md shadow-lg z-50">
           {errorMessage}

@@ -1,11 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
+import { ChevronLeft, ChevronRight, Pencil } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
+import { Textarea } from "@/components/ui/textarea"
+import JSConfetti from 'js-confetti'
 
 interface UpdateDate {
   id?: string;
@@ -28,6 +30,28 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
   const [selectedDayUpdate, setSelectedDayUpdate] = useState<UpdateDate | null>(null)
   const [updatesData, setUpdatesData] = useState<Record<string, UpdateDate>>({})
+  const [isEditing, setIsEditing] = useState(false)
+  const [currentWork, setCurrentWork] = useState('')
+  const [yesterdayWork, setYesterdayWork] = useState('')
+  const [blockers, setBlockers] = useState('')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const jsConfettiRef = useRef<JSConfetti | null>(null)
+
+  useEffect(() => {
+    jsConfettiRef.current = new JSConfetti();
+    return () => {
+      jsConfettiRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
 
   const formatLocalDate = (date: Date) => {
     const year = date.getFullYear()
@@ -119,6 +143,10 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
     if (!datesWithUpdates.has(formattedDate)) {
       setSelectedDay(formattedDate)
       setSelectedDayUpdate(null)
+      setIsEditing(true)
+      setCurrentWork('')
+      setYesterdayWork('')
+      setBlockers('')
       onDateSelect?.(date, null)
       return
     }
@@ -126,17 +154,127 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
     if (selectedDay === formattedDate) {
       setSelectedDay(null)
       setSelectedDayUpdate(null)
+      setIsEditing(false)
       onDateSelect?.(date, null)
     } else {
       setSelectedDay(formattedDate)
       const update = updatesData[formattedDate] || null
       setSelectedDayUpdate(update)
+      if (update) {
+        const [current, yesterday, blockers] = update.text.split('\n\n')
+        setCurrentWork(current.replace('What are you working on?\n', ''))
+        setYesterdayWork(yesterday.replace('What did you work on yesterday?\n', ''))
+        setBlockers(blockers.replace('What are your blockers?\n', ''))
+      }
+      setIsEditing(false)
       onDateSelect?.(date, update)
     }
   }
 
+  const handleSave = async () => {
+    if (!user || !selectedDay) return;
+    
+    const combinedUpdate = `What are you working on?\n${currentWork}\n\nWhat did you work on yesterday?\n${yesterdayWork}\n\nWhat are your blockers?\n${blockers}`;
+
+    try {
+      const response = await fetch('/api/updates', {
+        method: selectedDayUpdate ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: combinedUpdate,
+          user_id: user.id,
+          date: selectedDay,
+          ...(selectedDayUpdate && { id: selectedDayUpdate.id }),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save update');
+      }
+
+      // Update local state immediately
+      const newUpdate: UpdateDate = {
+        id: data.id || selectedDayUpdate?.id,
+        text: combinedUpdate,
+        created_at: data.created_at || new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_id: user.id,
+        date: selectedDay
+      };
+
+      setDatesWithUpdates(prev => new Set([...prev, selectedDay]));
+      setUpdatesData(prev => ({
+        ...prev,
+        [selectedDay]: newUpdate
+      }));
+      setSelectedDayUpdate(newUpdate);
+      setIsEditing(false);
+
+      if (jsConfettiRef.current) {
+        jsConfettiRef.current.addConfetti({
+          emojis: ['🚀'],
+          emojiSize: 100,
+          confettiNumber: 24,
+        });
+      }
+    } catch (error) {
+      console.error('Error saving update:', error);
+      setErrorMessage('Failed to save update. Please try again.');
+    }
+  };
+
+  const handleDelete = async (updateId: string) => {
+    if (!user) return;
+    
+    try {
+      const response = await fetch(`/api/updates?id=${updateId}&user_id=${user.id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete update');
+      
+      setSelectedDay(null);
+      setSelectedDayUpdate(null);
+      setIsEditing(false);
+      
+      // Refresh the updates
+      const startDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-01`;
+      const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+      const endDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+
+      const updatesResponse = await fetch(
+        `/api/updates?user_id=${encodeURIComponent(user.id)}&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`
+      );
+
+      if (!updatesResponse.ok) throw new Error("Failed to fetch update dates");
+
+      const updatesData = await updatesResponse.json();
+      const datesSet = new Set<string>();
+      const updatesMap: Record<string, UpdateDate> = {};
+
+      updatesData.forEach((item: UpdateDate) => {
+        if (item.date) {
+          const formatted = item.date.split("T")[0];
+          datesSet.add(formatted);
+          updatesMap[formatted] = item;
+        }
+      });
+      setDatesWithUpdates(datesSet);
+      setUpdatesData(updatesMap);
+    } catch (error) {
+      console.error('Error deleting update:', error);
+      setErrorMessage('Failed to delete update. Please try again.');
+    }
+  };
+
   return (
     <div className="w-full max-w-md mx-auto rounded-lg shadow-md overflow-hidden border border-border relative">
+      {errorMessage && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white p-3 rounded-md shadow-lg z-50">
+          {errorMessage}
+        </div>
+      )}
       <div className="bg-card p-4 flex items-center justify-between">
         <Button variant="ghost" size="icon" onClick={goToPreviousMonth} aria-label="Previous month">
           <ChevronLeft className="h-5 w-5" />
@@ -199,23 +337,93 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
         {selectedDay && (
           <Card className="mt-4">
             <CardHeader className="pb-2">
-              <CardDescription>
-                <div className="font-semibold text-foreground">
-                  {(() => {
-                    const [year, month, day] = selectedDay.split('-').map(Number);
-                    const date = new Date(year, month - 1, day);
-                    return date.toLocaleDateString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric'
-                    });
-                  })()}
-                </div>
-              </CardDescription>
+              <div className="flex justify-between items-center">
+                <CardDescription>
+                  <div className="font-semibold text-foreground">
+                    {(() => {
+                      const [year, month, day] = selectedDay.split('-').map(Number);
+                      const date = new Date(year, month - 1, day);
+                      return date.toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                      });
+                    })()}
+                  </div>
+                </CardDescription>
+                {selectedDayUpdate && !isEditing && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsEditing(true)}
+                    className="h-8 w-8"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
-              {selectedDayUpdate ? (
-                <p className="whitespace-pre-wrap">{selectedDayUpdate.text}</p>
+              {isEditing ? (
+                <div className="space-y-4">
+                  <Textarea
+                    placeholder="What are you working on?"
+                    value={currentWork}
+                    onChange={(e) => setCurrentWork(e.target.value)}
+                    className="min-h-[100px] text-lg leading-relaxed"
+                  />
+                  <Textarea
+                    placeholder="What did you work on yesterday?"
+                    value={yesterdayWork}
+                    onChange={(e) => setYesterdayWork(e.target.value)}
+                    className="min-h-[100px] text-lg leading-relaxed"
+                  />
+                  <Textarea
+                    placeholder="What are your blockers?"
+                    value={blockers}
+                    onChange={(e) => setBlockers(e.target.value)}
+                    className="min-h-[100px] text-lg leading-relaxed"
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setIsEditing(false);
+                        if (selectedDayUpdate) {
+                          const [current, yesterday, blockers] = selectedDayUpdate.text.split('\n\n');
+                          setCurrentWork(current.replace('What are you working on?\n', ''));
+                          setYesterdayWork(yesterday.replace('What did you work on yesterday?\n', ''));
+                          setBlockers(blockers.replace('What are your blockers?\n', ''));
+                        } else {
+                          setCurrentWork('');
+                          setYesterdayWork('');
+                          setBlockers('');
+                        }
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSave}
+                      disabled={!(currentWork.trim() || yesterdayWork.trim() || blockers.trim())}
+                    >
+                      {selectedDayUpdate ? 'Save Edit' : 'Save Update'}
+                    </Button>
+                  </div>
+                </div>
+              ) : selectedDayUpdate ? (
+                <div className="space-y-4">
+                  <p className="whitespace-pre-wrap">{selectedDayUpdate.text}</p>
+                  <div className="flex justify-end">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(selectedDayUpdate.id!)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                </div>
               ) : (
                 <p className="text-muted-foreground">
                   No update found for {new Date(selectedDay + "T00:00:00").toLocaleDateString('en-US', {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { ChevronLeft, ChevronRight, Pencil } from "lucide-react"
+import { ChevronLeft, ChevronRight, Pencil, X } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -351,16 +351,30 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                     })()}
                   </div>
                 </CardDescription>
-                {selectedDayUpdate && !isEditing && (
+                <div className="flex gap-1">
+                  {selectedDayUpdate && !isEditing && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsEditing(true)}
+                      className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530]"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => {
+                      setSelectedDay(null);
+                      setSelectedDayUpdate(null);
+                      setIsEditing(false);
+                    }}
                     className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530]"
                   >
-                    <Pencil className="h-4 w-4" />
+                    <X className="h-4 w-4" />
                   </Button>
-                )}
+                </div>
               </div>
             </CardHeader>
             <CardContent className="bg-white">

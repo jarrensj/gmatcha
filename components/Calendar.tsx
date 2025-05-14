@@ -269,35 +269,35 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto rounded-lg shadow-md overflow-hidden border border-border relative">
+    <div className="w-full max-w-md mx-auto rounded-lg shadow-md overflow-hidden border border-[#2C5530] relative">
       {errorMessage && (
         <div className="fixed top-4 right-4 bg-red-500 text-white p-3 rounded-md shadow-lg z-50">
           {errorMessage}
         </div>
       )}
-      <div className="bg-card p-4 flex items-center justify-between">
-        <Button variant="ghost" size="icon" onClick={goToPreviousMonth} aria-label="Previous month">
+      <div className="bg-[#4A7856] p-4 flex items-center justify-between">
+        <Button variant="ghost" size="icon" onClick={goToPreviousMonth} aria-label="Previous month" className="text-white hover:bg-[#2C5530] hover:text-white">
           <ChevronLeft className="h-5 w-5" />
         </Button>
-        <h2 className="text-xl font-semibold text-card-foreground">
+        <h2 className="text-xl font-semibold text-white">
           {monthName} {year}
         </h2>
-        <Button variant="ghost" size="icon" onClick={goToNextMonth} aria-label="Next month">
+        <Button variant="ghost" size="icon" onClick={goToNextMonth} aria-label="Next month" className="text-white hover:bg-[#2C5530] hover:text-white">
           <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
 
-      <div className="bg-background p-4">
+      <div className="bg-[#F5F5F0] p-4">
         <div className="grid grid-cols-7 mb-2">
           {dayNames.map((day) => (
-            <div key={day} className="text-center text-sm font-medium text-muted-foreground">
+            <div key={day} className="text-center text-sm font-medium text-[#2C5530]">
               {day}
             </div>
           ))}
         </div>
 
         {isLoading && (
-          <div className="text-center text-sm text-muted-foreground mb-2">Loading...</div>
+          <div className="text-center text-sm text-[#2C5530] mb-2">Loading...</div>
         )}
 
         <div className="grid grid-cols-7 gap-0">
@@ -320,11 +320,11 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                 <div
                   className={cn(
                     "h-8 w-8 flex items-center justify-center text-sm rounded-full",
-                    dayHasUpdate && "bg-blue-500 text-white cursor-pointer",
-                    isSelected && "bg-yellow-200 text-black",
-                    isSelected && dayHasUpdate && "outline outline-2 outline-blue-500",
-                    !dayHasUpdate && "hover:bg-muted",
-                    isSelected && "hover:text-black"
+                    dayHasUpdate && "bg-[#4A7856] text-white cursor-pointer",
+                    isSelected && "bg-[#A4C095] text-[#2C5530]",
+                    isSelected && dayHasUpdate && "outline outline-2 outline-[#4A7856]",
+                    !dayHasUpdate && "hover:bg-[#E8E8E0]",
+                    isSelected && "hover:text-[#2C5530]"
                   )}
                 >
                   {day}
@@ -335,11 +335,11 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
         </div>
         
         {selectedDay && (
-          <Card className="mt-4">
-            <CardHeader className="pb-2">
+          <Card className="mt-4 border-[#2C5530] rounded-lg overflow-hidden">
+            <CardHeader className="pb-2 bg-[#F5F5F0]">
               <div className="flex justify-between items-center">
                 <CardDescription>
-                  <div className="font-semibold text-foreground">
+                  <div className="font-semibold text-[#2C5530]">
                     {(() => {
                       const [year, month, day] = selectedDay.split('-').map(Number);
                       const date = new Date(year, month - 1, day);
@@ -356,33 +356,33 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsEditing(true)}
-                    className="h-8 w-8"
+                    className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530]"
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
                 )}
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="bg-white">
               {isEditing ? (
                 <div className="space-y-4">
                   <Textarea
                     placeholder="What are you working on?"
                     value={currentWork}
                     onChange={(e) => setCurrentWork(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed"
+                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856]"
                   />
                   <Textarea
                     placeholder="What did you work on yesterday?"
                     value={yesterdayWork}
                     onChange={(e) => setYesterdayWork(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed"
+                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856]"
                   />
                   <Textarea
                     placeholder="What are your blockers?"
                     value={blockers}
                     onChange={(e) => setBlockers(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed"
+                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856]"
                   />
                   <div className="flex justify-end gap-2">
                     <Button
@@ -400,12 +400,14 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                           setBlockers('');
                         }
                       }}
+                      className="border-[#2C5530] text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530]"
                     >
                       Cancel
                     </Button>
                     <Button
                       onClick={handleSave}
                       disabled={!(currentWork.trim() || yesterdayWork.trim() || blockers.trim())}
+                      className="bg-[#4A7856] text-white hover:bg-[#2C5530]"
                     >
                       {selectedDayUpdate ? 'Save Edit' : 'Save Update'}
                     </Button>
@@ -413,19 +415,20 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                 </div>
               ) : selectedDayUpdate ? (
                 <div className="space-y-4">
-                  <p className="whitespace-pre-wrap">{selectedDayUpdate.text}</p>
+                  <p className="whitespace-pre-wrap text-[#2C5530]">{selectedDayUpdate.text}</p>
                   <div className="flex justify-end">
                     <Button
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDelete(selectedDayUpdate.id!)}
+                      className="bg-red-500 hover:bg-red-600"
                     >
                       Delete
                     </Button>
                   </div>
                 </div>
               ) : (
-                <p className="text-muted-foreground">
+                <p className="text-[#2C5530]">
                   No update found for {new Date(selectedDay + "T00:00:00").toLocaleDateString('en-US', {
                     month: 'long',
                     day: 'numeric',

@@ -8,10 +8,7 @@ import JSConfetti from 'js-confetti'
 import { useUser } from '@clerk/nextjs'
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 import { ChevronDown, ChevronRight } from 'lucide-react'
-import { Calendar } from '@/components/ui/calendar'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { format } from 'date-fns'
-import { CalendarIcon } from 'lucide-react'
+import Calendar from '@/components/Calendar'
 
 interface StandupUpdate {
   id?: string;
@@ -47,6 +44,7 @@ export default function StandupInput() {
   const [currentWork, setCurrentWork] = useState('');
   const [yesterdayWork, setYesterdayWork] = useState('');
   const [blockers, setBlockers] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     jsConfettiRef.current = new JSConfetti();
@@ -54,6 +52,15 @@ export default function StandupInput() {
       jsConfettiRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
 
   const fetchUserUpdates = useCallback(async () => {
     setIsLoading(true);
@@ -93,6 +100,37 @@ export default function StandupInput() {
     setSelectedYear(date.getFullYear());
   }, [date]);
 
+  const handleDateSelect = (selectedDate: Date, existingUpdate: StandupUpdate | null) => {
+    setDate(selectedDate);
+    
+    if (existingUpdate) {
+      const [current, yesterday, blockers] = existingUpdate.text.split('\n\n');
+      setCurrentWork(current.replace('What are you working on?\n', ''));
+      setYesterdayWork(yesterday.replace('What did you work on yesterday?\n', ''));
+      setBlockers(blockers.replace('What are your blockers?\n', ''));
+      
+      setOriginalText(existingUpdate.text);
+      setOriginalDate({
+        month: selectedDate.getMonth(),
+        day: selectedDate.getDate(),
+        year: selectedDate.getFullYear()
+      });
+      setIsEditing(true);
+      setEditingUpdateId(existingUpdate.id || null);
+      
+      setShowEditNotification(true);
+      setTimeout(() => setShowEditNotification(false), 3000);
+    } else {
+      setCurrentWork('');
+      setYesterdayWork('');
+      setBlockers('');
+      setIsEditing(false);
+      setEditingUpdateId(null);
+      setOriginalText('');
+      setOriginalDate(null);
+    }
+  };
+
   const handleSave = async () => {
     if (!user) return;
     
@@ -111,7 +149,12 @@ export default function StandupInput() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to save update');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to save update');
+      }
+
       await fetchUserUpdates();
       setEditingUpdateId(null);
 
@@ -128,6 +171,7 @@ export default function StandupInput() {
       }
     } catch (error) {
       console.error('Error saving update:', error);
+      setErrorMessage('Failed to save update. Please try again.');
     }
   }
 
@@ -184,6 +228,11 @@ export default function StandupInput() {
           You are now editing an existing update.
         </div>
       )}
+      {errorMessage && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white p-3 rounded-md shadow-lg">
+          {errorMessage}
+        </div>
+      )}
       <Card className="border-2 shadow-lg">
         <CardHeader className="pb-3 space-y-4">
           <div className="flex justify-between items-center w-full">
@@ -199,32 +248,7 @@ export default function StandupInput() {
           ) : (
             <>
               <div className="mb-6">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full sm:w-[300px] justify-start text-left font-normal"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {format(date, "EEEE, MMMM d, yyyy")}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={(newDate) => {
-                        if (newDate) {
-                          setDate(newDate);
-                          setSelectedMonth(newDate.getMonth());
-                          setSelectedDay(newDate.getDate());
-                          setSelectedYear(newDate.getFullYear());
-                        }
-                      }}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+                <Calendar onDateSelect={handleDateSelect} />
               </div>
               <div className="relative mb-6">
                 <Textarea

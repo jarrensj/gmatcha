@@ -384,19 +384,19 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                     placeholder="What are you working on?"
                     value={currentWork}
                     onChange={(e) => setCurrentWork(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856]"
+                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
                   />
                   <Textarea
                     placeholder="What did you work on yesterday?"
                     value={yesterdayWork}
                     onChange={(e) => setYesterdayWork(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856]"
+                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
                   />
                   <Textarea
                     placeholder="What are your blockers?"
                     value={blockers}
                     onChange={(e) => setBlockers(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856]"
+                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
                   />
                   <div className="flex justify-end gap-2">
                     <Button

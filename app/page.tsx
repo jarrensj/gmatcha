@@ -3,7 +3,7 @@
 import StandupInput from "../components/StandupInput"
 import ChatInterface from "../components/ChatInterface"
 import Footer from "../components/Footer"
-import { SignedIn, SignedOut } from "@clerk/nextjs"
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs"
 
 export default function Home() {
   return (
@@ -12,9 +12,16 @@ export default function Home() {
 
       <SignedOut>
         <div className="flex-grow flex flex-col items-center justify-center pt-20 pb-10">
-          <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md flex flex-col items-center space-y-4 matcha-border">
-            <h2 className="text-xl font-bold matcha-text">Sign in to use gmatcha</h2>
-            <p className="text-matcha-700 text-center">You need to sign in or create an account to access the standup updates feature.</p>
+          <div className="p-8 max-w-md mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg flex flex-col items-center space-y-3 border border-[#2C5530]/10">
+            <h2 className="text-3xl font-bold text-[#2C5530]">gmatcha</h2>
+            <p className="text-[#4A7856]/90 text-center text-sm leading-relaxed">
+              Track your daily standup updates and get AI-powered insights about your standup updates.
+            </p>
+            <SignInButton mode="modal">
+              <button className="text-[#2C5530]/70 text-xs mt-1 hover:text-[#2C5530] transition-colors cursor-pointer">
+                Log in / Sign in to get started
+              </button>
+            </SignInButton>
           </div>
         </div>
       </SignedOut>

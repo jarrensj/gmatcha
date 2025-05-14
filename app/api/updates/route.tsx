@@ -60,6 +60,21 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = await createClerkSupabaseClient(req);
+  
+  const { data: existingUpdate } = await supabase
+    .from('standupupdates')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('date', date)
+    .single();
+
+  if (existingUpdate) {
+    return NextResponse.json(
+      { error: 'An update already exists for this date' },
+      { status: 400 }
+    );
+  }
+
   const { error } = await supabase
     .from('standupupdates')
     .insert([{

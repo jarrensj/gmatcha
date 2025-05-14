@@ -410,24 +410,39 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
             <CardContent className="bg-white pt-8">
               {isEditing ? (
                 <div className="space-y-4 animate-in fade-in duration-200">
-                  <Textarea
-                    placeholder="What are you working on?"
-                    value={currentWork}
-                    onChange={(e) => setCurrentWork(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
-                  />
-                  <Textarea
-                    placeholder="What did you work on yesterday?"
-                    value={yesterdayWork}
-                    onChange={(e) => setYesterdayWork(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
-                  />
-                  <Textarea
-                    placeholder="What are your blockers?"
-                    value={blockers}
-                    onChange={(e) => setBlockers(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
-                  />
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[#4A7856]">
+                      What are you working on?
+                    </label>
+                    <Textarea
+                      placeholder="What are you working on?"
+                      value={currentWork}
+                      onChange={(e) => setCurrentWork(e.target.value)}
+                      className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[#4A7856]">
+                      What did you work on yesterday?
+                    </label>
+                    <Textarea
+                      placeholder="What did you work on yesterday?"
+                      value={yesterdayWork}
+                      onChange={(e) => setYesterdayWork(e.target.value)}
+                      className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-[#4A7856]">
+                      What are your blockers?
+                    </label>
+                    <Textarea
+                      placeholder="What are your blockers?"
+                      value={blockers}
+                      onChange={(e) => setBlockers(e.target.value)}
+                      className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
+                    />
+                  </div>
                   <div className="flex justify-end gap-2">
                     <Button
                       variant="outline"

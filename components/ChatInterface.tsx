@@ -125,8 +125,11 @@ export default function ChatInterface() {
 
   if (!isOpen) {
     return (
-      <Button onClick={() => setIsOpen(true)} className="fixed bottom-4 right-4 rounded-full p-3 shadow-lg">
-        <MessageSquare className="h-6 w-6" />
+      <Button 
+        onClick={() => setIsOpen(true)} 
+        className="fixed bottom-4 right-4 h-14 w-14 rounded-full p-0 shadow-lg bg-card hover:bg-accent"
+      >
+        <MessageSquare className="h-6 w-6 text-card-foreground" />
       </Button>
     )
   }
@@ -135,7 +138,7 @@ export default function ChatInterface() {
     <Card
       className={cn(
         "fixed right-4 transition-all duration-300 shadow-lg flex flex-col",
-        isMinimized ? "bottom-4 h-14 w-80 cursor-pointer" : "bottom-4 h-[400px] w-80 max-h-[80vh]",
+        isMinimized ? "bottom-4 h-14 w-14 rounded-full p-0 cursor-pointer" : "bottom-4 h-[400px] w-80 max-h-[80vh]",
       )}
       onClick={(e) => {
         e.stopPropagation();
@@ -146,30 +149,41 @@ export default function ChatInterface() {
     >
       {/* Chat Header */}
       <div 
-        className="flex items-center justify-between p-2 border-b cursor-pointer"
+        className={cn(
+          "flex items-center justify-between",
+          isMinimized ? "h-full w-full rounded-full" : "p-2 border-b cursor-pointer"
+        )}
         onClick={(e) => {
           e.stopPropagation();
           setIsMinimized(!isMinimized);
         }}
       >
-        <div className="flex items-center gap-2">
-          <MessageSquare className="h-4 w-4" />
-          <h3 className="text-sm font-medium">AI Assistant</h3>
-        </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
-            e.stopPropagation();
-            setIsMinimized(!isMinimized);
-          }}>
-            {isMinimized ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-          </Button>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen(false);
-          }}>
-            <X className="h-3 w-3" />
-          </Button>
-        </div>
+        {isMinimized ? (
+          <div className="h-full w-full flex items-center justify-center">
+            <MessageSquare className="h-6 w-6" />
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              <h3 className="text-sm font-medium">AI Assistant</h3>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
+                e.stopPropagation();
+                setIsMinimized(!isMinimized);
+              }}>
+                {isMinimized ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(false);
+              }}>
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Chat Content - only visible when not minimized */}

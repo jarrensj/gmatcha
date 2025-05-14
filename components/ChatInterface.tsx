@@ -125,8 +125,11 @@ export default function ChatInterface() {
 
   if (!isOpen) {
     return (
-      <Button onClick={() => setIsOpen(true)} className="fixed bottom-4 right-4 rounded-full p-3 shadow-lg">
-        <MessageSquare className="h-6 w-6" />
+      <Button 
+        onClick={() => setIsOpen(true)} 
+        className="fixed bottom-4 right-4 h-14 w-14 rounded-full p-0 shadow-lg bg-card hover:bg-accent"
+      >
+        <MessageSquare className="h-6 w-6 text-card-foreground" />
       </Button>
     )
   }

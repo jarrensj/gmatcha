@@ -8,6 +8,16 @@ import { cn } from "@/lib/utils"
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import JSConfetti from 'js-confetti'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 interface UpdateDate {
   id?: string;
@@ -36,6 +46,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
   const [blockers, setBlockers] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [dateAnimation, setDateAnimation] = useState<{ text: string; visible: boolean }>({ text: '', visible: false })
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const jsConfettiRef = useRef<JSConfetti | null>(null)
 
   useEffect(() => {
@@ -464,7 +475,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                     <Button
                       variant="destructive"
                       size="sm"
-                      onClick={() => handleDelete(selectedDayUpdate.id!)}
+                      onClick={() => setShowDeleteConfirm(true)}
                       className="bg-red-500 hover:bg-red-600"
                     >
                       Delete
@@ -484,6 +495,31 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
           </Card>
         )}
       </div>
+
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Update</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this update? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (selectedDayUpdate?.id) {
+                  handleDelete(selectedDayUpdate.id);
+                  setShowDeleteConfirm(false);
+                }
+              }}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

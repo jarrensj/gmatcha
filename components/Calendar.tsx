@@ -339,16 +339,26 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
             <CardHeader className="pb-2 bg-[#F5F5F0]">
               <div className="flex justify-between items-center">
                 <CardDescription>
-                  <div className="font-semibold text-[#2C5530]">
-                    {(() => {
-                      const [year, month, day] = selectedDay.split('-').map(Number);
-                      const date = new Date(year, month - 1, day);
-                      return date.toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric'
-                      });
-                    })()}
+                  <div className="font-semibold text-[#2C5530] relative">
+                    <div className="animate-in slide-in-from-right-4 fade-in duration-200">
+                      {(() => {
+                        const [year, month, day] = selectedDay.split('-').map(Number);
+                        const date = new Date(year, month - 1, day);
+                        return (
+                          <>
+                            <span className="text-sm font-normal text-[#4A7856]">
+                              {date.toLocaleDateString('en-US', { weekday: 'long' })}
+                            </span>
+                            <br />
+                            {date.toLocaleDateString('en-US', {
+                              month: 'long',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </CardDescription>
                 <div className="flex gap-1">

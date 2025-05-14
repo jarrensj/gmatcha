@@ -335,20 +335,30 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
         </div>
         
         {selectedDay && (
-          <Card className="mt-4 border-[#2C5530] rounded-lg overflow-hidden">
+          <Card className="mt-4 border-[#2C5530] rounded-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
             <CardHeader className="pb-2 bg-[#F5F5F0]">
               <div className="flex justify-between items-center">
                 <CardDescription>
-                  <div className="font-semibold text-[#2C5530]">
-                    {(() => {
-                      const [year, month, day] = selectedDay.split('-').map(Number);
-                      const date = new Date(year, month - 1, day);
-                      return date.toLocaleDateString('en-US', {
-                        month: 'long',
-                        day: 'numeric',
-                        year: 'numeric'
-                      });
-                    })()}
+                  <div className="font-semibold text-[#2C5530] relative">
+                    <div className="animate-in slide-in-from-right-4 fade-in duration-200">
+                      {(() => {
+                        const [year, month, day] = selectedDay.split('-').map(Number);
+                        const date = new Date(year, month - 1, day);
+                        return (
+                          <>
+                            <span className="text-sm font-normal text-[#4A7856]">
+                              {date.toLocaleDateString('en-US', { weekday: 'long' })}
+                            </span>
+                            <br />
+                            {date.toLocaleDateString('en-US', {
+                              month: 'long',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </>
+                        );
+                      })()}
+                    </div>
                   </div>
                 </CardDescription>
                 <div className="flex gap-1">
@@ -357,7 +367,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                       variant="ghost"
                       size="icon"
                       onClick={() => setIsEditing(true)}
-                      className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530]"
+                      className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530] transition-colors"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -370,7 +380,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                       setSelectedDayUpdate(null);
                       setIsEditing(false);
                     }}
-                    className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530]"
+                    className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530] transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -379,24 +389,24 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
             </CardHeader>
             <CardContent className="bg-white">
               {isEditing ? (
-                <div className="space-y-4">
+                <div className="space-y-4 animate-in fade-in duration-200">
                   <Textarea
                     placeholder="What are you working on?"
                     value={currentWork}
                     onChange={(e) => setCurrentWork(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856]"
+                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
                   />
                   <Textarea
                     placeholder="What did you work on yesterday?"
                     value={yesterdayWork}
                     onChange={(e) => setYesterdayWork(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856]"
+                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
                   />
                   <Textarea
                     placeholder="What are your blockers?"
                     value={blockers}
                     onChange={(e) => setBlockers(e.target.value)}
-                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856]"
+                    className="min-h-[100px] text-lg leading-relaxed border-[#2C5530] focus:border-[#4A7856] focus:ring-[#4A7856] placeholder:text-[#2C5530]/40"
                   />
                   <div className="flex justify-end gap-2">
                     <Button

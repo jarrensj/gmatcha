@@ -8,8 +8,12 @@ import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs"
 export default function Home() {
   return (
     <main className="relative min-h-screen w-full flex flex-col matcha-gradient">
-      <h1 className="absolute top-6 left-6 text-3xl font-bold z-20 matcha-text">gmatcha</h1>
-
+      <h1 
+        onClick={() => window.location.reload()} 
+        className="absolute top-6 left-6 text-3xl font-bold z-20 matcha-text cursor-pointer hover:opacity-80 transition-opacity"
+      >
+        gmatcha
+      </h1>
       <SignedOut>
         <div className="flex-grow flex flex-col items-center justify-center pt-20 pb-10">
           <div className="p-8 max-w-md mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg flex flex-col items-center space-y-3 border border-[#2C5530]/10">

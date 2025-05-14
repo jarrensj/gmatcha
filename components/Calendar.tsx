@@ -335,7 +335,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
         </div>
         
         {selectedDay && (
-          <Card className="mt-4 border-[#2C5530] rounded-lg overflow-hidden">
+          <Card className="mt-4 border-[#2C5530] rounded-lg overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
             <CardHeader className="pb-2 bg-[#F5F5F0]">
               <div className="flex justify-between items-center">
                 <CardDescription>
@@ -357,7 +357,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                       variant="ghost"
                       size="icon"
                       onClick={() => setIsEditing(true)}
-                      className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530]"
+                      className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530] transition-colors"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
@@ -370,7 +370,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                       setSelectedDayUpdate(null);
                       setIsEditing(false);
                     }}
-                    className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530]"
+                    className="h-8 w-8 text-[#2C5530] hover:bg-[#A4C095] hover:text-[#2C5530] transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -379,7 +379,7 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
             </CardHeader>
             <CardContent className="bg-white">
               {isEditing ? (
-                <div className="space-y-4">
+                <div className="space-y-4 animate-in fade-in duration-200">
                   <Textarea
                     placeholder="What are you working on?"
                     value={currentWork}

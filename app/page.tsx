@@ -3,11 +3,21 @@
 import StandupInput from "../components/StandupInput"
 import ChatInterface from "../components/ChatInterface"
 import Footer from "../components/Footer"
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
+import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from "@clerk/nextjs"
 
 export default function Home() {
+  const { isLoaded } = useAuth()
+
   return (
     <main className="relative min-h-screen w-full flex flex-col matcha-gradient pt-6">
+      {!isLoaded && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-[#4A7856] border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-[#2C5530] font-medium">Loading gmatcha...</p>
+          </div>
+        </div>
+      )}
       <div className="w-full bg-[#2C5530]/10 backdrop-blur-sm">
         <div className="w-full max-w-4xl mx-auto px-4 py-2 flex items-center justify-between">
           <h1 

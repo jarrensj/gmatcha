@@ -1,24 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getAuth } from "@clerk/nextjs/server"
-import { createClient } from "@supabase/supabase-js"
 import OpenAI from "openai"
+import { createClerkSupabaseClient } from "@/app/lib/db"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 })
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ""
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY || ""
-
-async function createClerkSupabaseClient(req: NextRequest) {
-  return createClient(supabaseUrl, supabaseKey, {
-    async accessToken() {
-      const { getToken } = getAuth(req)
-      const token = await getToken()
-      return token || ''
-    },
-  })
-}
 
 function getDateRangeFromDays(days: number): { startDate: string; endDate: string } {
   const now = new Date()

@@ -1,19 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_KEY || "";
-
-async function createClerkSupabaseClient(req: NextRequest) {
-  return createClient(supabaseUrl, supabaseKey, {
-    async accessToken() {
-      const { getToken } = getAuth(req);
-      const token = await getToken();
-      return token || '';
-    },
-  });
-}
+import { createClerkSupabaseClient } from "@/app/lib/db";
 
 export async function GET(req: NextRequest) {
   const { userId } = getAuth(req);

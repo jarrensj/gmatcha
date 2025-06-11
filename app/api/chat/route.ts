@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { getAuth } from "@clerk/nextjs/server"
 import OpenAI from "openai"
 import { createClerkSupabaseClient } from "@/app/lib/db"
+import { STANDUP_ANALYSIS_PROMPT } from "@/app/lib/prompts/standup-analysis"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -74,15 +75,7 @@ export async function POST(req: NextRequest) {
       messages: [
         {
           role: "system",
-          content: 
-            "You are an AI assistant that helps users analyze their standup updates. " +
-            "Provide a comprehensive summary organized into three sections:\n\n" +
-            "1. Key Accomplishments: List significant achievements and completed work in detail with a focus on impact and value and the dates associated with the successes\n" +
-            "2. Minor Accomplishments: List minor achievements and completed work succinctly\n" +
-            "3. Blockers & Challenges: Highlight any issues that have slowed progress\n\n" +
-            "4. Current Priorities: Identify ongoing projects and areas of focus\n" +
-            "When responding, include specific dates and concrete examples from the updates. " + 
-            "Be concise but thorough, and focus on telling a compelling story of the user's impact and value."
+          content: STANDUP_ANALYSIS_PROMPT
         },
         {
           role: "user",

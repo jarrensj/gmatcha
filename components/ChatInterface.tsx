@@ -137,14 +137,14 @@ export default function ChatInterface() {
   return (
     <Card
       className={cn(
-        "fixed right-4 transition-all duration-300 shadow-lg flex flex-col",
+        "fixed right-4 transition-all duration-300 shadow-lg flex flex-col overflow-hidden",
         isMinimized ? "bottom-4 h-14 w-14 rounded-full p-0 cursor-pointer" : "bottom-4 h-[400px] w-80 max-h-[80vh]",
       )}
     >
       {/* Chat Header */}
       <div 
         className={cn(
-          "flex items-center justify-between cursor-pointer",
+          "flex items-center justify-between cursor-pointer flex-shrink-0",
           isMinimized ? "h-full w-full rounded-full" : "p-2 border-b"
         )}
         onClick={(e) => {
@@ -182,7 +182,7 @@ export default function ChatInterface() {
 
       {/* Chat Content - only visible when not minimized */}
       {!isMinimized && (
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-0">
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-2 space-y-2">
             {messages.length === 0 ? (

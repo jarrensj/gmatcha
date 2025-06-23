@@ -1,47 +1,20 @@
 # Contributing to gmatcha
 
-Thanks for your interest in contributing! This document will help you get started.
+We appreciate the interest!
 
-## Quick Start
-1. Set up the repository
-```bash
-git clone https://github.com/jarrensj/gmatcha.git
-```
+Before contributing, please read the following terms:
 
-2. Set up your development environment
+## Contributor License Agreement (CLA)
 
-For detailed instructions on setting up your local development environment, please refer to our [README](README.md).
+By submitting any code, documentation, designs, or any other materials (the "Contribution") to this repository, you agree to the following:
 
-## Development
+- You **assign all rights, title, and interest** in and to the Contribution to the maintainers of this project.
+- You **waive any rights** to compensation or attribution. 
+- You agree that the maintainers may use, reproduce, modify, distribute, sublicense, and create derivative works from the Contribution **in any manner and for any purpose**, without limitation.
+- You represent and warrant that you have all necessary rights and authority to make the Contribution, and that it does not violate the rights of any third party.
 
-1. Create your feature branch
+If you do not agree to **all** these terms, please do not submit a contribution. Thank you!
 
-```bash
-git checkout -b feature/your-feature
-```
+## Contact
 
-2. Start the development environment
-
-```bash
-npm run dev
-```
-
-## Guidelines
-- Commit Messages: Use Conventional Commits: type(scope): summary, e.g. fix(auth): handle 401 renewal.
-- Documentation: Update README.md or relevant docs for any user‐facing change.
-- Security: If you discover a vulnerability, do not open a public issue.  Email hello@gmatcha.com for responsible disclosure.
-
-## Pull Request
-
-1. Update documentation if you're changing behavior
-2. Add or update tests for your changes
-3. Make sure all tests pass
-4. The PR will be merged once you have the sign-off of at least one other developer
-
-## Disclaimer
-1. All contributions are made voluntarily and without expectation of compensation of any kind—no salary, fees, royalties, equity, tokens, or future participation in profits.  By contributing, you explicitly agree that you are not entitled to any monetary or ownership interest in the project, its maintainers, or any derivative commercial offering.
-2. Maintainers owe you no duty of care with respect to your contribution. We may accept, reject, alter, or remove any contribution for any reason, including compliance, quality, or project direction, without prior notice.
-3. To the fullest extent permitted by law, you waive any attribution or integrity rights (a/k/a “moral rights”) you may have in the contribution.
-4. If your contribution includes patentable material, you grant an irrevocable, perpetual, worldwide, royalty‑free patent license covering the contribution, consistent with the project license.
-
-If you cannot agree to every item above, please do not submit a contribution.
+If you have questions or concerns about contributing, feel free to contact hello@gmatcha.com

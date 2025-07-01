@@ -49,12 +49,36 @@ export default {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			'cream': {
+  				DEFAULT: 'hsl(var(--cream))',
+  				dark: 'hsl(var(--cream-dark))'
+  			},
+  			'charcoal': {
+  				DEFAULT: 'hsl(var(--charcoal))',
+  				light: 'hsl(var(--charcoal-light))',
+  				lighter: 'hsl(var(--charcoal-lighter))'
+  			},
+  			'matcha': {
+  				subtle: 'hsl(var(--matcha-subtle))',
+  				muted: 'hsl(var(--matcha-muted))',
+  				accent: 'hsl(var(--matcha-accent))'
+  			},
+  			'brown': {
+  				subtle: 'hsl(var(--brown-subtle))',
+  				muted: 'hsl(var(--brown-muted))'
   			}
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
+  		},
+  		fontFamily: {
+  			'zen': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+  		},
+  		letterSpacing: {
+  			'zen': '0.02em',
   		}
   	}
   },

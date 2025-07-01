@@ -2,71 +2,95 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
 }
 
 @layer base {
   :root {
-    --background: 120 30% 98%;
-    --foreground: 120 30% 3.9%;
-    --card: 120 30% 100%;
-    --card-foreground: 120 30% 3.9%;
-    --popover: 120 30% 100%;
-    --popover-foreground: 120 30% 3.9%;
-    --primary: 120 30% 9%;
-    --primary-foreground: 120 30% 98%;
-    --secondary: 120 30% 96.1%;
-    --secondary-foreground: 120 30% 9%;
-    --muted: 120 30% 96.1%;
-    --muted-foreground: 120 30% 45.1%;
-    --accent: 120 30% 96.1%;
-    --accent-foreground: 120 30% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 120 30% 89.8%;
-    --input: 120 30% 89.8%;
-    --ring: 120 30% 3.9%;
-    --matcha-100: 120 30% 95%;
-    --matcha-200: 120 30% 90%;
-    --matcha-300: 120 30% 85%;
-    --matcha-400: 120 30% 80%;
-    --matcha-500: 120 30% 70%;
-    --matcha-600: 120 30% 60%;
-    --matcha-700: 120 30% 50%;
-    --matcha-800: 120 30% 40%;
-    --matcha-900: 120 30% 30%;
-    --radius: 0.5rem;
+    /* Matcha cream background - warm, off-white base */
+    --background: 45 25% 97%;
+    --foreground: 0 0% 25%; /* Charcoal gray instead of pure black */
+    
+    /* Cards with subtle cream tones */
+    --card: 45 20% 98%;
+    --card-foreground: 0 0% 25%;
+    
+    /* Popovers with cream base */
+    --popover: 45 20% 98%;
+    --popover-foreground: 0 0% 25%;
+    
+    /* Primary using muted charcoal */
+    --primary: 0 0% 35%;
+    --primary-foreground: 45 25% 97%;
+    
+    /* Secondary with very subtle warmth */
+    --secondary: 45 15% 94%;
+    --secondary-foreground: 0 0% 30%;
+    
+    /* Muted tones for less prominent elements */
+    --muted: 45 15% 95%;
+    --muted-foreground: 0 0% 50%;
+    
+    /* Accent with subtle matcha undertones */
+    --accent: 120 20% 92%;
+    --accent-foreground: 0 0% 30%;
+    
+    /* Destructive kept minimal */
+    --destructive: 0 50% 55%;
+    --destructive-foreground: 45 25% 97%;
+    
+    /* Borders very subtle */
+    --border: 0 0% 88%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 35%;
+    
+    /* Custom Japanese minimalist palette */
+    --cream: 45 25% 97%;
+    --cream-dark: 45 20% 94%;
+    --charcoal: 0 0% 25%;
+    --charcoal-light: 0 0% 40%;
+    --charcoal-lighter: 0 0% 60%;
+    
+    /* Muted matcha accents */
+    --matcha-subtle: 120 15% 88%;
+    --matcha-muted: 120 20% 82%;
+    --matcha-accent: 120 25% 75%;
+    
+    /* Muted browns for warmth */
+    --brown-subtle: 25 15% 85%;
+    --brown-muted: 25 20% 78%;
+    
+    /* Soft radius for hand-drawn feel */
+    --radius: 6px;
   }
+  
   .dark {
-    --background: 120 30% 3.9%;
-    --foreground: 120 30% 98%;
-    --card: 120 30% 3.9%;
-    --card-foreground: 120 30% 98%;
-    --popover: 120 30% 3.9%;
-    --popover-foreground: 120 30% 98%;
-    --primary: 120 30% 98%;
-    --primary-foreground: 120 30% 9%;
-    --secondary: 120 30% 14.9%;
-    --secondary-foreground: 120 30% 98%;
-    --muted: 120 30% 14.9%;
-    --muted-foreground: 120 30% 63.9%;
-    --accent: 120 30% 14.9%;
-    --accent-foreground: 120 30% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 120 30% 14.9%;
-    --input: 120 30% 14.9%;
-    --ring: 120 30% 83.1%;
-    --matcha-100: 120 30% 20%;
-    --matcha-200: 120 30% 25%;
-    --matcha-300: 120 30% 30%;
-    --matcha-400: 120 30% 35%;
-    --matcha-500: 120 30% 40%;
-    --matcha-600: 120 30% 45%;
-    --matcha-700: 120 30% 50%;
-    --matcha-800: 120 30% 55%;
-    --matcha-900: 120 30% 60%;
+    /* Dark mode with same principles but inverted */
+    --background: 0 0% 8%;
+    --foreground: 45 15% 85%;
+    --card: 0 0% 10%;
+    --card-foreground: 45 15% 85%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 45 15% 85%;
+    --primary: 45 15% 85%;
+    --primary-foreground: 0 0% 15%;
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 45 15% 80%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 55%;
+    --accent: 0 0% 15%;
+    --accent-foreground: 45 15% 80%;
+    --destructive: 0 50% 50%;
+    --destructive-foreground: 45 15% 85%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 45 15% 70%;
   }
 }
 
@@ -76,20 +100,98 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    /* Add subtle texture for hand-drawn feel */
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(0,0,0,0.01) 1px, transparent 0);
+    background-size: 20px 20px;
   }
 }
 
 @layer components {
-  .matcha-gradient {
-    @apply bg-gradient-to-br from-[hsl(var(--matcha-100))] to-[hsl(var(--matcha-300))];
+  /* Replace gradient with flat cream background */
+  .matcha-background {
+    @apply bg-[hsl(var(--cream))];
   }
   
+  /* Charcoal text styling */
   .matcha-text {
-    @apply text-[hsl(var(--matcha-700))];
+    @apply text-[hsl(var(--charcoal))];
   }
   
+  /* Subtle borders with hand-drawn feel */
   .matcha-border {
-    @apply border-2 border-[hsl(var(--matcha-400))];
+    @apply border border-[hsl(var(--border))];
+    /* Add slight irregularity for hand-drawn feel */
+    border-radius: calc(var(--radius) + 1px);
   }
+  
+  /* Japanese minimalist spacing utilities */
+  .space-zen {
+    @apply space-y-8;
+  }
+  
+  .space-zen-lg {
+    @apply space-y-12;
+  }
+  
+  /* Soft shadows for depth without being flashy */
+  .shadow-soft {
+    box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.04), 
+                0 1px 3px -1px rgba(0, 0, 0, 0.02);
+  }
+  
+  /* Hand-drawn inspired elements */
+  .sketch-border {
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    position: relative;
+  }
+  
+  .sketch-border::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    opacity: 0.3;
+    transform: rotate(0.1deg);
+    pointer-events: none;
+  }
+  
+  /* Breathing room for Japanese minimalism */
+  .container-zen {
+    @apply max-w-4xl mx-auto px-6 py-8;
+  }
+  
+  /* Gentle focus states */
+  .focus-zen {
+    @apply focus:outline-none focus:ring-2 focus:ring-[hsl(var(--matcha-muted))] focus:ring-opacity-50;
+  }
+}
+
+/* Custom scrollbar styling for minimalist feel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--charcoal-lighter));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--charcoal-light));
+}
+
+/* Smooth transitions for zen-like interactions */
+* {
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 

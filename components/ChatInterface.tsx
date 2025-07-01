@@ -127,9 +127,9 @@ export default function ChatInterface() {
     return (
       <Button 
         onClick={() => setIsOpen(true)} 
-        className="fixed bottom-4 right-4 h-14 w-14 rounded-full p-0 shadow-lg bg-card hover:bg-accent"
+        className="fixed bottom-6 right-6 h-16 w-16 rounded-full p-0 shadow-soft bg-[hsl(var(--charcoal))] hover:bg-[hsl(var(--charcoal-light))] text-[hsl(var(--cream))] border-2 border-[hsl(var(--border))]"
       >
-        <MessageSquare className="h-6 w-6 text-card-foreground" />
+        <MessageSquare className="h-7 w-7" />
       </Button>
     )
   }
@@ -137,15 +137,15 @@ export default function ChatInterface() {
   return (
     <Card
       className={cn(
-        "fixed right-4 transition-all duration-300 shadow-lg flex flex-col overflow-hidden",
-        isMinimized ? "bottom-4 h-14 w-14 rounded-full p-0 cursor-pointer" : "bottom-4 h-[400px] w-80 max-h-[80vh]",
+        "fixed right-6 transition-all duration-300 shadow-soft flex flex-col overflow-hidden sketch-border bg-[hsl(var(--card))]",
+        isMinimized ? "bottom-6 h-16 w-16 rounded-full p-0 cursor-pointer" : "bottom-6 h-[450px] w-80 max-h-[80vh]",
       )}
     >
       {/* Chat Header */}
       <div 
         className={cn(
           "flex items-center justify-between cursor-pointer flex-shrink-0",
-          isMinimized ? "h-full w-full rounded-full" : "p-2 border-b"
+          isMinimized ? "h-full w-full rounded-full" : "p-4 border-b border-[hsl(var(--border))] bg-[hsl(var(--cream-dark))]"
         )}
         onClick={(e) => {
           e.stopPropagation();
@@ -154,26 +154,26 @@ export default function ChatInterface() {
       >
         {isMinimized ? (
           <div className="h-full w-full flex items-center justify-center">
-            <MessageSquare className="h-6 w-6" />
+            <MessageSquare className="h-7 w-7 text-[hsl(var(--charcoal))]" />
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              <h3 className="text-sm font-medium">AI Assistant</h3>
+            <div className="flex items-center gap-3">
+              <MessageSquare className="h-5 w-5 text-[hsl(var(--charcoal))]" />
+              <h3 className="text-lg font-light text-[hsl(var(--charcoal))] tracking-wide">AI Assistant</h3>
             </div>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-[hsl(var(--charcoal-light))] hover:text-[hsl(var(--charcoal))] hover:bg-[hsl(var(--matcha-subtle))]" onClick={(e) => {
                 e.stopPropagation();
                 setIsMinimized(!isMinimized);
               }}>
-                {isMinimized ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                {isMinimized ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => {
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-[hsl(var(--charcoal-light))] hover:text-[hsl(var(--charcoal))] hover:bg-[hsl(var(--matcha-subtle))]" onClick={(e) => {
                 e.stopPropagation();
                 setIsOpen(false);
               }}>
-                <X className="h-3 w-3" />
+                <X className="h-4 w-4" />
               </Button>
             </div>
           </>
@@ -184,11 +184,13 @@ export default function ChatInterface() {
       {!isMinimized && (
         <div className="flex-1 flex flex-col min-h-0">
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-2 space-y-2">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.length === 0 ? (
-              <div className="text-muted-foreground">
-                <div className="bg-muted p-2 rounded-lg text-sm max-w-[80%] mr-auto">
-                  Hello! How can I help you today? Please select one of the options below.
+              <div className="text-center py-4">
+                <div className="sketch-border p-3 bg-[hsl(var(--matcha-subtle))] inline-block">
+                  <p className="text-[hsl(var(--charcoal-light))] font-light tracking-wide text-sm leading-relaxed">
+                    Hello! How can I help you today? Please select one of the options below.
+                  </p>
                 </div>
               </div>
             ) : (
@@ -197,14 +199,14 @@ export default function ChatInterface() {
                   <div
                     key={message.id}
                     className={cn(
-                      "max-w-[80%] p-2 rounded-lg text-sm",
+                      "max-w-[85%] p-3 sketch-border text-sm",
                       message.role === 'user' 
-                        ? "bg-primary text-primary-foreground ml-auto" 
-                        : "bg-muted mr-auto"
+                        ? "bg-[hsl(var(--charcoal))] text-[hsl(var(--cream))] ml-auto" 
+                        : "bg-[hsl(var(--matcha-subtle))] text-[hsl(var(--charcoal))] mr-auto"
                     )}
                   >
-                    <p className="whitespace-pre-wrap">{message.content}</p>
-                    <div className="text-[10px] mt-1 opacity-70">
+                    <p className="whitespace-pre-wrap font-light leading-relaxed tracking-wide">{message.content}</p>
+                    <div className="text-xs mt-2 opacity-70 font-light">
                       {message.timestamp.toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit'
@@ -218,40 +220,40 @@ export default function ChatInterface() {
           </div>
 
           {/* Options Area */}
-          <div className="p-2 border-t">
+          <div className="p-4 border-t border-[hsl(var(--border))] bg-[hsl(var(--cream-dark))]">
             {messages.length === 0 ? (
-              <div className="grid grid-cols-1 gap-1.5">
+              <div className="space-y-2">
                 {examplePrompts.map((prompt, index) => (
-                  <Button 
+                  <button 
                     key={index}
-                    variant="outline" 
-                    className="justify-start text-left h-auto py-1.5 px-3 text-sm"
+                    className="w-full text-left p-3 sketch-border bg-[hsl(var(--card))] hover:bg-[hsl(var(--matcha-subtle))] transition-colors focus-zen text-sm"
                     onClick={() => handleSubmit(prompt.text, index)}
                     disabled={isLoading}
                   >
-                    <div className="w-full overflow-hidden">
+                    <div className="w-full">
                       {loadingPromptIndex === index ? (
-                        <Loader2Icon className="h-4 w-4 animate-spin" />
+                        <div className="flex items-center gap-2">
+                          <Loader2Icon className="h-4 w-4 animate-spin" />
+                          <span className="font-light tracking-wide">Processing...</span>
+                        </div>
                       ) : (
                         <>
-                          <p className="font-medium">{prompt.text}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">{prompt.description}</p>
+                          <p className="font-light text-[hsl(var(--charcoal))] tracking-wide">{prompt.text}</p>
+                          <p className="text-xs text-[hsl(var(--charcoal-light))] mt-1 font-light">{prompt.description}</p>
                         </>
                       )}
                     </div>
-                  </Button>
+                  </button>
                 ))}
               </div>
             ) : (
-              <div className="space-y-1">
-                <p className="text-center text-xs text-muted-foreground">Try another option:</p>
+              <div className="space-y-2">
+                <p className="text-center text-xs text-[hsl(var(--charcoal-light))] font-light tracking-wide">Try another option:</p>
                 <div className="flex flex-wrap gap-1.5">
                   {examplePrompts.map((prompt, index) => (
-                    <Button 
+                    <button 
                       key={index}
-                      variant="outline" 
-                      size="sm"
-                      className="h-7 px-2 text-xs"
+                      className="px-2 py-1.5 text-xs sketch-border bg-[hsl(var(--card))] hover:bg-[hsl(var(--matcha-subtle))] text-[hsl(var(--charcoal))] transition-colors focus-zen font-light tracking-wide"
                       onClick={() => handleSubmit(prompt.text, index)}
                       disabled={isLoading}
                     >
@@ -260,7 +262,7 @@ export default function ChatInterface() {
                       ) : (
                         prompt.text
                       )}
-                    </Button>
+                    </button>
                   ))}
                 </div>
               </div>

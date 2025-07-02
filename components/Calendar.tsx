@@ -318,7 +318,53 @@ export default function Calendar({ onDateSelect }: CalendarProps) {
                     size="sm"
                     onClick={() => {
                       const today = new Date();
-                      handleDayClick(today.getDate());
+                      const todayFormatted = formatLocalDate(today);
+                      
+                      // Check if we need to navigate to today's month
+                      const needsNavigation = today.getMonth() !== currentDate.getMonth() || today.getFullYear() !== currentDate.getFullYear();
+                      
+                      if (needsNavigation) {
+                        // First navigate to today's month
+                        setCurrentDate(today);
+                        // Delay the selection until after the month change is processed
+                        setTimeout(() => {
+                          const update = updatesData[todayFormatted] || null;
+                          setSelectedDay(todayFormatted);
+                          setSelectedDayUpdate(update);
+                          setIsEditing(true);
+                          
+                          // Pre-populate form data
+                          if (update) {
+                            const [current, yesterday, blockers] = update.text.split('\n\n');
+                            setCurrentWork(current.replace('What are you working on?\n', ''));
+                            setYesterdayWork(yesterday.replace('What did you work on yesterday?\n', ''));
+                            setBlockers(blockers.replace('What are your blockers?\n', ''));
+                          } else {
+                            setCurrentWork('');
+                            setYesterdayWork('');
+                            setBlockers('');
+                          }
+                        }, 0);
+                      } else {
+                        // We're already on the right month, select immediately
+                        const update = updatesData[todayFormatted] || null;
+                        setSelectedDay(todayFormatted);
+                        setSelectedDayUpdate(update);
+                        setIsEditing(true);
+                        
+                        // Pre-populate form data
+                        if (update) {
+                          const [current, yesterday, blockers] = update.text.split('\n\n');
+                          setCurrentWork(current.replace('What are you working on?\n', ''));
+                          setYesterdayWork(yesterday.replace('What did you work on yesterday?\n', ''));
+                          setBlockers(blockers.replace('What are your blockers?\n', ''));
+                        } else {
+                          setCurrentWork('');
+                          setYesterdayWork('');
+                          setBlockers('');
+                        }
+                      }
+                      
                       setShowStandupReminder(false);
                     }}
                     className="bg-[hsl(var(--charcoal))] text-[hsl(var(--cream))] hover:bg-[hsl(var(--charcoal-light))] font-light tracking-wide"

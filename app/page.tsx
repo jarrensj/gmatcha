@@ -9,71 +9,86 @@ export default function Home() {
   const { isLoaded } = useAuth()
 
   return (
-    <main className="relative min-h-screen w-full flex flex-col matcha-gradient pt-6">
+    <main className="relative min-h-screen w-full flex flex-col bg-[hsl(var(--cream))]">
       {!isLoaded && (
-        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-[#4A7856] border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-[#2C5530] font-medium">Loading gmatcha...</p>
+        <div className="fixed inset-0 bg-[hsl(var(--cream))]/90 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-6">
+            <div className="w-16 h-16 border-2 border-[hsl(var(--charcoal))] border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-[hsl(var(--charcoal))] font-medium tracking-wide">Loading gmatcha...</p>
           </div>
         </div>
       )}
-      <div className="w-full bg-[#2C5530]/10 backdrop-blur-sm">
-        <div className="w-full max-w-4xl mx-auto px-4 py-2 flex items-center justify-between">
-          <h1 
-            onClick={() => window.location.reload()} 
-            className="text-2xl font-bold matcha-text cursor-pointer hover:opacity-80 transition-opacity"
-          >
-            gmatcha
-          </h1>
-          <div className="flex items-center">
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="text-[#2C5530]/70 text-sm hover:text-[#2C5530] transition-colors cursor-pointer">
-                  Log in / Sign in
-                </button>
-              </SignInButton>
-            </SignedOut>
+      
+      {/* Header */}
+      <div className="w-full bg-[hsl(var(--cream-dark))] border-b border-[hsl(var(--border))]">
+        <div className="container-zen py-4">
+          <div className="flex items-center justify-between">
+            <h1 
+              onClick={() => window.location.reload()} 
+              className="text-3xl font-light text-[hsl(var(--charcoal))] cursor-pointer hover:text-[hsl(var(--charcoal-light))] transition-colors tracking-wide"
+            >
+              gmatcha
+            </h1>
+            <div className="flex items-center">
+              <SignedIn>
+                <div className="p-1">
+                  <UserButton />
+                </div>
+              </SignedIn>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="text-[hsl(var(--charcoal-light))] text-sm hover:text-[hsl(var(--charcoal))] transition-colors font-light tracking-wide">
+                    Log in / Sign in
+                  </button>
+                </SignInButton>
+              </SignedOut>
+            </div>
           </div>
         </div>
       </div>
 
       <SignedOut>
-        <div className="flex-grow flex flex-col items-center justify-center pt-2 pb-10">
-          <div className="p-8 max-w-md mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg flex flex-col items-center space-y-3 border border-[#2C5530]/10">
-            <h2 className="text-3xl font-bold text-[#2C5530]">gmatcha</h2>
-            <p className="text-[#4A7856]/90 text-center text-sm leading-relaxed">
-              Track your daily standup updates and get AI-powered insights about your standup updates.
-            </p>
-            <SignInButton mode="modal">
-              <button className="text-[#2C5530]/70 text-xs mt-1 hover:text-[#2C5530] transition-colors cursor-pointer">
-                Log in / Sign in to get started
-              </button>
-            </SignInButton>
+        <div className="flex-grow flex flex-col items-center justify-center py-16">
+          <div className="container-zen max-w-lg">
+            <div className="sketch-border p-12 bg-[hsl(var(--card))] shadow-soft">
+              <div className="text-center space-zen">
+                <h2 className="text-4xl font-light text-[hsl(var(--charcoal))] mb-4 tracking-wide">
+                  gmatcha
+                </h2>
+                <p className="text-[hsl(var(--charcoal-light))] leading-relaxed font-light tracking-wide">
+                  Track your daily standup updates and get AI-powered insights about your progress.
+                </p>
+                <div className="pt-6">
+                  <SignInButton mode="modal">
+                    <button className="text-[hsl(var(--charcoal-light))] text-sm hover:text-[hsl(var(--charcoal))] transition-colors font-light tracking-wide border-b border-[hsl(var(--border))] pb-1">
+                      Log in / Sign in to get started
+                    </button>
+                  </SignInButton>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </SignedOut>
 
       <SignedIn>
-        <div className="flex-grow flex flex-col items-center pt-4 pb-10">
-          <div className="relative z-10 w-full max-w-4xl px-4">
+        <div className="flex-grow">
+          {/* Main content area with generous spacing */}
+          <div className="container-zen py-12">
             <StandupInput />
-          </div>
-        </div>
-        
-        <div className="w-full flex justify-center pb-16">
-          <div className="relative z-30 w-full max-w-4xl px-4">
-            <ChatInterface />
           </div>
         </div>
       </SignedIn>
 
-      <div className="relative z-10 w-full py-4">
+      {/* Footer */}
+      <div className="border-t border-[hsl(var(--border))] bg-[hsl(var(--cream-dark))]">
         <Footer />
       </div>
+      
+      {/* Floating Chat Interface */}
+      <SignedIn>
+        <ChatInterface />
+      </SignedIn>
     </main>
   )
 }

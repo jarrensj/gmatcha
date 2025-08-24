@@ -159,7 +159,7 @@ ${blockers || 'No blockers'}`;
               </pre>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              Click "Copy to Clipboard" to copy this formatted text, then paste it into Slack, Discord, or any other platform.
+              Click &quot;Copy to Clipboard&quot; to copy this formatted text, then paste it into Slack, Discord, or any other platform.
             </p>
           </div>
         )}

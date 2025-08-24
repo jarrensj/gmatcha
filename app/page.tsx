@@ -90,7 +90,7 @@ export default function Home() {
       }
     };
     
-    let markdownSections = [];
+    const markdownSections = [];
     
     if (showTodaySection) {
       markdownSections.push(formatHeader(todayFormat, todayHeader), workingOn || 'No updates provided');

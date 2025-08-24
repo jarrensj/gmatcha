@@ -187,50 +187,52 @@ export default function Home() {
 
 
 
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {showTodaySection && (
-            <StandupSection
-              header={todayHeader}
-              onHeaderChange={setTodayHeader}
-              content={workingOn}
-              onContentChange={setWorkingOn}
-              onHide={() => setShowTodaySection(false)}
-              placeholder={`${todayHeader.toLowerCase().replace(/\?$/, '')}`}
-            />
-          )}
+        {!showOutput && (
+          <form onSubmit={handleSubmit} className="space-y-8">
+            {showTodaySection && (
+              <StandupSection
+                header={todayHeader}
+                onHeaderChange={setTodayHeader}
+                content={workingOn}
+                onContentChange={setWorkingOn}
+                onHide={() => setShowTodaySection(false)}
+                placeholder={`${todayHeader.toLowerCase().replace(/\?$/, '')}`}
+              />
+            )}
 
-          {showYesterdaySection && (
-            <StandupSection
-              header={yesterdayHeader}
-              onHeaderChange={setYesterdayHeader}
-              content={workedOnYesterday}
-              onContentChange={setWorkedOnYesterday}
-              onHide={() => setShowYesterdaySection(false)}
-              placeholder={`${yesterdayHeader.toLowerCase().replace(/\?$/, '')}`}
-            />
-          )}
+            {showYesterdaySection && (
+              <StandupSection
+                header={yesterdayHeader}
+                onHeaderChange={setYesterdayHeader}
+                content={workedOnYesterday}
+                onContentChange={setWorkedOnYesterday}
+                onHide={() => setShowYesterdaySection(false)}
+                placeholder={`${yesterdayHeader.toLowerCase().replace(/\?$/, '')}`}
+              />
+            )}
 
-          {showBlockersSection && (
-            <StandupSection
-              header={blockersHeader}
-              onHeaderChange={setBlockersHeader}
-              content={blockers}
-              onContentChange={setBlockers}
-              onHide={() => setShowBlockersSection(false)}
-              placeholder={`${blockersHeader.toLowerCase().replace(/\?$/, '')}`}
-            />
-          )}
+            {showBlockersSection && (
+              <StandupSection
+                header={blockersHeader}
+                onHeaderChange={setBlockersHeader}
+                content={blockers}
+                onContentChange={setBlockers}
+                onHide={() => setShowBlockersSection(false)}
+                placeholder={`${blockersHeader.toLowerCase().replace(/\?$/, '')}`}
+              />
+            )}
 
-          <div className="flex justify-center px-4 pt-4">
-            <button
-              type="submit"
-              className="w-full sm:w-auto sketch-shadow soft-focus font-semibold py-5 sm:py-4 px-10 rounded-xl transition-all duration-300 hover:scale-105 text-base sm:text-base min-h-[48px]"
-              style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
-            >
-              Generate Markdown
-            </button>
-          </div>
-        </form>
+            <div className="flex justify-center px-4 pt-4">
+              <button
+                type="submit"
+                className="w-full sm:w-auto sketch-shadow soft-focus font-semibold py-5 sm:py-4 px-10 rounded-xl transition-all duration-300 hover:scale-105 text-base sm:text-base min-h-[48px]"
+                style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
+              >
+                Generate Markdown
+              </button>
+            </div>
+          </form>
+        )}
 
         {showOutput && (
           <div className="mt-8 sm:mt-10 sketch-shadow rounded-2xl p-6 sm:p-8" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>

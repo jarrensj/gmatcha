@@ -12,15 +12,16 @@ export default function Settings({
   return (
     <div className="max-w-2xl mx-auto">
       <div className="relative text-center mb-6 sm:mb-8">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <h1 className="sketch-text text-2xl sm:text-3xl font-bold mb-2" style={{color: 'var(--foreground)'}}>
           Settings
         </h1>
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 px-4">
+        <p className="text-sm sm:text-base px-4" style={{color: 'var(--text-muted)'}}>
           Configure your default formatting preferences
         </p>
         <button
           onClick={onBackToForm}
-          className="absolute top-0 right-0 bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 sm:py-1 sm:px-3 rounded text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center"
+          className="absolute top-0 right-0 sketch-shadow soft-focus py-2 px-3 sm:py-1 sm:px-3 rounded-lg text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center transition-all duration-300 hover:scale-105"
+          style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
         >
           <span className="hidden sm:inline">Back to Form</span>
           <span className="sm:hidden">Back</span>
@@ -28,19 +29,24 @@ export default function Settings({
       </div>
 
       <div className="space-y-6">
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="sketch-shadow rounded-2xl p-4 sm:p-6" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
+          <h3 className="sketch-text text-xl font-semibold mb-4" style={{color: 'var(--foreground)'}}>
             Default Header Format
           </h3>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
               Choose the default formatting for all section headers:
             </label>
             <select
               value={defaultHeaderFormat}
               onChange={(e) => onDefaultHeaderFormatChange(e.target.value)}
-              className="w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500 min-h-[44px] text-base"
+              className="w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300"
+              style={{
+                backgroundColor: 'var(--light-gray)',
+                color: 'var(--foreground)',
+                border: '1px solid var(--border-color)'
+              }}
             >
               <option value="none">Plain text</option>
               <option value="bold">**Bold**</option>
@@ -49,7 +55,7 @@ export default function Settings({
             </select>
           </div>
           
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+          <p className="text-sm mt-4" style={{color: 'var(--text-muted)'}}>
             This setting applies to all sections immediately and will be used for new updates.
           </p>
         </div>

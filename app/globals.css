@@ -1,26 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Minimal sketch palette */
+  --cream-bg: #faf8f5;
+  --warm-white: #f7f5f2;
+  --soft-charcoal: #4a4a4a;
+  --light-gray: #f0f0f0;
+  --soft-gray: #e5e2df;
+  --medium-gray: #8a8a8a;
+  --sketch-gray: #6b6b6b;
+  
+  --background: var(--cream-bg);
+  --foreground: var(--soft-charcoal);
+  --card-bg: var(--warm-white);
+  --border-color: var(--soft-gray);
+  --accent-primary: var(--soft-charcoal);
+  --accent-secondary: var(--medium-gray);
+  --text-muted: var(--sketch-gray);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Courier New', monospace;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --cream-bg: #2d2b28;
+    --warm-white: #363330;
+    --soft-charcoal: #e8e6e3;
+    --light-gray: #3a3a3a;
+    --soft-gray: #4a4845;
+    --medium-gray: #a8a6a3;
+    --sketch-gray: #c0beb8;
+    --text-muted: #a8a6a3;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle sketch elements */
+.sketch-border {
+  position: relative;
+}
+
+.sketch-border::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  border: 1px solid var(--medium-gray);
+  border-radius: inherit;
+  opacity: 0.2;
+  transform: rotate(-0.2deg);
+  z-index: -1;
+}
+
+.sketch-shadow {
+  box-shadow: 
+    1px 2px 0px rgba(74, 74, 74, 0.08),
+    2px 4px 0px rgba(74, 74, 74, 0.04);
+}
+
+/* Soft paper texture */
+.textured-bg {
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(74, 74, 74, 0.015) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(74, 74, 74, 0.015) 0%, transparent 50%),
+    linear-gradient(0deg, transparent 24%, rgba(74, 74, 74, 0.005) 25%, rgba(74, 74, 74, 0.005) 26%, transparent 27%, transparent 74%, rgba(74, 74, 74, 0.005) 75%, rgba(74, 74, 74, 0.005) 76%, transparent 77%);
+}
+
+/* Clean typography */
+.sketch-text {
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+/* Soft focus rings */
+.soft-focus {
+  transition: all 0.3s ease;
+}
+
+.soft-focus:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 74, 74, 0.15);
+  border-color: var(--accent-primary);
+}
+
+/* Placeholder styling */
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* Select styling */
+select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234a4a4a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+  appearance: none;
+}
+
+/* Soft hover effects */
+.hover-lift:hover {
+  transform: translateY(-1px);
+}
+
+/* Gentle animations */
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-2px); }
+}
+
+.gentle-bounce {
+  animation: gentle-bounce 2s ease-in-out infinite;
+}
+
+/* Minimal button styling */
+.btn-sketch {
+  background: var(--accent-primary);
+  border: 1px solid var(--accent-secondary);
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-sketch:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(74, 74, 74, 0.15);
 }

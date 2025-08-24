@@ -16,11 +16,14 @@ export default function StandupSection({
   placeholder 
 }: StandupSectionProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 relative">
+    <div className="sketch-shadow rounded-2xl p-6 sm:p-8 relative" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
       <button
         type="button"
         onClick={onHide}
-        className="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-xl font-bold min-h-[44px] min-w-[44px] flex items-center justify-center sm:min-h-auto sm:min-w-auto"
+        className="absolute top-3 right-3 text-xl font-bold min-h-[44px] min-w-[44px] flex items-center justify-center sm:min-h-auto sm:min-w-auto transition-all duration-300 hover:scale-110 rounded-full"
+        style={{color: 'var(--text-muted)', backgroundColor: 'transparent'}}
+        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-secondary)'}
+        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
         title="Hide this section"
       >
         ×
@@ -29,13 +32,27 @@ export default function StandupSection({
         type="text"
         value={header}
         onChange={(e) => onHeaderChange(e.target.value)}
-        className="block w-full text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-2 sm:py-1 pr-12"
+        className="sketch-text block w-full text-lg sm:text-xl font-semibold mb-4 bg-transparent border-none soft-focus rounded-lg px-3 py-3 sm:py-2 pr-12"
+        style={{color: 'var(--foreground)'}}
         placeholder="Enter section header..."
       />
       <textarea
         value={content}
         onChange={(e) => onContentChange(e.target.value)}
-        className="w-full h-32 sm:h-32 p-3 sm:p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm sm:text-base"
+        className="w-full h-36 sm:h-36 p-4 sm:p-5 rounded-xl resize-none soft-focus text-sm sm:text-base transition-all duration-300"
+        style={{
+          backgroundColor: 'var(--light-gray)',
+          border: '1px solid var(--border-color)',
+          color: 'var(--foreground)'
+        }}
+        onFocus={(e) => {
+          e.target.style.backgroundColor = 'var(--warm-white)';
+          e.target.style.borderColor = 'var(--accent-primary)';
+        }}
+        onBlur={(e) => {
+          e.target.style.backgroundColor = 'var(--light-gray)';
+          e.target.style.borderColor = 'var(--border-color)';
+        }}
         placeholder={placeholder}
       />
     </div>

@@ -159,23 +159,25 @@ export default function Home() {
   const renderFormPage = () => (
     <div className="max-w-4xl mx-auto">
       <div className="relative text-center mb-6 sm:mb-8">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2 pr-4">
+        <h1 className="sketch-text text-2xl sm:text-3xl font-bold mb-2 pr-4" style={{color: 'var(--foreground)'}}>
           standup formatter
         </h1>
-        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 px-4">
-          Standup Update Formatter
+        <p className="text-sm sm:text-base px-4" style={{color: 'var(--text-muted)'}}>
+          format and formulate your daily updates
         </p>
         <div className="absolute top-0 right-0 flex gap-1 sm:gap-2">
           <button
             onClick={() => setCurrentPage('settings')}
-            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-2 sm:py-1 sm:px-3 rounded text-xs sm:text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center"
+            className="sketch-shadow soft-focus py-2 px-2 sm:py-1 sm:px-3 rounded-lg text-xs sm:text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center transition-all duration-300 hover:scale-105"
+            style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
           >
             <span className="hidden sm:inline">Settings</span>
             <span className="sm:hidden">⚙️</span>
           </button>
           <button
             onClick={resetForm}
-            className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-2 sm:py-1 sm:px-3 rounded text-xs sm:text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center"
+            className="sketch-shadow soft-focus py-2 px-2 sm:py-1 sm:px-3 rounded-lg text-xs sm:text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center transition-all duration-300 hover:scale-105"
+            style={{backgroundColor: 'var(--accent-secondary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
           >
             <span className="hidden sm:inline">Reset</span>
             <span className="sm:hidden">🔄</span>
@@ -185,7 +187,7 @@ export default function Home() {
 
 
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
           {showTodaySection && (
             <StandupSection
               header={todayHeader}
@@ -219,10 +221,11 @@ export default function Home() {
             />
           )}
 
-          <div className="flex justify-center px-4">
+          <div className="flex justify-center px-4 pt-4">
             <button
               type="submit"
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 sm:py-3 px-8 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 text-base sm:text-base min-h-[48px]"
+              className="w-full sm:w-auto sketch-shadow soft-focus font-semibold py-5 sm:py-4 px-10 rounded-xl transition-all duration-300 hover:scale-105 text-base sm:text-base min-h-[48px]"
+              style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
             >
               Generate Markdown
             </button>
@@ -230,45 +233,48 @@ export default function Home() {
         </form>
 
         {showOutput && (
-          <div className="mt-6 sm:mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3 sm:gap-0">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+          <div className="mt-8 sm:mt-10 sketch-shadow rounded-2xl p-6 sm:p-8" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4 sm:gap-0">
+              <h2 className="sketch-text text-xl sm:text-2xl font-semibold" style={{color: 'var(--foreground)'}}>
                 Your Standup Update (Markdown)
               </h2>
               <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <button
                   onClick={copyToClipboard}
-                  className={`font-medium py-3 sm:py-2 px-4 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform min-h-[48px] sm:min-h-auto text-sm sm:text-base ${
+                  className={`font-medium py-3 sm:py-2 px-4 rounded-xl transition-all duration-300 soft-focus transform min-h-[48px] sm:min-h-auto text-sm sm:text-base sketch-shadow ${
                     copyStatus === 'copied' 
-                      ? 'bg-emerald-600 text-white focus:ring-emerald-500 scale-105 shadow-lg' 
-                      : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 hover:scale-105'
+                      ? 'scale-105 shadow-lg' 
+                      : 'hover:scale-105'
                   }`}
+                  style={{
+                    backgroundColor: copyStatus === 'copied' ? 'var(--medium-gray)' : 'var(--accent-primary)',
+                    color: 'white',
+                    border: `1px solid ${copyStatus === 'copied' ? 'var(--medium-gray)' : 'var(--accent-secondary)'}`
+                  }}
                 >
                   {copyStatus === 'copied' ? '✓ Copied!' : 'Copy to Clipboard'}
                 </button>
                 <button
                   onClick={resetForm}
-                  className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 sm:py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 min-h-[48px] sm:min-h-auto text-sm sm:text-base"
+                  className="sketch-shadow soft-focus font-medium py-3 sm:py-2 px-4 rounded-xl transition-all duration-300 hover:scale-105 min-h-[48px] sm:min-h-auto text-sm sm:text-base"
+                  style={{backgroundColor: 'var(--accent-secondary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
                 >
                   New Update
                 </button>
               </div>
             </div>
-            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-600">
-              <pre className="text-xs sm:text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap font-mono overflow-x-auto">
+            <div className="rounded-xl p-3 sm:p-4" style={{backgroundColor: 'var(--light-gray)', border: '1px solid var(--border-color)'}}>
+              <pre className="text-xs sm:text-sm whitespace-pre-wrap font-mono overflow-x-auto" style={{color: 'var(--soft-charcoal)'}}>
                 {markdownOutput}
               </pre>
             </div>
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 px-1">
-              Click &quot;Copy to Clipboard&quot; to copy this formatted text, then paste it into Slack, Discord, or any other platform.
-            </p>
           </div>
         )}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 p-3 sm:p-4 lg:p-8">
+    <div className="min-h-screen textured-bg p-3 sm:p-4 lg:p-8" style={{backgroundColor: 'var(--background)'}}>
       {currentPage === 'settings' ? (
         <Settings 
           defaultHeaderFormat={defaultHeaderFormat}

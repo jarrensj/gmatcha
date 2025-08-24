@@ -8,6 +8,11 @@ export default function Home() {
   const [blockers, setBlockers] = useState('');
   const [markdownOutput, setMarkdownOutput] = useState('');
   const [showOutput, setShowOutput] = useState(false);
+  
+  // Custom headers for each section
+  const [todayHeader, setTodayHeader] = useState('What are you working on today?');
+  const [yesterdayHeader, setYesterdayHeader] = useState('What did you work on yesterday?');
+  const [blockersHeader, setBlockersHeader] = useState('What are your blockers?');
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -18,6 +23,9 @@ export default function Home() {
         setWorkingOn(parsed.workingOn || '');
         setWorkedOnYesterday(parsed.workedOnYesterday || '');
         setBlockers(parsed.blockers || '');
+        setTodayHeader(parsed.todayHeader || 'What are you working on today?');
+        setYesterdayHeader(parsed.yesterdayHeader || 'What did you work on yesterday?');
+        setBlockersHeader(parsed.blockersHeader || 'What are your blockers?');
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -29,23 +37,26 @@ export default function Home() {
     const formData = {
       workingOn,
       workedOnYesterday,
-      blockers
+      blockers,
+      todayHeader,
+      yesterdayHeader,
+      blockersHeader
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [workingOn, workedOnYesterday, blockers]);
+  }, [workingOn, workedOnYesterday, blockers, todayHeader, yesterdayHeader, blockersHeader]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     const markdown = `## Daily Standup Update
 
-### 🎯 What I'm working on today:
+### ${todayHeader}
 ${workingOn || 'No updates provided'}
 
-### ✅ What I worked on yesterday:
+### ${yesterdayHeader}
 ${workedOnYesterday || 'No updates provided'}
 
-### 🚧 Blockers:
+### ${blockersHeader}
 ${blockers || 'No blockers'}`;
 
     setMarkdownOutput(markdown);
@@ -65,6 +76,9 @@ ${blockers || 'No blockers'}`;
     setWorkingOn('');
     setWorkedOnYesterday('');
     setBlockers('');
+    setTodayHeader('What are you working on today?');
+    setYesterdayHeader('What did you work on yesterday?');
+    setBlockersHeader('What are your blockers?');
     setMarkdownOutput('');
     setShowOutput(false);
     localStorage.removeItem('standupFormData');
@@ -73,52 +87,70 @@ ${blockers || 'No blockers'}`;
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-8">
+        <div className="relative text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
             Daily Standup Update
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
             Share your progress and blockers with your team
           </p>
+          <button
+            onClick={resetForm}
+            className="absolute top-0 right-0 bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+          >
+            Reset Form
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <label htmlFor="working-on" className="block text-lg font-semibold text-gray-900 dark:text-white mb-3">
-              What are you working on today?
-            </label>
+            <input
+              type="text"
+              value={todayHeader}
+              onChange={(e) => setTodayHeader(e.target.value)}
+              className="block w-full text-lg font-semibold text-gray-900 dark:text-white mb-3 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
+              placeholder="Enter section header..."
+            />
             <textarea
               id="working-on"
               value={workingOn}
               onChange={(e) => setWorkingOn(e.target.value)}
               className="w-full h-32 p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              placeholder="Describe what you're planning to work on today..."
+              placeholder={`${todayHeader.toLowerCase().replace(/\?$/, '')}`}
             />
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <label htmlFor="worked-yesterday" className="block text-lg font-semibold text-gray-900 dark:text-white mb-3">
-              What did you work on yesterday?
-            </label>
+            <input
+              type="text"
+              value={yesterdayHeader}
+              onChange={(e) => setYesterdayHeader(e.target.value)}
+              className="block w-full text-lg font-semibold text-gray-900 dark:text-white mb-3 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
+              placeholder="Enter section header..."
+            />
             <textarea
               id="worked-yesterday"
               value={workedOnYesterday}
               onChange={(e) => setWorkedOnYesterday(e.target.value)}
               className="w-full h-32 p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              placeholder="Share what you accomplished yesterday..."
+              placeholder={`${yesterdayHeader.toLowerCase().replace(/\?$/, '')}`}
             />
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <label htmlFor="blockers" className="block text-lg font-semibold text-gray-900 dark:text-white mb-3">
-              What are your blockers?
-            </label>
+            <input
+              type="text"
+              value={blockersHeader}
+              onChange={(e) => setBlockersHeader(e.target.value)}
+              className="block w-full text-lg font-semibold text-gray-900 dark:text-white mb-3 bg-transparent border-none focus:outline-none focus:ring-2 focus:ring-blue-500 rounded px-2 py-1"
+              placeholder="Enter section header..."
+            />
             <textarea
               id="blockers"
               value={blockers}
               onChange={(e) => setBlockers(e.target.value)}
               className="w-full h-32 p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-              placeholder="List any blockers or challenges you're facing..."
+              placeholder={`${blockersHeader.toLowerCase().replace(/\?$/, '')}`}
             />
           </div>
 

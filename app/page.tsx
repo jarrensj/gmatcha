@@ -8,16 +8,25 @@ export default function Home() {
   const [blockers, setBlockers] = useState('');
   const [markdownOutput, setMarkdownOutput] = useState('');
   const [showOutput, setShowOutput] = useState(false);
+  const [currentPage, setCurrentPage] = useState('form'); // 'form' or 'settings'
   
   // Custom headers for each section
   const [todayHeader, setTodayHeader] = useState('What are you working on today?');
   const [yesterdayHeader, setYesterdayHeader] = useState('What did you work on yesterday?');
   const [blockersHeader, setBlockersHeader] = useState('What are your blockers?');
   
+  // Header formatting options
+  const [todayFormat, setTodayFormat] = useState('none');
+  const [yesterdayFormat, setYesterdayFormat] = useState('none');
+  const [blockersFormat, setBlockersFormat] = useState('none');
+  
   // Section visibility
   const [showTodaySection, setShowTodaySection] = useState(true);
   const [showYesterdaySection, setShowYesterdaySection] = useState(true);
   const [showBlockersSection, setShowBlockersSection] = useState(true);
+  
+  // Default formatting setting (applies to all sections)
+  const [defaultHeaderFormat, setDefaultHeaderFormat] = useState('none');
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -31,9 +40,13 @@ export default function Home() {
         setTodayHeader(parsed.todayHeader || 'What are you working on today?');
         setYesterdayHeader(parsed.yesterdayHeader || 'What did you work on yesterday?');
         setBlockersHeader(parsed.blockersHeader || 'What are your blockers?');
+        setTodayFormat(parsed.todayFormat || 'none');
+        setYesterdayFormat(parsed.yesterdayFormat || 'none');
+        setBlockersFormat(parsed.blockersFormat || 'none');
         setShowTodaySection(parsed.showTodaySection !== undefined ? parsed.showTodaySection : true);
         setShowYesterdaySection(parsed.showYesterdaySection !== undefined ? parsed.showYesterdaySection : true);
         setShowBlockersSection(parsed.showBlockersSection !== undefined ? parsed.showBlockersSection : true);
+        setDefaultHeaderFormat(parsed.defaultHeaderFormat || 'none');
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -49,32 +62,48 @@ export default function Home() {
       todayHeader,
       yesterdayHeader,
       blockersHeader,
+      todayFormat,
+      yesterdayFormat,
+      blockersFormat,
       showTodaySection,
       showYesterdaySection,
-      showBlockersSection
+      showBlockersSection,
+      defaultHeaderFormat
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [workingOn, workedOnYesterday, blockers, todayHeader, yesterdayHeader, blockersHeader, showTodaySection, showYesterdaySection, showBlockersSection]);
+  }, [workingOn, workedOnYesterday, blockers, todayHeader, yesterdayHeader, blockersHeader, todayFormat, yesterdayFormat, blockersFormat, showTodaySection, showYesterdaySection, showBlockersSection, defaultHeaderFormat]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-
+    const formatHeader = (format: string, header: string) => {
+      switch (format) {
+        case 'bold':
+          return `**${header}**`;
+        case '##':
+          return `## ${header}`;
+        case '###':
+          return `### ${header}`;
+        case 'none':
+        default:
+          return header;
+      }
+    };
     
     let markdownSections = [];
     
     if (showTodaySection) {
-      markdownSections.push(`### ${todayHeader}`, workingOn || 'No updates provided');
+      markdownSections.push(formatHeader(todayFormat, todayHeader), workingOn || 'No updates provided');
     }
     
     if (showYesterdaySection) {
       if (markdownSections.length > 0) markdownSections.push('');
-      markdownSections.push(`### ${yesterdayHeader}`, workedOnYesterday || 'No updates provided');
+      markdownSections.push(formatHeader(yesterdayFormat, yesterdayHeader), workedOnYesterday || 'No updates provided');
     }
     
     if (showBlockersSection) {
       if (markdownSections.length > 0) markdownSections.push('');
-      markdownSections.push(`### ${blockersHeader}`, blockers || 'No blockers');
+      markdownSections.push(formatHeader(blockersFormat, blockersHeader), blockers || 'No blockers');
     }
     
     const markdown = markdownSections.join('\n');
@@ -99,7 +128,9 @@ export default function Home() {
     setTodayHeader('What are you working on today?');
     setYesterdayHeader('What did you work on yesterday?');
     setBlockersHeader('What are your blockers?');
-
+    setTodayFormat(defaultHeaderFormat);
+    setYesterdayFormat(defaultHeaderFormat);
+    setBlockersFormat(defaultHeaderFormat);
     setShowTodaySection(true);
     setShowYesterdaySection(true);
     setShowBlockersSection(true);
@@ -108,23 +139,84 @@ export default function Home() {
     localStorage.removeItem('standupFormData');
   };
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 sm:p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="relative text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Standup Update Formatter
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300">
-            Create formatted updates for your team
+  const renderSettingsPage = () => (
+    <div className="max-w-2xl mx-auto">
+      <div className="relative text-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          Settings
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300">
+          Configure your default formatting preferences
+        </p>
+        <button
+          onClick={() => setCurrentPage('form')}
+          className="absolute top-0 right-0 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+        >
+          Back to Form
+        </button>
+      </div>
+
+      <div className="space-y-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Default Header Format
+          </h3>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Choose the default formatting for all section headers:
+            </label>
+            <select
+              value={defaultHeaderFormat}
+              onChange={(e) => {
+                const newFormat = e.target.value;
+                setDefaultHeaderFormat(newFormat);
+                // Apply the new format to all current sections immediately
+                setTodayFormat(newFormat);
+                setYesterdayFormat(newFormat);
+                setBlockersFormat(newFormat);
+              }}
+              className="w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded px-3 py-2 focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="none">Plain text</option>
+              <option value="bold">**Bold**</option>
+              <option value="##">## Header 2</option>
+              <option value="###">### Header 3</option>
+            </select>
+          </div>
+          
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
+            This setting applies to all sections immediately and will be used for new updates.
           </p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderFormPage = () => (
+    <div className="max-w-4xl mx-auto">
+      <div className="relative text-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+          Standup Update Formatter
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300">
+          Create formatted updates for your team
+        </p>
+        <div className="absolute top-0 right-0 flex gap-2">
+          <button
+            onClick={() => setCurrentPage('settings')}
+            className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+          >
+            Settings
+          </button>
           <button
             onClick={resetForm}
-            className="absolute top-0 right-0 bg-gray-500 hover:bg-gray-600 text-white py-1 px-3 rounded"
+            className="bg-gray-500 hover:bg-gray-600 text-white py-1 px-3 rounded"
           >
             Reset
           </button>
         </div>
+      </div>
 
 
 
@@ -251,7 +343,12 @@ export default function Home() {
             </p>
           </div>
         )}
-      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 sm:p-8">
+      {currentPage === 'settings' ? renderSettingsPage() : renderFormPage()}
     </div>
   );
 }

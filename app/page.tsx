@@ -149,18 +149,19 @@ export default function Home() {
 
   const renderSettingsPage = () => (
     <div className="max-w-2xl mx-auto">
-      <div className="relative text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+      <div className="relative text-center mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
           Settings
         </h1>
-        <p className="text-gray-600 dark:text-gray-300">
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 px-4">
           Configure your default formatting preferences
         </p>
         <button
           onClick={() => setCurrentPage('form')}
-          className="absolute top-0 right-0 bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+          className="absolute top-0 right-0 bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 sm:py-1 sm:px-3 rounded text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center"
         >
-          Back to Form
+          <span className="hidden sm:inline">Back to Form</span>
+          <span className="sm:hidden">Back</span>
         </button>
       </div>
 
@@ -203,25 +204,27 @@ export default function Home() {
 
   const renderFormPage = () => (
     <div className="max-w-4xl mx-auto">
-      <div className="relative text-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          Standup Update Formatter
+      <div className="relative text-center mb-6 sm:mb-8">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2 pr-4">
+          standup formatter
         </h1>
-        <p className="text-gray-600 dark:text-gray-300">
-          Create formatted updates for your team
+        <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 px-4">
+          Standup Update Formatter
         </p>
-        <div className="absolute top-0 right-0 flex gap-2">
+        <div className="absolute top-0 right-0 flex gap-1 sm:gap-2">
           <button
             onClick={() => setCurrentPage('settings')}
-            className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded"
+            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-2 sm:py-1 sm:px-3 rounded text-xs sm:text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center"
           >
-            Settings
+            <span className="hidden sm:inline">Settings</span>
+            <span className="sm:hidden">⚙️</span>
           </button>
           <button
             onClick={resetForm}
-            className="bg-gray-500 hover:bg-gray-600 text-white py-1 px-3 rounded"
+            className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-2 sm:py-1 sm:px-3 rounded text-xs sm:text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center"
           >
-            Reset
+            <span className="hidden sm:inline">Reset</span>
+            <span className="sm:hidden">🔄</span>
           </button>
         </div>
       </div>
@@ -262,10 +265,10 @@ export default function Home() {
             />
           )}
 
-          <div className="flex justify-center">
+          <div className="flex justify-center px-4">
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 sm:py-3 px-8 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 text-base sm:text-base min-h-[48px]"
             >
               Generate Markdown
             </button>
@@ -273,15 +276,15 @@ export default function Home() {
         </form>
 
         {showOutput && (
-          <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <div className="mt-6 sm:mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-3 sm:gap-0">
+              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
                 Your Standup Update (Markdown)
               </h2>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                 <button
                   onClick={copyToClipboard}
-                  className={`font-medium py-2 px-4 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform ${
+                  className={`font-medium py-3 sm:py-2 px-4 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform min-h-[48px] sm:min-h-auto text-sm sm:text-base ${
                     copyStatus === 'copied' 
                       ? 'bg-emerald-600 text-white focus:ring-emerald-500 scale-105 shadow-lg' 
                       : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 hover:scale-105'
@@ -291,18 +294,18 @@ export default function Home() {
                 </button>
                 <button
                   onClick={resetForm}
-                  className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                  className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 sm:py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 min-h-[48px] sm:min-h-auto text-sm sm:text-base"
                 >
                   New Update
                 </button>
               </div>
             </div>
-            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-              <pre className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap font-mono overflow-x-auto">
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg p-3 sm:p-4 border border-gray-200 dark:border-gray-600">
+              <pre className="text-xs sm:text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap font-mono overflow-x-auto">
                 {markdownOutput}
               </pre>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-2 px-1">
               Click &quot;Copy to Clipboard&quot; to copy this formatted text, then paste it into Slack, Discord, or any other platform.
             </p>
           </div>
@@ -311,7 +314,7 @@ export default function Home() {
   );
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 p-4 sm:p-8">
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-3 sm:p-4 lg:p-8">
       {currentPage === 'settings' ? renderSettingsPage() : renderFormPage()}
     </div>
   );

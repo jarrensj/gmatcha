@@ -10,6 +10,7 @@ export default function Home() {
   const [markdownOutput, setMarkdownOutput] = useState('');
   const [showOutput, setShowOutput] = useState(false);
   const [currentPage, setCurrentPage] = useState('form'); // 'form' or 'settings'
+  const [copyStatus, setCopyStatus] = useState('idle'); // 'idle', 'copying', 'copied'
   
   // Custom headers for each section
   const [todayHeader, setTodayHeader] = useState('What are you working on today?');
@@ -116,9 +117,15 @@ export default function Home() {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(markdownOutput);
-      alert('Copied to clipboard!');
+      setCopyStatus('copied');
+      
+      // Reset to idle after 2 seconds
+      setTimeout(() => {
+        setCopyStatus('idle');
+      }, 2000);
     } catch (err) {
       console.error('Failed to copy: ', err);
+      setCopyStatus('idle');
     }
   };
 
@@ -274,9 +281,13 @@ export default function Home() {
               <div className="flex gap-2">
                 <button
                   onClick={copyToClipboard}
-                  className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+                  className={`font-medium py-2 px-4 rounded-lg transition-all duration-300 focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transform ${
+                    copyStatus === 'copied' 
+                      ? 'bg-emerald-600 text-white focus:ring-emerald-500 scale-105 shadow-lg' 
+                      : 'bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500 hover:scale-105'
+                  }`}
                 >
-                  Copy to Clipboard
+                  {copyStatus === 'copied' ? '✓ Copied!' : 'Copy to Clipboard'}
                 </button>
                 <button
                   onClick={resetForm}

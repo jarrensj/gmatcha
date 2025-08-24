@@ -48,9 +48,7 @@ export default function Home() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const markdown = `## Daily Standup Update
-
-### ${todayHeader}
+    const markdown = `### ${todayHeader}
 ${workingOn || 'No updates provided'}
 
 ### ${yesterdayHeader}

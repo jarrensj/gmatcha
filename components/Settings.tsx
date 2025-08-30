@@ -1,24 +1,24 @@
 interface SettingsProps {
   defaultHeaderFormat: string;
   onDefaultHeaderFormatChange: (format: string) => void;
-  todayHeader: string;
-  onTodayHeaderChange: (header: string) => void;
-  yesterdayHeader: string;
-  onYesterdayHeaderChange: (header: string) => void;
-  blockersHeader: string;
-  onBlockersHeaderChange: (header: string) => void;
+  header1: string;
+  onHeader1Change: (header: string) => void;
+  header2: string;
+  onHeader2Change: (header: string) => void;
+  header3: string;
+  onHeader3Change: (header: string) => void;
   onBackToForm: () => void;
 }
 
 export default function Settings({ 
   defaultHeaderFormat, 
   onDefaultHeaderFormatChange, 
-  todayHeader,
-  onTodayHeaderChange,
-  yesterdayHeader,
-  onYesterdayHeaderChange,
-  blockersHeader,
-  onBlockersHeaderChange,
+  header1,
+  onHeader1Change,
+  header2,
+  onHeader2Change,
+  header3,
+  onHeader3Change,
   onBackToForm 
 }: SettingsProps) {
   return (
@@ -49,55 +49,55 @@ export default function Settings({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
-                Today Section Header:
+                Header 1:
               </label>
               <input
                 type="text"
-                value={todayHeader}
-                onChange={(e) => onTodayHeaderChange(e.target.value)}
+                value={header1}
+                onChange={(e) => onHeader1Change(e.target.value)}
                 className="w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300"
                 style={{
                   backgroundColor: 'var(--light-gray)',
                   color: 'var(--foreground)',
                   border: '1px solid var(--border-color)'
                 }}
-                placeholder="What are you working on today?"
+                placeholder="Enter first section header"
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
-                Yesterday Section Header:
+                Header 2:
               </label>
               <input
                 type="text"
-                value={yesterdayHeader}
-                onChange={(e) => onYesterdayHeaderChange(e.target.value)}
+                value={header2}
+                onChange={(e) => onHeader2Change(e.target.value)}
                 className="w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300"
                 style={{
                   backgroundColor: 'var(--light-gray)',
                   color: 'var(--foreground)',
                   border: '1px solid var(--border-color)'
                 }}
-                placeholder="What did you work on yesterday?"
+                placeholder="Enter second section header"
               />
             </div>
             
             <div>
               <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
-                Blockers Section Header:
+                Header 3:
               </label>
               <input
                 type="text"
-                value={blockersHeader}
-                onChange={(e) => onBlockersHeaderChange(e.target.value)}
+                value={header3}
+                onChange={(e) => onHeader3Change(e.target.value)}
                 className="w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300"
                 style={{
                   backgroundColor: 'var(--light-gray)',
                   color: 'var(--foreground)',
                   border: '1px solid var(--border-color)'
                 }}
-                placeholder="What are your blockers?"
+                placeholder="Enter third section header"
               />
             </div>
           </div>

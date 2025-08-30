@@ -14,19 +14,19 @@ export default function Home() {
   const [copyStatus, setCopyStatus] = useState('idle'); // 'idle', 'copying', 'copied'
   
   // Custom headers for each section
-  const [todayHeader, setTodayHeader] = useState('What are you working on today?');
-  const [yesterdayHeader, setYesterdayHeader] = useState('What did you work on yesterday?');
-  const [blockersHeader, setBlockersHeader] = useState('What are your blockers?');
+  const [header1, setHeader1] = useState('What are you working on today?');
+  const [header2, setHeader2] = useState('What did you work on yesterday?');
+  const [header3, setHeader3] = useState('What are your blockers?');
   
   // Header formatting options
-  const [todayFormat, setTodayFormat] = useState('none');
-  const [yesterdayFormat, setYesterdayFormat] = useState('none');
-  const [blockersFormat, setBlockersFormat] = useState('none');
+  const [header1Format, setHeader1Format] = useState('none');
+  const [header2Format, setHeader2Format] = useState('none');
+  const [header3Format, setHeader3Format] = useState('none');
   
   // Section visibility
-  const [showTodaySection, setShowTodaySection] = useState(true);
-  const [showYesterdaySection, setShowYesterdaySection] = useState(true);
-  const [showBlockersSection, setShowBlockersSection] = useState(true);
+  const [showSection1, setShowSection1] = useState(true);
+  const [showSection2, setShowSection2] = useState(true);
+  const [showSection3, setShowSection3] = useState(true);
   
   // Default formatting setting (applies to all sections)
   const [defaultHeaderFormat, setDefaultHeaderFormat] = useState('none');
@@ -40,15 +40,15 @@ export default function Home() {
         setWorkingOn(parsed.workingOn || '');
         setWorkedOnYesterday(parsed.workedOnYesterday || '');
         setBlockers(parsed.blockers || '');
-        setTodayHeader(parsed.todayHeader || 'What are you working on today?');
-        setYesterdayHeader(parsed.yesterdayHeader || 'What did you work on yesterday?');
-        setBlockersHeader(parsed.blockersHeader || 'What are your blockers?');
-        setTodayFormat(parsed.todayFormat || 'none');
-        setYesterdayFormat(parsed.yesterdayFormat || 'none');
-        setBlockersFormat(parsed.blockersFormat || 'none');
-        setShowTodaySection(parsed.showTodaySection !== undefined ? parsed.showTodaySection : true);
-        setShowYesterdaySection(parsed.showYesterdaySection !== undefined ? parsed.showYesterdaySection : true);
-        setShowBlockersSection(parsed.showBlockersSection !== undefined ? parsed.showBlockersSection : true);
+        setHeader1(parsed.header1 || parsed.todayHeader || 'What are you working on today?');
+        setHeader2(parsed.header2 || parsed.yesterdayHeader || 'What did you work on yesterday?');
+        setHeader3(parsed.header3 || parsed.blockersHeader || 'What are your blockers?');
+        setHeader1Format(parsed.header1Format || parsed.todayFormat || 'none');
+        setHeader2Format(parsed.header2Format || parsed.yesterdayFormat || 'none');
+        setHeader3Format(parsed.header3Format || parsed.blockersFormat || 'none');
+        setShowSection1(parsed.showSection1 !== undefined ? parsed.showSection1 : (parsed.showTodaySection !== undefined ? parsed.showTodaySection : true));
+        setShowSection2(parsed.showSection2 !== undefined ? parsed.showSection2 : (parsed.showYesterdaySection !== undefined ? parsed.showYesterdaySection : true));
+        setShowSection3(parsed.showSection3 !== undefined ? parsed.showSection3 : (parsed.showBlockersSection !== undefined ? parsed.showBlockersSection : true));
         setDefaultHeaderFormat(parsed.defaultHeaderFormat || 'none');
       } catch (error) {
         console.error('Error loading saved data:', error);
@@ -62,19 +62,19 @@ export default function Home() {
       workingOn,
       workedOnYesterday,
       blockers,
-      todayHeader,
-      yesterdayHeader,
-      blockersHeader,
-      todayFormat,
-      yesterdayFormat,
-      blockersFormat,
-      showTodaySection,
-      showYesterdaySection,
-      showBlockersSection,
+      header1,
+      header2,
+      header3,
+      header1Format,
+      header2Format,
+      header3Format,
+      showSection1,
+      showSection2,
+      showSection3,
       defaultHeaderFormat
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [workingOn, workedOnYesterday, blockers, todayHeader, yesterdayHeader, blockersHeader, todayFormat, yesterdayFormat, blockersFormat, showTodaySection, showYesterdaySection, showBlockersSection, defaultHeaderFormat]);
+  }, [workingOn, workedOnYesterday, blockers, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,18 +95,18 @@ export default function Home() {
     
     const markdownSections = [];
     
-    if (showTodaySection) {
-      markdownSections.push(formatHeader(todayFormat, todayHeader), workingOn || 'No updates provided');
+    if (showSection1) {
+      markdownSections.push(formatHeader(header1Format, header1), workingOn || 'No updates provided');
     }
     
-    if (showYesterdaySection) {
+    if (showSection2) {
       if (markdownSections.length > 0) markdownSections.push('');
-      markdownSections.push(formatHeader(yesterdayFormat, yesterdayHeader), workedOnYesterday || 'No updates provided');
+      markdownSections.push(formatHeader(header2Format, header2), workedOnYesterday || 'No updates provided');
     }
     
-    if (showBlockersSection) {
+    if (showSection3) {
       if (markdownSections.length > 0) markdownSections.push('');
-      markdownSections.push(formatHeader(blockersFormat, blockersHeader), blockers || 'No blockers');
+      markdownSections.push(formatHeader(header3Format, header3), blockers || 'No blockers');
     }
     
     const markdown = markdownSections.join('\n');
@@ -134,15 +134,15 @@ export default function Home() {
     setWorkingOn('');
     setWorkedOnYesterday('');
     setBlockers('');
-    setTodayHeader('What are you working on today?');
-    setYesterdayHeader('What did you work on yesterday?');
-    setBlockersHeader('What are your blockers?');
-    setTodayFormat(defaultHeaderFormat);
-    setYesterdayFormat(defaultHeaderFormat);
-    setBlockersFormat(defaultHeaderFormat);
-    setShowTodaySection(true);
-    setShowYesterdaySection(true);
-    setShowBlockersSection(true);
+    setHeader1('What are you working on today?');
+    setHeader2('What did you work on yesterday?');
+    setHeader3('What are your blockers?');
+    setHeader1Format(defaultHeaderFormat);
+    setHeader2Format(defaultHeaderFormat);
+    setHeader3Format(defaultHeaderFormat);
+    setShowSection1(true);
+    setShowSection2(true);
+    setShowSection3(true);
     setMarkdownOutput('');
     setShowOutput(false);
     localStorage.removeItem('standupFormData');
@@ -151,9 +151,9 @@ export default function Home() {
   const handleDefaultHeaderFormatChange = (newFormat: string) => {
     setDefaultHeaderFormat(newFormat);
     // Apply the new format to all current sections immediately
-    setTodayFormat(newFormat);
-    setYesterdayFormat(newFormat);
-    setBlockersFormat(newFormat);
+    setHeader1Format(newFormat);
+    setHeader2Format(newFormat);
+    setHeader3Format(newFormat);
   };
 
   const renderFormPage = () => (
@@ -189,36 +189,36 @@ export default function Home() {
 
         {!showOutput && (
           <form onSubmit={handleSubmit} className="space-y-8">
-            {showTodaySection && (
+            {showSection1 && (
               <StandupSection
-                header={todayHeader}
-                onHeaderChange={setTodayHeader}
+                header={header1}
+                onHeaderChange={setHeader1}
                 content={workingOn}
                 onContentChange={setWorkingOn}
-                onHide={() => setShowTodaySection(false)}
-                placeholder={`${todayHeader.toLowerCase().replace(/\?$/, '')}`}
+                onHide={() => setShowSection1(false)}
+                placeholder={`${header1.toLowerCase().replace(/\?$/, '')}`}
               />
             )}
 
-            {showYesterdaySection && (
+            {showSection2 && (
               <StandupSection
-                header={yesterdayHeader}
-                onHeaderChange={setYesterdayHeader}
+                header={header2}
+                onHeaderChange={setHeader2}
                 content={workedOnYesterday}
                 onContentChange={setWorkedOnYesterday}
-                onHide={() => setShowYesterdaySection(false)}
-                placeholder={`${yesterdayHeader.toLowerCase().replace(/\?$/, '')}`}
+                onHide={() => setShowSection2(false)}
+                placeholder={`${header2.toLowerCase().replace(/\?$/, '')}`}
               />
             )}
 
-            {showBlockersSection && (
+            {showSection3 && (
               <StandupSection
-                header={blockersHeader}
-                onHeaderChange={setBlockersHeader}
+                header={header3}
+                onHeaderChange={setHeader3}
                 content={blockers}
                 onContentChange={setBlockers}
-                onHide={() => setShowBlockersSection(false)}
-                placeholder={`${blockersHeader.toLowerCase().replace(/\?$/, '')}`}
+                onHide={() => setShowSection3(false)}
+                placeholder={`${header3.toLowerCase().replace(/\?$/, '')}`}
               />
             )}
 
@@ -288,12 +288,12 @@ export default function Home() {
         <Settings 
           defaultHeaderFormat={defaultHeaderFormat}
           onDefaultHeaderFormatChange={handleDefaultHeaderFormatChange}
-          todayHeader={todayHeader}
-          onTodayHeaderChange={setTodayHeader}
-          yesterdayHeader={yesterdayHeader}
-          onYesterdayHeaderChange={setYesterdayHeader}
-          blockersHeader={blockersHeader}
-          onBlockersHeaderChange={setBlockersHeader}
+          header1={header1}
+          onHeader1Change={setHeader1}
+          header2={header2}
+          onHeader2Change={setHeader2}
+          header3={header3}
+          onHeader3Change={setHeader3}
           onBackToForm={() => setCurrentPage('form')}
         />
       ) : (

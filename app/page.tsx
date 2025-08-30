@@ -134,18 +134,8 @@ export default function Home() {
     setWorkingOn('');
     setWorkedOnYesterday('');
     setBlockers('');
-    setHeader1('What are you working on today?');
-    setHeader2('What did you work on yesterday?');
-    setHeader3('What are your blockers?');
-    setHeader1Format(defaultHeaderFormat);
-    setHeader2Format(defaultHeaderFormat);
-    setHeader3Format(defaultHeaderFormat);
-    setShowSection1(true);
-    setShowSection2(true);
-    setShowSection3(true);
     setMarkdownOutput('');
     setShowOutput(false);
-    localStorage.removeItem('standupFormData');
   };
 
   const handleDefaultHeaderFormatChange = (newFormat: string) => {
@@ -294,6 +284,12 @@ export default function Home() {
           onHeader2Change={setHeader2}
           header3={header3}
           onHeader3Change={setHeader3}
+          showSection1={showSection1}
+          onShowSection1Change={setShowSection1}
+          showSection2={showSection2}
+          onShowSection2Change={setShowSection2}
+          showSection3={showSection3}
+          onShowSection3Change={setShowSection3}
           onBackToForm={() => setCurrentPage('form')}
         />
       ) : (

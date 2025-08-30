@@ -245,7 +245,7 @@ export default function Settings({
           </div>
           
           <p className="text-sm mt-4" style={{color: 'var(--text-muted)'}}>
-            Toggle sections on or off. Hidden sections won't appear in your standup form or final output. At least one section must remain visible.
+            Toggle sections on or off. Hidden sections won&apos;t appear in your standup form or final output. At least one section must remain visible.
           </p>
         </div>
 

@@ -7,6 +7,12 @@ interface SettingsProps {
   onHeader2Change: (header: string) => void;
   header3: string;
   onHeader3Change: (header: string) => void;
+  showSection1: boolean;
+  onShowSection1Change: (show: boolean) => void;
+  showSection2: boolean;
+  onShowSection2Change: (show: boolean) => void;
+  showSection3: boolean;
+  onShowSection3Change: (show: boolean) => void;
   onBackToForm: () => void;
 }
 
@@ -19,8 +25,33 @@ export default function Settings({
   onHeader2Change,
   header3,
   onHeader3Change,
+  showSection1,
+  onShowSection1Change,
+  showSection2,
+  onShowSection2Change,
+  showSection3,
+  onShowSection3Change,
   onBackToForm 
 }: SettingsProps) {
+  
+  const resetHeaders = () => {
+    onHeader1Change('What are you working on today?');
+    onHeader2Change('What did you work on yesterday?');
+    onHeader3Change('What are your blockers?');
+    onDefaultHeaderFormatChange('none');
+    // Also restore all hidden sections
+    onShowSection1Change(true);
+    onShowSection2Change(true);
+    onShowSection3Change(true);
+  };
+
+  // Check if current values differ from defaults
+  const hasChanges = 
+    header1 !== 'What are you working on today?' ||
+    header2 !== 'What did you work on yesterday?' ||
+    header3 !== 'What are your blockers?' ||
+    defaultHeaderFormat !== 'none' ||
+    !showSection1 || !showSection2 || !showSection3;
   return (
     <div className="max-w-2xl mx-auto">
       <div className="relative text-center mb-6 sm:mb-8">
@@ -136,6 +167,25 @@ export default function Settings({
           <p className="text-sm mt-4" style={{color: 'var(--text-muted)'}}>
             This setting applies to all sections immediately and will be used for new updates.
           </p>
+        </div>
+
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={resetHeaders}
+            disabled={!hasChanges}
+            className={`sketch-shadow soft-focus font-medium py-3 px-6 rounded-xl transition-all duration-300 text-base ${
+              hasChanges 
+                ? 'hover:scale-105 cursor-pointer' 
+                : 'cursor-not-allowed opacity-50'
+            }`}
+            style={{
+              backgroundColor: hasChanges ? 'var(--accent-secondary)' : 'var(--medium-gray)',
+              color: 'white', 
+              border: `1px solid ${hasChanges ? 'var(--accent-secondary)' : 'var(--medium-gray)'}`
+            }}
+          >
+            Reset App Settings to Default
+          </button>
         </div>
       </div>
     </div>

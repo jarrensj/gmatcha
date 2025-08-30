@@ -257,6 +257,13 @@ export default function Home() {
                   {copyStatus === 'copied' ? '✓ Copied!' : 'Copy to Clipboard'}
                 </button>
                 <button
+                  onClick={() => setShowOutput(false)}
+                  className="sketch-shadow soft-focus font-medium py-3 sm:py-2 px-4 rounded-xl transition-all duration-300 hover:scale-105 min-h-[48px] sm:min-h-auto text-sm sm:text-base"
+                  style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
+                >
+                  Edit
+                </button>
+                <button
                   onClick={resetForm}
                   className="sketch-shadow soft-focus font-medium py-3 sm:py-2 px-4 rounded-xl transition-all duration-300 hover:scale-105 min-h-[48px] sm:min-h-auto text-sm sm:text-base"
                   style={{backgroundColor: 'var(--accent-secondary)', color: 'white', border: '1px solid var(--accent-secondary)'}}

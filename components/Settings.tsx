@@ -140,6 +140,117 @@ export default function Settings({
 
         <div className="sketch-shadow rounded-2xl p-4 sm:p-6" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
           <h3 className="sketch-text text-xl font-semibold mb-4" style={{color: 'var(--foreground)'}}>
+            Section Visibility
+          </h3>
+          
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-sm font-medium" style={{color: 'var(--foreground)'}}>
+                  {header1}
+                </span>
+                <p className="text-xs mt-1" style={{color: 'var(--text-muted)'}}>
+                  Show or hide this section in the form
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  // Prevent hiding if it's the only visible section
+                  if (showSection1 && !showSection2 && !showSection3) return;
+                  onShowSection1Change(!showSection1);
+                }}
+                disabled={showSection1 && !showSection2 && !showSection3}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                  showSection1 
+                    ? 'bg-green-600 focus:ring-green-500' 
+                    : 'bg-gray-200 focus:ring-gray-500'
+                } ${(showSection1 && !showSection2 && !showSection3) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                style={{
+                  backgroundColor: showSection1 ? 'var(--accent-primary)' : 'var(--medium-gray)'
+                }}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                    showSection1 ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-sm font-medium" style={{color: 'var(--foreground)'}}>
+                  {header2}
+                </span>
+                <p className="text-xs mt-1" style={{color: 'var(--text-muted)'}}>
+                  Show or hide this section in the form
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  // Prevent hiding if it's the only visible section
+                  if (showSection2 && !showSection1 && !showSection3) return;
+                  onShowSection2Change(!showSection2);
+                }}
+                disabled={showSection2 && !showSection1 && !showSection3}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                  showSection2 
+                    ? 'bg-green-600 focus:ring-green-500' 
+                    : 'bg-gray-200 focus:ring-gray-500'
+                } ${(showSection2 && !showSection1 && !showSection3) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                style={{
+                  backgroundColor: showSection2 ? 'var(--accent-primary)' : 'var(--medium-gray)'
+                }}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                    showSection2 ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-sm font-medium" style={{color: 'var(--foreground)'}}>
+                  {header3}
+                </span>
+                <p className="text-xs mt-1" style={{color: 'var(--text-muted)'}}>
+                  Show or hide this section in the form
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  // Prevent hiding if it's the only visible section
+                  if (showSection3 && !showSection1 && !showSection2) return;
+                  onShowSection3Change(!showSection3);
+                }}
+                disabled={showSection3 && !showSection1 && !showSection2}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                  showSection3 
+                    ? 'bg-green-600 focus:ring-green-500' 
+                    : 'bg-gray-200 focus:ring-gray-500'
+                } ${(showSection3 && !showSection1 && !showSection2) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                style={{
+                  backgroundColor: showSection3 ? 'var(--accent-primary)' : 'var(--medium-gray)'
+                }}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                    showSection3 ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+          
+          <p className="text-sm mt-4" style={{color: 'var(--text-muted)'}}>
+            Toggle sections on or off. Hidden sections won't appear in your standup form or final output. At least one section must remain visible.
+          </p>
+        </div>
+
+        <div className="sketch-shadow rounded-2xl p-4 sm:p-6" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
+          <h3 className="sketch-text text-xl font-semibold mb-4" style={{color: 'var(--foreground)'}}>
             Default Header Format
           </h3>
           

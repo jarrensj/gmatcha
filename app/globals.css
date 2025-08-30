@@ -11,12 +11,17 @@
   --medium-gray: #8a8a8a;
   --sketch-gray: #6b6b6b;
   
+  --primary-blue: #4a90e2;
+  --secondary-teal: #5cb3a6;
+  --disabled-light: #c8c8c8;
+  
   --background: var(--cream-bg);
   --foreground: var(--soft-charcoal);
   --card-bg: var(--warm-white);
   --border-color: var(--soft-gray);
-  --accent-primary: var(--soft-charcoal);
-  --accent-secondary: var(--medium-gray);
+  --accent-primary: var(--primary-blue);
+  --accent-secondary: var(--secondary-teal);
+  --accent-disabled: var(--disabled-light);
   --text-muted: var(--sketch-gray);
 }
 
@@ -37,6 +42,11 @@
     --medium-gray: #a8a6a3;
     --sketch-gray: #c0beb8;
     --text-muted: #a8a6a3;
+    
+    /* Dark mode button hierarchy colors */
+    --primary-blue: #6ba3f5;
+    --secondary-teal: #7cc7ba;
+    --disabled-light: #5a5a5a;
   }
 }
 
@@ -131,16 +141,44 @@ select {
   animation: gentle-bounce 2s ease-in-out infinite;
 }
 
-/* Minimal button styling */
-.btn-sketch {
+/* Enhanced button styling with clear hierarchy */
+.btn-primary {
   background: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(74, 144, 226, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+  filter: brightness(1.05);
+}
+
+.btn-secondary {
+  background: var(--accent-secondary);
   border: 1px solid var(--accent-secondary);
   color: white;
   font-weight: 500;
   transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(92, 179, 166, 0.2);
 }
 
-.btn-sketch:hover {
+.btn-secondary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(74, 74, 74, 0.15);
+  box-shadow: 0 3px 8px rgba(92, 179, 166, 0.3);
+  filter: brightness(1.05);
 }
+
+.btn-disabled {
+  background: var(--accent-disabled);
+  border: 1px solid var(--accent-disabled);
+  color: #888;
+  font-weight: 400;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+

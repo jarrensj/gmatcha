@@ -64,7 +64,7 @@ export default function Settings({
         <button
           onClick={onBackToForm}
           className="absolute top-0 right-0 sketch-shadow soft-focus py-2 px-3 sm:py-1 sm:px-3 rounded-lg text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center transition-all duration-300 hover:scale-105"
-          style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
+          style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-primary)'}}
         >
           <span className="hidden sm:inline">Back to Form</span>
           <span className="sm:hidden">Back</span>
@@ -166,7 +166,7 @@ export default function Settings({
                     : 'bg-gray-200 focus:ring-gray-500'
                 } ${(showSection1 && !showSection2 && !showSection3) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 style={{
-                  backgroundColor: showSection1 ? 'var(--accent-primary)' : 'var(--medium-gray)'
+                  backgroundColor: showSection1 ? 'var(--accent-primary)' : 'var(--accent-disabled)'
                 }}
               >
                 <span
@@ -199,7 +199,7 @@ export default function Settings({
                     : 'bg-gray-200 focus:ring-gray-500'
                 } ${(showSection2 && !showSection1 && !showSection3) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 style={{
-                  backgroundColor: showSection2 ? 'var(--accent-primary)' : 'var(--medium-gray)'
+                  backgroundColor: showSection2 ? 'var(--accent-primary)' : 'var(--accent-disabled)'
                 }}
               >
                 <span
@@ -232,7 +232,7 @@ export default function Settings({
                     : 'bg-gray-200 focus:ring-gray-500'
                 } ${(showSection3 && !showSection1 && !showSection2) ? 'opacity-50 cursor-not-allowed' : ''}`}
                 style={{
-                  backgroundColor: showSection3 ? 'var(--accent-primary)' : 'var(--medium-gray)'
+                  backgroundColor: showSection3 ? 'var(--accent-primary)' : 'var(--accent-disabled)'
                 }}
               >
                 <span
@@ -290,9 +290,9 @@ export default function Settings({
                 : 'cursor-not-allowed opacity-50'
             }`}
             style={{
-              backgroundColor: hasChanges ? 'var(--accent-secondary)' : 'var(--medium-gray)',
-              color: 'white', 
-              border: `1px solid ${hasChanges ? 'var(--accent-secondary)' : 'var(--medium-gray)'}`
+              backgroundColor: hasChanges ? 'var(--accent-secondary)' : 'var(--accent-disabled)',
+              color: hasChanges ? 'white' : '#888', 
+              border: `1px solid ${hasChanges ? 'var(--accent-secondary)' : 'var(--accent-disabled)'}`
             }}
           >
             Reset App Settings to Default

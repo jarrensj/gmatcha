@@ -159,7 +159,7 @@ export default function Home() {
           <button
             onClick={() => setCurrentPage('settings')}
             className="sketch-shadow soft-focus py-2 px-2 sm:py-1 sm:px-3 rounded-lg text-xs sm:text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center transition-all duration-300 hover:scale-105"
-            style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
+            style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-primary)'}}
           >
             <span className="hidden sm:inline">Settings</span>
             <span className="sm:hidden">⚙️</span>
@@ -216,7 +216,7 @@ export default function Home() {
               <button
                 type="submit"
                 className="w-full sm:w-auto sketch-shadow soft-focus font-semibold py-5 sm:py-4 px-10 rounded-xl transition-all duration-300 hover:scale-105 text-base sm:text-base min-h-[48px]"
-                style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
+                style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-primary)'}}
               >
                 Generate Markdown
               </button>
@@ -239,9 +239,9 @@ export default function Home() {
                       : 'hover:scale-105'
                   }`}
                   style={{
-                    backgroundColor: copyStatus === 'copied' ? 'var(--medium-gray)' : 'var(--accent-primary)',
-                    color: 'white',
-                    border: `1px solid ${copyStatus === 'copied' ? 'var(--medium-gray)' : 'var(--accent-secondary)'}`
+                    backgroundColor: copyStatus === 'copied' ? 'var(--accent-disabled)' : 'var(--accent-primary)',
+                    color: copyStatus === 'copied' ? '#888' : 'white',
+                    border: `1px solid ${copyStatus === 'copied' ? 'var(--accent-disabled)' : 'var(--accent-primary)'}`
                   }}
                 >
                   {copyStatus === 'copied' ? '✓ Copied!' : 'Copy'}
@@ -249,7 +249,7 @@ export default function Home() {
                 <button
                   onClick={() => setShowOutput(false)}
                   className="sketch-shadow soft-focus font-medium py-3 sm:py-2 px-4 rounded-xl transition-all duration-300 hover:scale-105 min-h-[48px] sm:min-h-auto text-sm sm:text-base"
-                  style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
+                  style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-primary)'}}
                 >
                   Edit
                 </button>

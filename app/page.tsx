@@ -254,7 +254,7 @@ export default function Home() {
                     border: `1px solid ${copyStatus === 'copied' ? 'var(--medium-gray)' : 'var(--accent-secondary)'}`
                   }}
                 >
-                  {copyStatus === 'copied' ? '✓ Copied!' : 'Copy to Clipboard'}
+                  {copyStatus === 'copied' ? '✓ Copied!' : 'Copy'}
                 </button>
                 <button
                   onClick={() => setShowOutput(false)}

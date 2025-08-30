@@ -288,6 +288,12 @@ export default function Home() {
         <Settings 
           defaultHeaderFormat={defaultHeaderFormat}
           onDefaultHeaderFormatChange={handleDefaultHeaderFormatChange}
+          todayHeader={todayHeader}
+          onTodayHeaderChange={setTodayHeader}
+          yesterdayHeader={yesterdayHeader}
+          onYesterdayHeaderChange={setYesterdayHeader}
+          blockersHeader={blockersHeader}
+          onBlockersHeaderChange={setBlockersHeader}
           onBackToForm={() => setCurrentPage('form')}
         />
       ) : (

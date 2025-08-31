@@ -78,55 +78,64 @@ export default function Settings({
           </h3>
           
           <div className="space-y-4">
-            <div>
+            <div className={`${!showSection1 ? 'opacity-50' : ''}`}>
               <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
-                Header 1:
+                Header 1: {!showSection1 && <span className="text-xs text-gray-500">(Section Hidden)</span>}
               </label>
               <input
                 type="text"
                 value={header1}
                 onChange={(e) => onHeader1Change(e.target.value)}
-                className="w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300"
+                disabled={!showSection1}
+                className={`w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300 ${
+                  !showSection1 ? 'cursor-not-allowed' : ''
+                }`}
                 style={{
-                  backgroundColor: 'var(--light-gray)',
-                  color: 'var(--foreground)',
-                  border: '1px solid var(--border-color)'
+                  backgroundColor: !showSection1 ? 'var(--accent-disabled)' : 'var(--light-gray)',
+                  color: !showSection1 ? '#888' : 'var(--foreground)',
+                  border: `1px solid ${!showSection1 ? 'var(--accent-disabled)' : 'var(--border-color)'}`
                 }}
                 placeholder="Enter first section header"
               />
             </div>
             
-            <div>
+            <div className={`${!showSection2 ? 'opacity-50' : ''}`}>
               <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
-                Header 2:
+                Header 2: {!showSection2 && <span className="text-xs text-gray-500">(Section Hidden)</span>}
               </label>
               <input
                 type="text"
                 value={header2}
                 onChange={(e) => onHeader2Change(e.target.value)}
-                className="w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300"
+                disabled={!showSection2}
+                className={`w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300 ${
+                  !showSection2 ? 'cursor-not-allowed' : ''
+                }`}
                 style={{
-                  backgroundColor: 'var(--light-gray)',
-                  color: 'var(--foreground)',
-                  border: '1px solid var(--border-color)'
+                  backgroundColor: !showSection2 ? 'var(--accent-disabled)' : 'var(--light-gray)',
+                  color: !showSection2 ? '#888' : 'var(--foreground)',
+                  border: `1px solid ${!showSection2 ? 'var(--accent-disabled)' : 'var(--border-color)'}`
                 }}
                 placeholder="Enter second section header"
               />
             </div>
             
-            <div>
+            <div className={`${!showSection3 ? 'opacity-50' : ''}`}>
               <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
-                Header 3:
+                Header 3: {!showSection3 && <span className="text-xs text-gray-500">(Section Hidden)</span>}
               </label>
               <input
                 type="text"
                 value={header3}
                 onChange={(e) => onHeader3Change(e.target.value)}
-                className="w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300"
+                disabled={!showSection3}
+                className={`w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300 ${
+                  !showSection3 ? 'cursor-not-allowed' : ''
+                }`}
                 style={{
-                  backgroundColor: 'var(--light-gray)',
-                  color: 'var(--foreground)',
-                  border: '1px solid var(--border-color)'
+                  backgroundColor: !showSection3 ? 'var(--accent-disabled)' : 'var(--light-gray)',
+                  color: !showSection3 ? '#888' : 'var(--foreground)',
+                  border: `1px solid ${!showSection3 ? 'var(--accent-disabled)' : 'var(--border-color)'}`
                 }}
                 placeholder="Enter third section header"
               />
@@ -134,7 +143,7 @@ export default function Settings({
           </div>
           
           <p className="text-sm mt-4" style={{color: 'var(--text-muted)'}}>
-            These titles will be used as the default headers for each section in your standup form.
+            These titles will be used as the default headers for each section in your standup form. Hidden sections cannot be edited until they are made visible.
           </p>
         </div>
 

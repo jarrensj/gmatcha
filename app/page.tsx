@@ -12,11 +12,11 @@ export default function Home() {
   const [showOutput, setShowOutput] = useState(false);
   const [currentPage, setCurrentPage] = useState('form'); // 'form' or 'settings'
   const [copyStatus, setCopyStatus] = useState('idle'); // 'idle', 'copying', 'copied'
-  
-  // Custom headers for each section
-  const [header1, setHeader1] = useState('What are you working on today?');
-  const [header2, setHeader2] = useState('What did you work on yesterday?');
-  const [header3, setHeader3] = useState('What are your blockers?');
+
+  // Custom headers for each section - using environment variables with fallbacks
+  const [header1, setHeader1] = useState(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
+  const [header2, setHeader2] = useState(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
+  const [header3, setHeader3] = useState(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?');
   
   // Header formatting options
   const [header1Format, setHeader1Format] = useState('none');
@@ -40,15 +40,16 @@ export default function Home() {
         setWorkingOn(parsed.workingOn || '');
         setWorkedOnYesterday(parsed.workedOnYesterday || '');
         setBlockers(parsed.blockers || '');
-        setHeader1(parsed.header1 || parsed.todayHeader || 'What are you working on today?');
-        setHeader2(parsed.header2 || parsed.yesterdayHeader || 'What did you work on yesterday?');
-        setHeader3(parsed.header3 || parsed.blockersHeader || 'What are your blockers?');
-        setHeader1Format(parsed.header1Format || parsed.todayFormat || 'none');
-        setHeader2Format(parsed.header2Format || parsed.yesterdayFormat || 'none');
-        setHeader3Format(parsed.header3Format || parsed.blockersFormat || 'none');
-        setShowSection1(parsed.showSection1 !== undefined ? parsed.showSection1 : (parsed.showTodaySection !== undefined ? parsed.showTodaySection : true));
-        setShowSection2(parsed.showSection2 !== undefined ? parsed.showSection2 : (parsed.showYesterdaySection !== undefined ? parsed.showYesterdaySection : true));
-        setShowSection3(parsed.showSection3 !== undefined ? parsed.showSection3 : (parsed.showBlockersSection !== undefined ? parsed.showBlockersSection : true));
+        // Use environment variables if they exist, otherwise use defaults
+        setHeader1(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
+        setHeader2(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
+        setHeader3(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?');
+        setHeader1Format(parsed.header1Format || 'none');
+        setHeader2Format(parsed.header2Format || 'none');
+        setHeader3Format(parsed.header3Format || 'none');
+        setShowSection1(parsed.showSection1 !== undefined ? parsed.showSection1 : true);
+        setShowSection2(parsed.showSection2 !== undefined ? parsed.showSection2 : true);
+        setShowSection3(parsed.showSection3 !== undefined ? parsed.showSection3 : true);
         setDefaultHeaderFormat(parsed.defaultHeaderFormat || 'none');
       } catch (error) {
         console.error('Error loading saved data:', error);

@@ -35,9 +35,9 @@ export default function Settings({
 }: SettingsProps) {
   
   const resetHeaders = () => {
-    onHeader1Change('What are you working on today?');
-    onHeader2Change('What did you work on yesterday?');
-    onHeader3Change('What are your blockers?');
+    onHeader1Change(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
+    onHeader2Change(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
+    onHeader3Change(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?');
     onDefaultHeaderFormatChange('none');
     // Also restore all hidden sections
     onShowSection1Change(true);
@@ -47,9 +47,9 @@ export default function Settings({
 
   // Check if current values differ from defaults
   const hasChanges = 
-    header1 !== 'What are you working on today?' ||
-    header2 !== 'What did you work on yesterday?' ||
-    header3 !== 'What are your blockers?' ||
+    header1 !== (process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?') ||
+    header2 !== (process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?') ||
+    header3 !== (process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?') ||
     defaultHeaderFormat !== 'none' ||
     !showSection1 || !showSection2 || !showSection3;
   return (

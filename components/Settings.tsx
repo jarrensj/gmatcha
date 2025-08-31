@@ -289,24 +289,19 @@ export default function Settings({
           </p>
         </div>
 
-        <div className="flex justify-center pt-4">
-          <button
-            onClick={resetHeaders}
-            disabled={!hasChanges}
-            className={`sketch-shadow soft-focus font-medium py-3 px-6 rounded-xl transition-all duration-300 text-base ${
-              hasChanges 
-                ? 'hover:scale-105 cursor-pointer' 
-                : 'cursor-not-allowed opacity-50'
-            }`}
-            style={{
-              backgroundColor: hasChanges ? 'var(--accent-secondary)' : 'var(--accent-disabled)',
-              color: hasChanges ? 'white' : '#888', 
-              border: `1px solid ${hasChanges ? 'var(--accent-secondary)' : 'var(--accent-disabled)'}`
-            }}
-          >
-            Reset App Settings to Default
-          </button>
-        </div>
+        {hasChanges && (
+          <div className="flex justify-center pt-8">
+            <button
+              onClick={resetHeaders}
+              className="text-xs underline transition-colors duration-200 hover:no-underline cursor-pointer"
+              style={{color: 'var(--text-muted)'}}
+              title="Reset all settings to their default values"
+            >
+              Reset all settings to defaults
+            </button>
+          </div>
+        )}
+
       </div>
     </div>
   );

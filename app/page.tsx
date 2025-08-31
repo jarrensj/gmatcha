@@ -186,7 +186,6 @@ export default function Home() {
                 onHeaderChange={setHeader1}
                 content={workingOn}
                 onContentChange={setWorkingOn}
-                onHide={() => setShowSection1(false)}
                 placeholder={`${header1.toLowerCase().replace(/\?$/, '')}`}
               />
             )}
@@ -197,7 +196,6 @@ export default function Home() {
                 onHeaderChange={setHeader2}
                 content={workedOnYesterday}
                 onContentChange={setWorkedOnYesterday}
-                onHide={() => setShowSection2(false)}
                 placeholder={`${header2.toLowerCase().replace(/\?$/, '')}`}
               />
             )}
@@ -208,7 +206,6 @@ export default function Home() {
                 onHeaderChange={setHeader3}
                 content={blockers}
                 onContentChange={setBlockers}
-                onHide={() => setShowSection3(false)}
                 placeholder={`${header3.toLowerCase().replace(/\?$/, '')}`}
               />
             )}

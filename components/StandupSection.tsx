@@ -3,7 +3,6 @@ interface StandupSectionProps {
   onHeaderChange: (value: string) => void;
   content: string;
   onContentChange: (value: string) => void;
-  onHide: () => void;
   placeholder: string;
 }
 
@@ -12,27 +11,15 @@ export default function StandupSection({
   onHeaderChange, 
   content, 
   onContentChange, 
-  onHide, 
   placeholder 
 }: StandupSectionProps) {
   return (
-    <div className="sketch-shadow rounded-2xl p-6 sm:p-8 relative" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
-      <button
-        type="button"
-        onClick={onHide}
-        className="absolute top-3 right-3 text-xl font-bold min-h-[44px] min-w-[44px] flex items-center justify-center sm:min-h-auto sm:min-w-auto transition-all duration-300 hover:scale-110 rounded-full"
-        style={{color: 'var(--text-muted)', backgroundColor: 'transparent'}}
-        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent-secondary)'}
-        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
-        title="Hide this section"
-      >
-        ×
-      </button>
+    <div className="sketch-shadow rounded-2xl p-6 sm:p-8" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
       <input
         type="text"
         value={header}
         onChange={(e) => onHeaderChange(e.target.value)}
-        className="sketch-text block w-full text-lg sm:text-xl font-semibold mb-4 bg-transparent border-none soft-focus rounded-lg px-3 py-3 sm:py-2 pr-12"
+        className="sketch-text block w-full text-lg sm:text-xl font-semibold mb-4 bg-transparent border-none soft-focus rounded-lg px-3 py-3 sm:py-2"
         style={{color: 'var(--foreground)'}}
         placeholder="Enter section header..."
       />

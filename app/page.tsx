@@ -196,18 +196,11 @@ export default function Home() {
         <Card>
           <CardHeader>
             <CardTitle>Standup Details</CardTitle>
-            <CardDescription>Fill in your standup information below</CardDescription>
+            <CardDescription>Fill in your standup information below. Go to Settings to customize section headers.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {showSection1 && (
               <div className="space-y-2">
-                <Label htmlFor="header1">Section Header</Label>
-                <Input
-                  id="header1"
-                  value={header1}
-                  onChange={(e) => setHeader1(e.target.value)}
-                  placeholder="Enter section header..."
-                />
                 <Label htmlFor="workingOn">{header1}</Label>
                 <Textarea
                   id="workingOn"
@@ -221,13 +214,6 @@ export default function Home() {
 
             {showSection2 && (
               <div className="space-y-2">
-                <Label htmlFor="header2">Section Header</Label>
-                <Input
-                  id="header2"
-                  value={header2}
-                  onChange={(e) => setHeader2(e.target.value)}
-                  placeholder="Enter section header..."
-                />
                 <Label htmlFor="workedOnYesterday">{header2}</Label>
                 <Textarea
                   id="workedOnYesterday"
@@ -241,13 +227,6 @@ export default function Home() {
 
             {showSection3 && (
               <div className="space-y-2">
-                <Label htmlFor="header3">Section Header</Label>
-                <Input
-                  id="header3"
-                  value={header3}
-                  onChange={(e) => setHeader3(e.target.value)}
-                  placeholder="Enter section header..."
-                />
                 <Label htmlFor="blockers">{header3}</Label>
                 <Textarea
                   id="blockers"

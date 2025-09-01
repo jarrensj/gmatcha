@@ -1,7 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import StandupSection from '../components/StandupSection';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Copy, Settings as SettingsIcon, RotateCcw, ArrowLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toast";
 import Settings from '../components/Settings';
 
 export default function Home() {
@@ -11,7 +18,7 @@ export default function Home() {
   const [markdownOutput, setMarkdownOutput] = useState('');
   const [showOutput, setShowOutput] = useState(false);
   const [currentPage, setCurrentPage] = useState('form'); // 'form' or 'settings'
-  const [copyStatus, setCopyStatus] = useState('idle'); // 'idle', 'copying', 'copied'
+  const { toast, toasts, dismiss } = useToast();
 
   // Custom headers for each section - using environment variables with fallbacks
   const [header1, setHeader1] = useState(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
@@ -77,9 +84,14 @@ export default function Home() {
     localStorage.setItem('standupFormData', JSON.stringify(formData));
   }, [workingOn, workedOnYesterday, blockers, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const generateMarkdown = () => {
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
     const formatHeader = (format: string, header: string) => {
       switch (format) {
         case 'bold':
@@ -94,23 +106,23 @@ export default function Home() {
       }
     };
     
-    const markdownSections = [];
+    let markdown = '';
     
-    if (showSection1) {
-      markdownSections.push(formatHeader(header1Format, header1), workingOn || 'No updates provided');
+    if (showSection1 && workingOn.trim()) {
+      markdown += `${formatHeader(header1Format, header1)}\n${workingOn.trim()}\n\n`;
     }
     
-    if (showSection2) {
-      if (markdownSections.length > 0) markdownSections.push('');
-      markdownSections.push(formatHeader(header2Format, header2), workedOnYesterday || 'No updates provided');
+    if (showSection2 && workedOnYesterday.trim()) {
+      markdown += `${formatHeader(header2Format, header2)}\n${workedOnYesterday.trim()}\n\n`;
     }
     
-    if (showSection3) {
-      if (markdownSections.length > 0) markdownSections.push('');
-      markdownSections.push(formatHeader(header3Format, header3), blockers || 'No blockers');
+    if (showSection3 && blockers.trim()) {
+      markdown += `${formatHeader(header3Format, header3)}\n${blockers.trim()}\n\n`;
     }
     
-    const markdown = markdownSections.join('\n');
+    if (!workingOn.trim() && !workedOnYesterday.trim() && !blockers.trim()) {
+      markdown = "# Daily Standup\n\nPlease fill in at least one field to generate your standup.";
+    }
 
     setMarkdownOutput(markdown);
     setShowOutput(true);
@@ -119,17 +131,20 @@ export default function Home() {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(markdownOutput);
-      setCopyStatus('copied');
-      
-      // Reset to idle after 2 seconds
-      setTimeout(() => {
-        setCopyStatus('idle');
-      }, 2000);
+      toast({
+        title: "Copied!",
+        description: "Standup markdown copied to clipboard",
+      });
     } catch (err) {
-      console.error('Failed to copy: ', err);
-      setCopyStatus('idle');
+      toast({
+        title: "Error",
+        description: "Failed to copy to clipboard",
+        variant: "destructive",
+      });
     }
   };
+
+
 
   const resetForm = () => {
     setWorkingOn('');
@@ -148,151 +163,159 @@ export default function Home() {
   };
 
   const renderFormPage = () => (
-    <div className="max-w-4xl mx-auto">
-      <div className="relative text-center mb-6 sm:mb-8">
-        <h1 className="sketch-text text-2xl sm:text-3xl font-bold mb-2 pr-4" style={{color: 'var(--foreground)'}}>
-          standup formatter
-        </h1>
-        <p className="text-sm sm:text-base px-4" style={{color: 'var(--text-muted)'}}>
-          format and formulate your daily updates
-        </p>
-        <div className="absolute top-0 right-0 flex gap-1 sm:gap-2">
-          <button
-            onClick={() => setCurrentPage('settings')}
-            className="sketch-shadow soft-focus py-2 px-2 sm:py-1 sm:px-3 rounded-lg text-xs sm:text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center transition-all duration-300 hover:scale-105"
-            style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-primary)'}}
-          >
-            <span className="hidden sm:inline">Settings</span>
-            <span className="sm:hidden">⚙️</span>
-          </button>
-          <button
-            onClick={resetForm}
-            className="sketch-shadow soft-focus py-2 px-2 sm:py-1 sm:px-3 rounded-lg text-xs sm:text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center transition-all duration-300 hover:scale-105"
-            style={{backgroundColor: 'var(--accent-secondary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
-          >
-            <span className="hidden sm:inline">Reset</span>
-            <span className="sm:hidden">🔄</span>
-          </button>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div className="text-center space-y-2">
+        <div className="relative">
+          <h1 className="text-3xl font-bold text-balance">Standup Formatter</h1>
+          <div className="absolute top-0 right-0 flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage('settings')}
+            >
+              <SettingsIcon className="w-4 h-4 mr-2" />
+              Settings
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetForm}
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset
+            </Button>
+          </div>
         </div>
+        <p className="text-muted-foreground text-pretty">
+          Generate formatted markdown for your daily standup meetings
+        </p>
       </div>
 
-
-
-        {!showOutput && (
-          <form onSubmit={handleSubmit} className="space-y-8">
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* Input Form */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Standup Details</CardTitle>
+            <CardDescription>Fill in your standup information below</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             {showSection1 && (
-              <StandupSection
-                header={header1}
-                onHeaderChange={setHeader1}
-                content={workingOn}
-                onContentChange={setWorkingOn}
-                placeholder={`${header1.toLowerCase().replace(/\?$/, '')}`}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="header1">Section Header</Label>
+                <Input
+                  id="header1"
+                  value={header1}
+                  onChange={(e) => setHeader1(e.target.value)}
+                  placeholder="Enter section header..."
+                />
+                <Label htmlFor="workingOn">{header1}</Label>
+                <Textarea
+                  id="workingOn"
+                  placeholder={`${header1.toLowerCase().replace(/\?$/, '')}`}
+                  value={workingOn}
+                  onChange={(e) => setWorkingOn(e.target.value)}
+                  rows={3}
+                />
+              </div>
             )}
 
             {showSection2 && (
-              <StandupSection
-                header={header2}
-                onHeaderChange={setHeader2}
-                content={workedOnYesterday}
-                onContentChange={setWorkedOnYesterday}
-                placeholder={`${header2.toLowerCase().replace(/\?$/, '')}`}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="header2">Section Header</Label>
+                <Input
+                  id="header2"
+                  value={header2}
+                  onChange={(e) => setHeader2(e.target.value)}
+                  placeholder="Enter section header..."
+                />
+                <Label htmlFor="workedOnYesterday">{header2}</Label>
+                <Textarea
+                  id="workedOnYesterday"
+                  placeholder={`${header2.toLowerCase().replace(/\?$/, '')}`}
+                  value={workedOnYesterday}
+                  onChange={(e) => setWorkedOnYesterday(e.target.value)}
+                  rows={3}
+                />
+              </div>
             )}
 
             {showSection3 && (
-              <StandupSection
-                header={header3}
-                onHeaderChange={setHeader3}
-                content={blockers}
-                onContentChange={setBlockers}
-                placeholder={`${header3.toLowerCase().replace(/\?$/, '')}`}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="header3">Section Header</Label>
+                <Input
+                  id="header3"
+                  value={header3}
+                  onChange={(e) => setHeader3(e.target.value)}
+                  placeholder="Enter section header..."
+                />
+                <Label htmlFor="blockers">{header3}</Label>
+                <Textarea
+                  id="blockers"
+                  placeholder={`${header3.toLowerCase().replace(/\?$/, '')}`}
+                  value={blockers}
+                  onChange={(e) => setBlockers(e.target.value)}
+                  rows={3}
+                />
+              </div>
             )}
 
-            <div className="flex justify-center px-4 pt-4">
-              <button
-                type="submit"
-                className="w-full sm:w-auto sketch-shadow soft-focus font-semibold py-5 sm:py-4 px-10 rounded-xl transition-all duration-300 hover:scale-105 text-base sm:text-base min-h-[48px]"
-                style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-primary)'}}
-              >
-                Generate Markdown
-              </button>
-            </div>
-          </form>
-        )}
+            <Button onClick={generateMarkdown} className="w-full">
+              Generate Standup Markdown
+            </Button>
+          </CardContent>
+        </Card>
 
-        {showOutput && (
-          <div className="mt-8 sm:mt-10 sketch-shadow rounded-2xl p-6 sm:p-8" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4 sm:gap-0">
-              <h2 className="sketch-text text-xl sm:text-2xl font-semibold" style={{color: 'var(--foreground)'}}>
-                Your Standup Update (Markdown)
-              </h2>
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <button
-                  onClick={copyToClipboard}
-                  className={`font-medium py-3 sm:py-2 px-4 rounded-xl transition-all duration-300 soft-focus transform min-h-[48px] sm:min-h-auto text-sm sm:text-base sketch-shadow ${
-                    copyStatus === 'copied' 
-                      ? 'scale-105 shadow-lg' 
-                      : 'hover:scale-105'
-                  }`}
-                  style={{
-                    backgroundColor: copyStatus === 'copied' ? 'var(--accent-disabled)' : 'var(--accent-primary)',
-                    color: copyStatus === 'copied' ? '#888' : 'white',
-                    border: `1px solid ${copyStatus === 'copied' ? 'var(--accent-disabled)' : 'var(--accent-primary)'}`
-                  }}
-                >
-                  {copyStatus === 'copied' ? '✓ Copied!' : 'Copy'}
-                </button>
-                <button
-                  onClick={() => setShowOutput(false)}
-                  className="sketch-shadow soft-focus font-medium py-3 sm:py-2 px-4 rounded-xl transition-all duration-300 hover:scale-105 min-h-[48px] sm:min-h-auto text-sm sm:text-base"
-                  style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-primary)'}}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={resetForm}
-                  className="sketch-shadow soft-focus font-medium py-3 sm:py-2 px-4 rounded-xl transition-all duration-300 hover:scale-105 min-h-[48px] sm:min-h-auto text-sm sm:text-base"
-                  style={{backgroundColor: 'var(--accent-secondary)', color: 'white', border: '1px solid var(--accent-secondary)'}}
-                >
-                  New Update
-                </button>
-              </div>
-            </div>
-            <div className="rounded-xl p-3 sm:p-4" style={{backgroundColor: 'var(--light-gray)', border: '1px solid var(--border-color)'}}>
-              <pre className="text-xs sm:text-sm whitespace-pre-wrap font-mono overflow-x-auto" style={{color: 'var(--soft-charcoal)'}}>
-                {markdownOutput}
+        {/* Output */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Generated Markdown</CardTitle>
+            <CardDescription>Your formatted standup ready to copy or download</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="relative">
+              <pre className="bg-muted p-4 rounded-md text-sm overflow-auto max-h-96 whitespace-pre-wrap">
+                {markdownOutput || 'Click "Generate Standup Markdown" to see your formatted output here...'}
               </pre>
             </div>
-          </div>
-        )}
+
+            {markdownOutput && (
+              <Button variant="outline" size="sm" onClick={copyToClipboard} className="w-full">
+                <Copy className="w-4 h-4 mr-2" />
+                Copy to Clipboard
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen textured-bg p-3 sm:p-4 lg:p-8" style={{backgroundColor: 'var(--background)'}}>
-      {currentPage === 'settings' ? (
-        <Settings 
-          defaultHeaderFormat={defaultHeaderFormat}
-          onDefaultHeaderFormatChange={handleDefaultHeaderFormatChange}
-          header1={header1}
-          onHeader1Change={setHeader1}
-          header2={header2}
-          onHeader2Change={setHeader2}
-          header3={header3}
-          onHeader3Change={setHeader3}
-          showSection1={showSection1}
-          onShowSection1Change={setShowSection1}
-          showSection2={showSection2}
-          onShowSection2Change={setShowSection2}
-          showSection3={showSection3}
-          onShowSection3Change={setShowSection3}
-          onBackToForm={() => setCurrentPage('form')}
-        />
-      ) : (
-        renderFormPage()
-      )}
-    </div>
+    <>
+      <div className="min-h-screen bg-background p-4">
+        {currentPage === 'settings' ? (
+          <Settings 
+            defaultHeaderFormat={defaultHeaderFormat}
+            onDefaultHeaderFormatChange={handleDefaultHeaderFormatChange}
+            header1={header1}
+            onHeader1Change={setHeader1}
+            header2={header2}
+            onHeader2Change={setHeader2}
+            header3={header3}
+            onHeader3Change={setHeader3}
+            showSection1={showSection1}
+            onShowSection1Change={setShowSection1}
+            showSection2={showSection2}
+            onShowSection2Change={setShowSection2}
+            showSection3={showSection3}
+            onShowSection3Change={setShowSection3}
+            onBackToForm={() => setCurrentPage('form')}
+          />
+        ) : (
+          renderFormPage()
+        )}
+      </div>
+      <Toaster toasts={toasts} onDismiss={dismiss} />
+    </>
   );
 }

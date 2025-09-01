@@ -1,3 +1,11 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ArrowLeft, RotateCcw } from "lucide-react";
+
 interface SettingsProps {
   defaultHeaderFormat: string;
   onDefaultHeaderFormatChange: (format: string) => void;
@@ -52,257 +60,177 @@ export default function Settings({
     header3 !== (process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?') ||
     defaultHeaderFormat !== 'none' ||
     !showSection1 || !showSection2 || !showSection3;
+
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="relative text-center mb-6 sm:mb-8">
-        <h1 className="sketch-text text-2xl sm:text-3xl font-bold mb-2" style={{color: 'var(--foreground)'}}>
-          Settings
-        </h1>
-        <p className="text-sm sm:text-base px-4" style={{color: 'var(--text-muted)'}}>
+    <div className="mx-auto max-w-2xl space-y-6">
+      <div className="text-center space-y-2">
+        <div className="relative">
+          <h1 className="text-3xl font-bold">Settings</h1>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onBackToForm}
+            className="absolute top-0 right-0"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Form
+          </Button>
+        </div>
+        <p className="text-muted-foreground">
           Configure your default formatting preferences
         </p>
-        <button
-          onClick={onBackToForm}
-          className="absolute top-0 right-0 sketch-shadow soft-focus py-2 px-3 sm:py-1 sm:px-3 rounded-lg text-sm min-h-[44px] sm:min-h-auto flex items-center justify-center transition-all duration-300 hover:scale-105"
-          style={{backgroundColor: 'var(--accent-primary)', color: 'white', border: '1px solid var(--accent-primary)'}}
-        >
-          <span className="hidden sm:inline">Back to Form</span>
-          <span className="sm:hidden">Back</span>
-        </button>
       </div>
 
-      <div className="space-y-6">
-        <div className="sketch-shadow rounded-2xl p-4 sm:p-6" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
-          <h3 className="sketch-text text-xl font-semibold mb-4" style={{color: 'var(--foreground)'}}>
-            Section Header Titles
-          </h3>
-          
-          <div className="space-y-4">
-            <div className={`${!showSection1 ? 'opacity-50' : ''}`}>
-              <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
-                Header 1: {!showSection1 && <span className="text-xs text-gray-500">(Section Hidden)</span>}
-              </label>
-              <input
-                type="text"
-                value={header1}
-                onChange={(e) => onHeader1Change(e.target.value)}
-                disabled={!showSection1}
-                className={`w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300 ${
-                  !showSection1 ? 'cursor-not-allowed' : ''
-                }`}
-                style={{
-                  backgroundColor: !showSection1 ? 'var(--accent-disabled)' : 'var(--light-gray)',
-                  color: !showSection1 ? '#888' : 'var(--foreground)',
-                  border: `1px solid ${!showSection1 ? 'var(--accent-disabled)' : 'var(--border-color)'}`
-                }}
-                placeholder="Enter first section header"
-              />
-            </div>
-            
-            <div className={`${!showSection2 ? 'opacity-50' : ''}`}>
-              <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
-                Header 2: {!showSection2 && <span className="text-xs text-gray-500">(Section Hidden)</span>}
-              </label>
-              <input
-                type="text"
-                value={header2}
-                onChange={(e) => onHeader2Change(e.target.value)}
-                disabled={!showSection2}
-                className={`w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300 ${
-                  !showSection2 ? 'cursor-not-allowed' : ''
-                }`}
-                style={{
-                  backgroundColor: !showSection2 ? 'var(--accent-disabled)' : 'var(--light-gray)',
-                  color: !showSection2 ? '#888' : 'var(--foreground)',
-                  border: `1px solid ${!showSection2 ? 'var(--accent-disabled)' : 'var(--border-color)'}`
-                }}
-                placeholder="Enter second section header"
-              />
-            </div>
-            
-            <div className={`${!showSection3 ? 'opacity-50' : ''}`}>
-              <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
-                Header 3: {!showSection3 && <span className="text-xs text-gray-500">(Section Hidden)</span>}
-              </label>
-              <input
-                type="text"
-                value={header3}
-                onChange={(e) => onHeader3Change(e.target.value)}
-                disabled={!showSection3}
-                className={`w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300 ${
-                  !showSection3 ? 'cursor-not-allowed' : ''
-                }`}
-                style={{
-                  backgroundColor: !showSection3 ? 'var(--accent-disabled)' : 'var(--light-gray)',
-                  color: !showSection3 ? '#888' : 'var(--foreground)',
-                  border: `1px solid ${!showSection3 ? 'var(--accent-disabled)' : 'var(--border-color)'}`
-                }}
-                placeholder="Enter third section header"
-              />
-            </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Section Header Titles</CardTitle>
+          <CardDescription>
+            These titles will be used as the default headers for each section in your standup form.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className={`space-y-2 ${!showSection1 ? 'opacity-50' : ''}`}>
+            <Label htmlFor="header1">
+              Header 1 {!showSection1 && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
+            </Label>
+            <Input
+              id="header1"
+              value={header1}
+              onChange={(e) => onHeader1Change(e.target.value)}
+              disabled={!showSection1}
+              placeholder="Enter first section header"
+            />
           </div>
           
-          <p className="text-sm mt-4" style={{color: 'var(--text-muted)'}}>
-            These titles will be used as the default headers for each section in your standup form. Hidden sections cannot be edited until they are made visible.
-          </p>
-        </div>
-
-        <div className="sketch-shadow rounded-2xl p-4 sm:p-6" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
-          <h3 className="sketch-text text-xl font-semibold mb-4" style={{color: 'var(--foreground)'}}>
-            Section Visibility
-          </h3>
-          
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-sm font-medium" style={{color: 'var(--foreground)'}}>
-                  {header1}
-                </span>
-                <p className="text-xs mt-1" style={{color: 'var(--text-muted)'}}>
-                  Show or hide this section in the form
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  // Prevent hiding if it's the only visible section
-                  if (showSection1 && !showSection2 && !showSection3) return;
-                  onShowSection1Change(!showSection1);
-                }}
-                disabled={showSection1 && !showSection2 && !showSection3}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  showSection1 
-                    ? 'bg-green-600 focus:ring-green-500' 
-                    : 'bg-gray-200 focus:ring-gray-500'
-                } ${(showSection1 && !showSection2 && !showSection3) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                style={{
-                  backgroundColor: showSection1 ? 'var(--accent-primary)' : 'var(--accent-disabled)'
-                }}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                    showSection1 ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-sm font-medium" style={{color: 'var(--foreground)'}}>
-                  {header2}
-                </span>
-                <p className="text-xs mt-1" style={{color: 'var(--text-muted)'}}>
-                  Show or hide this section in the form
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  // Prevent hiding if it's the only visible section
-                  if (showSection2 && !showSection1 && !showSection3) return;
-                  onShowSection2Change(!showSection2);
-                }}
-                disabled={showSection2 && !showSection1 && !showSection3}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  showSection2 
-                    ? 'bg-green-600 focus:ring-green-500' 
-                    : 'bg-gray-200 focus:ring-gray-500'
-                } ${(showSection2 && !showSection1 && !showSection3) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                style={{
-                  backgroundColor: showSection2 ? 'var(--accent-primary)' : 'var(--accent-disabled)'
-                }}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                    showSection2 ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-sm font-medium" style={{color: 'var(--foreground)'}}>
-                  {header3}
-                </span>
-                <p className="text-xs mt-1" style={{color: 'var(--text-muted)'}}>
-                  Show or hide this section in the form
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  // Prevent hiding if it's the only visible section
-                  if (showSection3 && !showSection1 && !showSection2) return;
-                  onShowSection3Change(!showSection3);
-                }}
-                disabled={showSection3 && !showSection1 && !showSection2}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                  showSection3 
-                    ? 'bg-green-600 focus:ring-green-500' 
-                    : 'bg-gray-200 focus:ring-gray-500'
-                } ${(showSection3 && !showSection1 && !showSection2) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                style={{
-                  backgroundColor: showSection3 ? 'var(--accent-primary)' : 'var(--accent-disabled)'
-                }}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                    showSection3 ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
+          <div className={`space-y-2 ${!showSection2 ? 'opacity-50' : ''}`}>
+            <Label htmlFor="header2">
+              Header 2 {!showSection2 && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
+            </Label>
+            <Input
+              id="header2"
+              value={header2}
+              onChange={(e) => onHeader2Change(e.target.value)}
+              disabled={!showSection2}
+              placeholder="Enter second section header"
+            />
           </div>
           
-          <p className="text-sm mt-4" style={{color: 'var(--text-muted)'}}>
-            Toggle sections on or off. Hidden sections won&apos;t appear in your standup form or final output. At least one section must remain visible.
-          </p>
-        </div>
+          <div className={`space-y-2 ${!showSection3 ? 'opacity-50' : ''}`}>
+            <Label htmlFor="header3">
+              Header 3 {!showSection3 && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
+            </Label>
+            <Input
+              id="header3"
+              value={header3}
+              onChange={(e) => onHeader3Change(e.target.value)}
+              disabled={!showSection3}
+              placeholder="Enter third section header"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-        <div className="sketch-shadow rounded-2xl p-4 sm:p-6" style={{backgroundColor: 'var(--card-bg)', border: '1px solid var(--border-color)'}}>
-          <h3 className="sketch-text text-xl font-semibold mb-4" style={{color: 'var(--foreground)'}}>
-            Default Header Format
-          </h3>
-          
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{color: 'var(--foreground)'}}>
-              Choose the default formatting for all section headers:
-            </label>
-            <select
-              value={defaultHeaderFormat}
-              onChange={(e) => onDefaultHeaderFormatChange(e.target.value)}
-              className="w-full soft-focus rounded-lg px-3 py-2 min-h-[44px] text-base transition-all duration-300"
-              style={{
-                backgroundColor: 'var(--light-gray)',
-                color: 'var(--foreground)',
-                border: '1px solid var(--border-color)'
+      <Card>
+        <CardHeader>
+          <CardTitle>Section Visibility</CardTitle>
+          <CardDescription>
+            Toggle sections on or off. Hidden sections won't appear in your standup form or final output. At least one section must remain visible.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base">{header1}</Label>
+              <div className="text-sm text-muted-foreground">
+                Show or hide this section in the form
+              </div>
+            </div>
+            <Switch
+              checked={showSection1}
+              onCheckedChange={() => {
+                // Prevent hiding if it's the only visible section
+                if (showSection1 && !showSection2 && !showSection3) return;
+                onShowSection1Change(!showSection1);
               }}
-            >
-              <option value="none">Plain text</option>
-              <option value="bold">**Bold**</option>
-              <option value="##">## Header 2</option>
-              <option value="###">### Header 3</option>
-            </select>
+              disabled={showSection1 && !showSection2 && !showSection3}
+            />
           </div>
           
-          <p className="text-sm mt-4" style={{color: 'var(--text-muted)'}}>
-            This setting applies to all sections immediately and will be used for new updates.
-          </p>
-        </div>
-
-        {hasChanges && (
-          <div className="flex justify-center pt-8">
-            <button
-              onClick={resetHeaders}
-              className="text-xs underline transition-colors duration-200 hover:no-underline cursor-pointer"
-              style={{color: 'var(--text-muted)'}}
-              title="Reset all settings to their default values"
-            >
-              Reset all settings to defaults
-            </button>
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base">{header2}</Label>
+              <div className="text-sm text-muted-foreground">
+                Show or hide this section in the form
+              </div>
+            </div>
+            <Switch
+              checked={showSection2}
+              onCheckedChange={() => {
+                // Prevent hiding if it's the only visible section
+                if (showSection2 && !showSection1 && !showSection3) return;
+                onShowSection2Change(!showSection2);
+              }}
+              disabled={showSection2 && !showSection1 && !showSection3}
+            />
           </div>
-        )}
+          
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base">{header3}</Label>
+              <div className="text-sm text-muted-foreground">
+                Show or hide this section in the form
+              </div>
+            </div>
+            <Switch
+              checked={showSection3}
+              onCheckedChange={() => {
+                // Prevent hiding if it's the only visible section
+                if (showSection3 && !showSection1 && !showSection2) return;
+                onShowSection3Change(!showSection3);
+              }}
+              disabled={showSection3 && !showSection1 && !showSection2}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Default Header Format</CardTitle>
+          <CardDescription>
+            This setting applies to all sections immediately and will be used for new updates.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="format-select">Choose the default formatting for all section headers:</Label>
+            <Select value={defaultHeaderFormat} onValueChange={onDefaultHeaderFormatChange}>
+              <SelectTrigger id="format-select">
+                <SelectValue placeholder="Select format" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Plain text</SelectItem>
+                <SelectItem value="bold">**Bold**</SelectItem>
+                <SelectItem value="##">## Header 2</SelectItem>
+                <SelectItem value="###">### Header 3</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {hasChanges && (
+        <div className="flex justify-center pt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetHeaders}
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Reset all settings to defaults
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

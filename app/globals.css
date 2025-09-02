@@ -141,6 +141,45 @@ select {
   animation: gentle-bounce 2s ease-in-out infinite;
 }
 
+/* Diagonal stripe animation for progress bar */
+@keyframes diagonal-stripes {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 32px 0;
+  }
+}
+
+.animate-diagonal-stripes {
+  animation: diagonal-stripes 1s linear infinite;
+}
+
+/* Gentle drift animation for sketch-style progress */
+@keyframes gentle-drift {
+  0%, 100% { 
+    background-position: 0 0;
+    opacity: 0.2;
+  }
+  50% { 
+    background-position: 24px 0;
+    opacity: 0.15;
+  }
+}
+
+/* Gradient wave animation for continuous movement */
+@keyframes gradient-wave {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 /* Enhanced button styling with clear hierarchy */
 .btn-primary {
   background: var(--accent-primary);

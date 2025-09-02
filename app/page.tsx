@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { ProgressButton } from "@/components/ui/progress-button";
 import { Input } from "@/components/ui/input";
 import { Copy, Settings as SettingsIcon, RotateCcw, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -162,6 +163,20 @@ export default function Home() {
     setHeader3Format(newFormat);
   };
 
+  // Calculate progress based on visible sections and their completion
+  const calculateProgress = () => {
+    const visibleSections = [
+      { visible: showSection1, filled: workingOn.trim() !== '' },
+      { visible: showSection2, filled: workedOnYesterday.trim() !== '' },
+      { visible: showSection3, filled: blockers.trim() !== '' }
+    ].filter(section => section.visible);
+
+    if (visibleSections.length === 0) return 0;
+    
+    const filledCount = visibleSections.filter(section => section.filled).length;
+    return filledCount / visibleSections.length;
+  };
+
   const renderFormPage = () => (
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="text-center space-y-2">
@@ -238,17 +253,13 @@ export default function Home() {
               </div>
             )}
 
-            <Button 
+            <ProgressButton 
               onClick={generateMarkdown} 
-              className="w-full"
-              disabled={
-                (showSection1 && !workingOn.trim()) ||
-                (showSection2 && !workedOnYesterday.trim()) ||
-                (showSection3 && !blockers.trim())
-              }
+              progress={calculateProgress()}
+              disabled={calculateProgress() === 0}
             >
               Generate Standup Markdown
-            </Button>
+            </ProgressButton>
           </CardContent>
         </Card>
       ) : (

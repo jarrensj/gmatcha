@@ -238,7 +238,15 @@ export default function Home() {
               </div>
             )}
 
-            <Button onClick={generateMarkdown} className="w-full">
+            <Button 
+              onClick={generateMarkdown} 
+              className="w-full"
+              disabled={
+                (showSection1 && !workingOn.trim()) ||
+                (showSection2 && !workedOnYesterday.trim()) ||
+                (showSection3 && !blockers.trim())
+              }
+            >
               Generate Standup Markdown
             </Button>
           </CardContent>

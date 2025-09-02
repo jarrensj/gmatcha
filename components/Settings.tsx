@@ -223,15 +223,13 @@ export default function Settings({
       </Card>
 
       {hasChanges && (
-        <div className="flex justify-center pt-4">
-          <Button
-            variant="outline"
-            size="sm"
+        <div className="flex justify-center pt-8">
+          <button
             onClick={resetHeaders}
+            className="text-xs text-muted-foreground hover:text-foreground underline hover:no-underline transition-colors duration-200"
           >
-            <RotateCcw className="w-4 h-4 mr-2" />
             Reset all settings to defaults
-          </Button>
+          </button>
         </div>
       )}
     </div>

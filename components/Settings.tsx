@@ -79,6 +79,9 @@ export default function Settings({
         <p className="text-muted-foreground">
           Configure your default formatting preferences
         </p>
+        <p className="text-xs text-muted-foreground">
+          All changes are saved automatically
+        </p>
       </div>
 
       <Card>

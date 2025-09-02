@@ -182,7 +182,7 @@ export default function Home() {
       <div className="text-center space-y-2">
         <div className="relative">
           <h1 className="text-3xl font-bold text-balance">Standup Formatter</h1>
-          <div className="absolute top-0 right-0 flex gap-2">
+          <div className="absolute top-0 right-0">
             <Button
               variant="outline"
               size="sm"
@@ -190,14 +190,6 @@ export default function Home() {
             >
               <SettingsIcon className="w-4 h-4 mr-2" />
               Settings
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={resetForm}
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Reset
             </Button>
           </div>
         </div>
@@ -276,13 +268,23 @@ export default function Home() {
               </pre>
             </div>
 
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={copyToClipboard} className="flex-1">
-                <Copy className="w-4 h-4 mr-2" />
-                Copy to Clipboard
-              </Button>
-              <Button variant="outline" onClick={() => setShowOutput(false)} className="flex-1">
-                Edit
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={copyToClipboard} className="flex-1">
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy to Clipboard
+                </Button>
+                <Button variant="outline" onClick={() => setShowOutput(false)} className="flex-1">
+                  Edit
+                </Button>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={resetForm}
+                className="w-full"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Create New Update
               </Button>
             </div>
           </CardContent>

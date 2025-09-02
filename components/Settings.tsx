@@ -153,6 +153,7 @@ export default function Settings({
                 onShowSection1Change(!showSection1);
               }}
               disabled={showSection1 && !showSection2 && !showSection3}
+              className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
             />
           </div>
           
@@ -171,6 +172,7 @@ export default function Settings({
                 onShowSection2Change(!showSection2);
               }}
               disabled={showSection2 && !showSection1 && !showSection3}
+              className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
             />
           </div>
           
@@ -189,6 +191,7 @@ export default function Settings({
                 onShowSection3Change(!showSection3);
               }}
               disabled={showSection3 && !showSection1 && !showSection2}
+              className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
             />
           </div>
         </CardContent>

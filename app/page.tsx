@@ -191,9 +191,9 @@ export default function Home() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Input Form */}
-        <Card>
+      {!showOutput ? (
+        /* Input Form */
+        <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle>Standup Details</CardTitle>
             <CardDescription>Fill in your standup information below. Go to Settings to customize section headers.</CardDescription>
@@ -251,29 +251,32 @@ export default function Home() {
             </Button>
           </CardContent>
         </Card>
-
-        {/* Output */}
-        <Card>
+      ) : (
+        /* Output */
+        <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle>Generated Markdown</CardTitle>
-            <CardDescription>Your formatted standup ready to copy or download</CardDescription>
+            <CardDescription>Your formatted standup ready to copy</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="relative">
               <pre className="bg-muted p-4 rounded-md text-sm overflow-auto max-h-96 whitespace-pre-wrap">
-                {markdownOutput || 'Click "Generate Standup Markdown" to see your formatted output here...'}
+                {markdownOutput}
               </pre>
             </div>
 
-            {markdownOutput && (
-              <Button variant="outline" size="sm" onClick={copyToClipboard} className="w-full">
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={copyToClipboard} className="flex-1">
                 <Copy className="w-4 h-4 mr-2" />
                 Copy to Clipboard
               </Button>
-            )}
+              <Button variant="outline" onClick={() => setShowOutput(false)} className="flex-1">
+                Edit
+              </Button>
+            </div>
           </CardContent>
         </Card>
-      </div>
+      )}
     </div>
   );
 

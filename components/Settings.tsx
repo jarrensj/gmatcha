@@ -137,7 +137,7 @@ export default function Settings({
         <CardHeader>
           <CardTitle>Section Visibility</CardTitle>
           <CardDescription>
-            Toggle sections on or off. Hidden sections won't appear in your standup form or final output. At least one section must remain visible.
+            Toggle sections on or off. Hidden sections won&apos;t appear in your standup form or final output. At least one section must remain visible.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

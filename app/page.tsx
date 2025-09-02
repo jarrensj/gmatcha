@@ -6,11 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ProgressButton } from "@/components/ui/progress-button";
-import { Input } from "@/components/ui/input";
-import { Copy, Settings as SettingsIcon, RotateCcw, ArrowLeft } from "lucide-react";
+import { Copy, Settings as SettingsIcon, RotateCcw, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toast";
 import Settings from '../components/Settings';
+import { StandupImageCard } from '../components/StandupImageCard';
+import html2canvas from 'html2canvas';
 
 export default function Home() {
   const [workingOn, setWorkingOn] = useState('');
@@ -19,6 +20,7 @@ export default function Home() {
   const [markdownOutput, setMarkdownOutput] = useState('');
   const [showOutput, setShowOutput] = useState(false);
   const [currentPage, setCurrentPage] = useState('form'); // 'form' or 'settings'
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const { toast, toasts, dismiss } = useToast();
 
   // Custom headers for each section - using environment variables with fallbacks
@@ -86,12 +88,6 @@ export default function Home() {
   }, [workingOn, workedOnYesterday, blockers, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat]);
 
   const generateMarkdown = () => {
-    const currentDate = new Date().toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
 
     const formatHeader = (format: string, header: string) => {
       switch (format) {
@@ -136,12 +132,70 @@ export default function Home() {
         title: "Copied!",
         description: "Standup markdown copied to clipboard",
       });
-    } catch (err) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to copy to clipboard",
         variant: "destructive",
       });
+    }
+  };
+
+  const generateImage = async () => {
+    setIsGeneratingImage(true);
+    try {
+      const imageElement = document.getElementById('standup-image-card');
+      if (!imageElement) {
+        throw new Error('Image card element not found');
+      }
+
+      // Temporarily make the element visible for capturing
+      const originalStyle = imageElement.style.cssText;
+      imageElement.style.cssText = 'position: fixed; top: -9999px; left: 0; opacity: 1; pointer-events: none; z-index: -1;';
+      
+      // Wait a moment for styles to apply
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const canvas = await html2canvas(imageElement, {
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        allowTaint: false,
+        scale: 2,
+        logging: false,
+      });
+
+      // Restore original styling
+      imageElement.style.cssText = originalStyle;
+
+      // Convert canvas to blob
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          const today = new Date();
+          const dateStr = today.getFullYear() + '-' + 
+            String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+            String(today.getDate()).padStart(2, '0');
+          link.download = `standup-${dateStr}.png`;
+          link.href = url;
+          link.click();
+          URL.revokeObjectURL(url);
+          
+          toast({
+            title: "Image Generated!",
+            description: "Your standup image has been downloaded",
+          });
+        }
+      }, 'image/png');
+    } catch (err) {
+      console.error('Error generating image:', err);
+      toast({
+        title: "Error",
+        description: "Failed to generate image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingImage(false);
     }
   };
 
@@ -274,10 +328,28 @@ export default function Home() {
                   <Copy className="w-4 h-4 mr-2" />
                   Copy to Clipboard
                 </Button>
-                <Button variant="outline" onClick={() => setShowOutput(false)} className="flex-1">
-                  Edit
+                <Button 
+                  variant="outline" 
+                  onClick={generateImage} 
+                  disabled={isGeneratingImage}
+                  className="flex-1"
+                >
+                  {isGeneratingImage ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-gray-300 border-t-gray-600" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-4 h-4 mr-2" />
+                      Generate Image
+                    </>
+                  )}
                 </Button>
               </div>
+              <Button variant="outline" onClick={() => setShowOutput(false)} className="w-full">
+                Edit
+              </Button>
               <Button 
                 variant="outline" 
                 onClick={resetForm}
@@ -290,6 +362,41 @@ export default function Home() {
           </CardContent>
         </Card>
       )}
+      
+      {showOutput && (
+        <p className="text-xs text-center text-muted-foreground max-w-2xl mx-auto mt-4">
+          Advanced image styling and formatting options for Generate Image are coming soon
+        </p>
+      )}
+
+      {/* Hidden component for image generation */}
+      <div 
+        id="standup-image-card" 
+        style={{ 
+          position: 'fixed', 
+          left: '-9999px', 
+          top: '-9999px', 
+          opacity: 0, 
+          pointerEvents: 'none',
+          zIndex: -1
+        }}
+      >
+        <StandupImageCard
+          markdownOutput={markdownOutput}
+          header1={header1}
+          header2={header2}
+          header3={header3}
+          header1Format={header1Format}
+          header2Format={header2Format}
+          header3Format={header3Format}
+          showSection1={showSection1}
+          showSection2={showSection2}
+          showSection3={showSection3}
+          workingOn={workingOn}
+          workedOnYesterday={workedOnYesterday}
+          blockers={blockers}
+        />
+      </div>
     </div>
   );
 

@@ -80,7 +80,7 @@ export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bu
       {bullets.length > 0 && (
         <div className="space-y-2">
           {bullets.map((bullet, index) => (
-            <div key={index} className="flex items-center gap-2 group">
+            <div key={index} className="flex items-start gap-2 group">
               <div className="flex-shrink-0 w-2 h-2 bg-gray-400 rounded-full mt-2" />
               {editingIndex === index ? (
                 <Input
@@ -93,7 +93,7 @@ export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bu
                 />
               ) : (
                 <>
-                  <span className="flex-1 text-sm leading-relaxed">{bullet}</span>
+                  <span className="flex-1 text-sm leading-relaxed mt-0.5">{bullet}</span>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                     <Button
                       variant="ghost"

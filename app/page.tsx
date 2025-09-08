@@ -83,6 +83,10 @@ export default function Home() {
       setSection2Bullets([]);
       setSection3Bullets([]);
       
+      // Reset to input form (not generated output page)
+      setShowOutput(false);
+      setMarkdownOutput('');
+      
       // Switch the mode
       setSuperMode(pendingModeChange);
     }

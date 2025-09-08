@@ -357,10 +357,7 @@ export default function Home() {
               )}
             </CardTitle>
             <CardDescription>
-              {superMode 
-                ? 'Type bullet points and press Enter to add them. Use the edit icon to modify existing bullets. Go to Settings to disable Super Mode or customize section headers.'
-                : 'Fill in your standup information below. Go to Settings to enable Super Mode or customize section headers.'
-              }
+              Fill in your standup information below.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

@@ -15,9 +15,9 @@ interface StandupImageCardProps {
   workedOnYesterday: string;
   blockers: string;
   superMode: boolean;
-  workingOnBullets: string[];
-  workedOnYesterdayBullets: string[];
-  blockersBullets: string[];
+  section1Bullets: string[];
+  section2Bullets: string[];
+  section3Bullets: string[];
 }
 
 export const StandupImageCard: React.FC<StandupImageCardProps> = ({
@@ -34,9 +34,9 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
   workedOnYesterday,
   blockers,
   superMode,
-  workingOnBullets,
-  workedOnYesterdayBullets,
-  blockersBullets,
+  section1Bullets,
+  section2Bullets,
+  section3Bullets,
 }) => {
   const formatHeader = (format: string, header: string) => {
     // For image generation, we'll handle formatting with CSS classes instead of markdown
@@ -152,7 +152,7 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
       {/* Content - very spacious and breathable */}
       <div className="space-y-10">
         {(() => {
-          const section1Content = getContentToDisplay(workingOn, workingOnBullets);
+          const section1Content = getContentToDisplay(workingOn, section1Bullets);
           const hasContent = section1Content.type === 'bullets' 
             ? (section1Content.content as string[]).length > 0
             : (section1Content.content as string).length > 0;
@@ -177,7 +177,7 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
         })()}
 
         {(() => {
-          const section2Content = getContentToDisplay(workedOnYesterday, workedOnYesterdayBullets);
+          const section2Content = getContentToDisplay(workedOnYesterday, section2Bullets);
           const hasContent = section2Content.type === 'bullets' 
             ? (section2Content.content as string[]).length > 0
             : (section2Content.content as string).length > 0;
@@ -202,7 +202,7 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
         })()}
 
         {(() => {
-          const section3Content = getContentToDisplay(blockers, blockersBullets);
+          const section3Content = getContentToDisplay(blockers, section3Bullets);
           const hasContent = section3Content.type === 'bullets' 
             ? (section3Content.content as string[]).length > 0
             : (section3Content.content as string).length > 0;

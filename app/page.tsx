@@ -46,9 +46,9 @@ export default function Home() {
   const [superMode, setSuperMode] = useState(false);
   
   // Bullet point storage for super mode
-  const [workingOnBullets, setWorkingOnBullets] = useState<string[]>([]);
-  const [workedOnYesterdayBullets, setWorkedOnYesterdayBullets] = useState<string[]>([]);
-  const [blockersBullets, setBlockersBullets] = useState<string[]>([]);
+  const [section1Bullets, setSection1Bullets] = useState<string[]>([]);
+  const [section2Bullets, setSection2Bullets] = useState<string[]>([]);
+  const [section3Bullets, setSection3Bullets] = useState<string[]>([]);
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -71,9 +71,9 @@ export default function Home() {
         setShowSection3(parsed.showSection3 !== undefined ? parsed.showSection3 : true);
         setDefaultHeaderFormat(parsed.defaultHeaderFormat || 'none');
         setSuperMode(parsed.superMode || false);
-        setWorkingOnBullets(parsed.workingOnBullets || []);
-        setWorkedOnYesterdayBullets(parsed.workedOnYesterdayBullets || []);
-        setBlockersBullets(parsed.blockersBullets || []);
+        setSection1Bullets(parsed.section1Bullets || parsed.workingOnBullets || []);
+        setSection2Bullets(parsed.section2Bullets || parsed.workedOnYesterdayBullets || []);
+        setSection3Bullets(parsed.section3Bullets || parsed.blockersBullets || []);
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -97,12 +97,12 @@ export default function Home() {
       showSection3,
       defaultHeaderFormat,
       superMode,
-      workingOnBullets,
-      workedOnYesterdayBullets,
-      blockersBullets
+      section1Bullets,
+      section2Bullets,
+      section3Bullets
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [workingOn, workedOnYesterday, blockers, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, workingOnBullets, workedOnYesterdayBullets, blockersBullets]);
+  }, [workingOn, workedOnYesterday, blockers, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, section1Bullets, section2Bullets, section3Bullets]);
 
   const generateMarkdown = () => {
 
@@ -129,9 +129,9 @@ export default function Home() {
     
     let markdown = '';
     
-    const section1Content = formatContent(workingOn, workingOnBullets);
-    const section2Content = formatContent(workedOnYesterday, workedOnYesterdayBullets);
-    const section3Content = formatContent(blockers, blockersBullets);
+    const section1Content = formatContent(workingOn, section1Bullets);
+    const section2Content = formatContent(workedOnYesterday, section2Bullets);
+    const section3Content = formatContent(blockers, section3Bullets);
     
     if (showSection1 && section1Content) {
       markdown += `${formatHeader(header1Format, header1)}\n${section1Content}\n\n`;
@@ -233,9 +233,9 @@ export default function Home() {
     setWorkingOn('');
     setWorkedOnYesterday('');
     setBlockers('');
-    setWorkingOnBullets([]);
-    setWorkedOnYesterdayBullets([]);
-    setBlockersBullets([]);
+    setSection1Bullets([]);
+    setSection2Bullets([]);
+    setSection3Bullets([]);
     setMarkdownOutput('');
     setShowOutput(false);
   };
@@ -253,15 +253,15 @@ export default function Home() {
     const visibleSections = [
       { 
         visible: showSection1, 
-        filled: superMode ? workingOnBullets.length > 0 : workingOn.trim() !== '' 
+        filled: superMode ? section1Bullets.length > 0 : workingOn.trim() !== '' 
       },
       { 
         visible: showSection2, 
-        filled: superMode ? workedOnYesterdayBullets.length > 0 : workedOnYesterday.trim() !== '' 
+        filled: superMode ? section2Bullets.length > 0 : workedOnYesterday.trim() !== '' 
       },
       { 
         visible: showSection3, 
-        filled: superMode ? blockersBullets.length > 0 : blockers.trim() !== '' 
+        filled: superMode ? section3Bullets.length > 0 : blockers.trim() !== '' 
       }
     ].filter(section => section.visible);
 
@@ -310,8 +310,8 @@ export default function Home() {
                 <Label htmlFor="workingOn">{header1}</Label>
                 {superMode ? (
                   <BulletInput
-                    bullets={workingOnBullets}
-                    onBulletsChange={setWorkingOnBullets}
+                    bullets={section1Bullets}
+                    onBulletsChange={setSection1Bullets}
                     placeholder={`Add a bullet point for ${header1.toLowerCase().replace(/\?$/, '')}`}
                   />
                 ) : (
@@ -331,8 +331,8 @@ export default function Home() {
                 <Label htmlFor="workedOnYesterday">{header2}</Label>
                 {superMode ? (
                   <BulletInput
-                    bullets={workedOnYesterdayBullets}
-                    onBulletsChange={setWorkedOnYesterdayBullets}
+                    bullets={section2Bullets}
+                    onBulletsChange={setSection2Bullets}
                     placeholder={`Add a bullet point for ${header2.toLowerCase().replace(/\?$/, '')}`}
                   />
                 ) : (
@@ -352,8 +352,8 @@ export default function Home() {
                 <Label htmlFor="blockers">{header3}</Label>
                 {superMode ? (
                   <BulletInput
-                    bullets={blockersBullets}
-                    onBulletsChange={setBlockersBullets}
+                    bullets={section3Bullets}
+                    onBulletsChange={setSection3Bullets}
                     placeholder={`Add a bullet point for ${header3.toLowerCase().replace(/\?$/, '')}`}
                   />
                 ) : (
@@ -465,9 +465,9 @@ export default function Home() {
           workedOnYesterday={workedOnYesterday}
           blockers={blockers}
           superMode={superMode}
-          workingOnBullets={workingOnBullets}
-          workedOnYesterdayBullets={workedOnYesterdayBullets}
-          blockersBullets={blockersBullets}
+          section1Bullets={section1Bullets}
+          section2Bullets={section2Bullets}
+          section3Bullets={section3Bullets}
         />
       </div>
     </div>

@@ -248,7 +248,7 @@ export default function Home() {
           </div>
         </div>
         <p className="text-muted-foreground text-pretty">
-          Generate formatted markdown for your daily standup meetings
+          Write out your standup for easy copy and paste
         </p>
       </div>
 

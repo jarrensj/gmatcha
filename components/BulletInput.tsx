@@ -120,32 +120,27 @@ export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bu
       )}
 
       {/* Input for new bullet */}
-      <div className="flex items-center gap-2">
-        <div className="flex-shrink-0 w-2 h-2 bg-gray-300 rounded-full mt-2" />
-        <Input
-          ref={inputRef}
-          value={currentInput}
-          onChange={(e) => setCurrentInput(e.target.value)}
-          onKeyDown={handleKeyPress}
-          placeholder={placeholder}
-          className="flex-1"
-        />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleAddBullet}
-          disabled={!currentInput.trim()}
-          className="h-8 w-8 p-0"
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <Input
+            ref={inputRef}
+            value={currentInput}
+            onChange={(e) => setCurrentInput(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder={placeholder}
+            className="flex-1"
+          />
+        </div>
+        
+        {/* Helper text directly under input */}
+        <div className="text-[9px] text-muted-foreground/40">
+          {currentInput.trim() ? (
+            <span>Press Enter to add bullet point</span>
+          ) : (
+            <span>Type above to insert a bullet point item.</span>
+          )}
+        </div>
       </div>
-
-      {bullets.length === 0 && (
-        <p className="text-xs text-muted-foreground">
-          Type your bullet point and press Enter to add it. You can edit or delete bullets using the icons that appear on hover.
-        </p>
-      )}
     </div>
   );
 }

@@ -15,9 +15,9 @@ import { BulletInput } from '../components/BulletInput';
 import html2canvas from 'html2canvas';
 
 export default function Home() {
-  const [workingOn, setWorkingOn] = useState('');
-  const [workedOnYesterday, setWorkedOnYesterday] = useState('');
-  const [blockers, setBlockers] = useState('');
+  const [section1Text, setSection1Text] = useState('');
+  const [section2Text, setSection2Text] = useState('');
+  const [section3Text, setSection3Text] = useState('');
   const [markdownOutput, setMarkdownOutput] = useState('');
   const [showOutput, setShowOutput] = useState(false);
   const [currentPage, setCurrentPage] = useState('form'); // 'form' or 'settings'
@@ -50,15 +50,63 @@ export default function Home() {
   const [section2Bullets, setSection2Bullets] = useState<string[]>([]);
   const [section3Bullets, setSection3Bullets] = useState<string[]>([]);
 
+  // Modal state for mode switch warning
+  const [showModeWarning, setShowModeWarning] = useState(false);
+  const [pendingModeChange, setPendingModeChange] = useState<boolean | null>(null);
+
+  // Handle super mode toggle with warning
+  const handleSuperModeChange = (enabled: boolean) => {
+    // Check if user has data that would be lost
+    const hasTextData = section1Text.trim() || section2Text.trim() || section3Text.trim();
+    const hasBulletData = section1Bullets.length > 0 || section2Bullets.length > 0 || section3Bullets.length > 0;
+    
+    const hasDataToLose = enabled ? hasTextData : hasBulletData;
+    
+    if (hasDataToLose) {
+      // Show modal and store the pending change
+      setPendingModeChange(enabled);
+      setShowModeWarning(true);
+    } else {
+      // No data to lose, switch immediately
+      setSuperMode(enabled);
+    }
+  };
+
+  // Handle modal confirmation
+  const handleConfirmModeChange = () => {
+    if (pendingModeChange !== null) {
+      // Clear all data when switching modes
+      setSection1Text('');
+      setSection2Text('');
+      setSection3Text('');
+      setSection1Bullets([]);
+      setSection2Bullets([]);
+      setSection3Bullets([]);
+      
+      // Switch the mode
+      setSuperMode(pendingModeChange);
+    }
+    
+    // Close modal and reset pending change
+    setShowModeWarning(false);
+    setPendingModeChange(null);
+  };
+
+  // Handle modal cancellation
+  const handleCancelModeChange = () => {
+    setShowModeWarning(false);
+    setPendingModeChange(null);
+  };
+
   // Load data from localStorage on component mount
   useEffect(() => {
     const savedData = localStorage.getItem('standupFormData');
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
-        setWorkingOn(parsed.workingOn || '');
-        setWorkedOnYesterday(parsed.workedOnYesterday || '');
-        setBlockers(parsed.blockers || '');
+        setSection1Text(parsed.section1Text || parsed.workingOn || '');
+        setSection2Text(parsed.section2Text || parsed.workedOnYesterday || '');
+        setSection3Text(parsed.section3Text || parsed.blockers || '');
         // Use environment variables if they exist, otherwise use defaults
         setHeader1(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
         setHeader2(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
@@ -83,9 +131,9 @@ export default function Home() {
   // Save to localStorage whenever form data changes
   useEffect(() => {
     const formData = {
-      workingOn,
-      workedOnYesterday,
-      blockers,
+      section1Text,
+      section2Text,
+      section3Text,
       header1,
       header2,
       header3,
@@ -102,7 +150,7 @@ export default function Home() {
       section3Bullets
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [workingOn, workedOnYesterday, blockers, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, section1Bullets, section2Bullets, section3Bullets]);
+  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, section1Bullets, section2Bullets, section3Bullets]);
 
   const generateMarkdown = () => {
 
@@ -129,9 +177,9 @@ export default function Home() {
     
     let markdown = '';
     
-    const section1Content = formatContent(workingOn, section1Bullets);
-    const section2Content = formatContent(workedOnYesterday, section2Bullets);
-    const section3Content = formatContent(blockers, section3Bullets);
+    const section1Content = formatContent(section1Text, section1Bullets);
+    const section2Content = formatContent(section2Text, section2Bullets);
+    const section3Content = formatContent(section3Text, section3Bullets);
     
     if (showSection1 && section1Content) {
       markdown += `${formatHeader(header1Format, header1)}\n${section1Content}\n\n`;
@@ -230,9 +278,9 @@ export default function Home() {
 
 
   const resetForm = () => {
-    setWorkingOn('');
-    setWorkedOnYesterday('');
-    setBlockers('');
+    setSection1Text('');
+    setSection2Text('');
+    setSection3Text('');
     setSection1Bullets([]);
     setSection2Bullets([]);
     setSection3Bullets([]);
@@ -253,15 +301,15 @@ export default function Home() {
     const visibleSections = [
       { 
         visible: showSection1, 
-        filled: superMode ? section1Bullets.length > 0 : workingOn.trim() !== '' 
+        filled: superMode ? section1Bullets.length > 0 : section1Text.trim() !== '' 
       },
       { 
         visible: showSection2, 
-        filled: superMode ? section2Bullets.length > 0 : workedOnYesterday.trim() !== '' 
+        filled: superMode ? section2Bullets.length > 0 : section2Text.trim() !== '' 
       },
       { 
         visible: showSection3, 
-        filled: superMode ? section3Bullets.length > 0 : blockers.trim() !== '' 
+        filled: superMode ? section3Bullets.length > 0 : section3Text.trim() !== '' 
       }
     ].filter(section => section.visible);
 
@@ -307,7 +355,7 @@ export default function Home() {
           <CardContent className="space-y-4">
             {showSection1 && (
               <div className="space-y-2">
-                <Label htmlFor="workingOn">{header1}</Label>
+                <Label htmlFor="section1Text">{header1}</Label>
                 {superMode ? (
                   <BulletInput
                     bullets={section1Bullets}
@@ -316,10 +364,10 @@ export default function Home() {
                   />
                 ) : (
                   <Textarea
-                    id="workingOn"
+                    id="section1Text"
                     placeholder={`${header1.toLowerCase().replace(/\?$/, '')}`}
-                    value={workingOn}
-                    onChange={(e) => setWorkingOn(e.target.value)}
+                    value={section1Text}
+                    onChange={(e) => setSection1Text(e.target.value)}
                     rows={3}
                   />
                 )}
@@ -328,7 +376,7 @@ export default function Home() {
 
             {showSection2 && (
               <div className="space-y-2">
-                <Label htmlFor="workedOnYesterday">{header2}</Label>
+                <Label htmlFor="section2Text">{header2}</Label>
                 {superMode ? (
                   <BulletInput
                     bullets={section2Bullets}
@@ -337,10 +385,10 @@ export default function Home() {
                   />
                 ) : (
                   <Textarea
-                    id="workedOnYesterday"
+                    id="section2Text"
                     placeholder={`${header2.toLowerCase().replace(/\?$/, '')}`}
-                    value={workedOnYesterday}
-                    onChange={(e) => setWorkedOnYesterday(e.target.value)}
+                    value={section2Text}
+                    onChange={(e) => setSection2Text(e.target.value)}
                     rows={3}
                   />
                 )}
@@ -349,7 +397,7 @@ export default function Home() {
 
             {showSection3 && (
               <div className="space-y-2">
-                <Label htmlFor="blockers">{header3}</Label>
+                <Label htmlFor="section3Text">{header3}</Label>
                 {superMode ? (
                   <BulletInput
                     bullets={section3Bullets}
@@ -358,10 +406,10 @@ export default function Home() {
                   />
                 ) : (
                   <Textarea
-                    id="blockers"
+                    id="section3Text"
                     placeholder={`${header3.toLowerCase().replace(/\?$/, '')}`}
-                    value={blockers}
-                    onChange={(e) => setBlockers(e.target.value)}
+                    value={section3Text}
+                    onChange={(e) => setSection3Text(e.target.value)}
                     rows={3}
                   />
                 )}
@@ -461,9 +509,9 @@ export default function Home() {
           showSection1={showSection1}
           showSection2={showSection2}
           showSection3={showSection3}
-          workingOn={workingOn}
-          workedOnYesterday={workedOnYesterday}
-          blockers={blockers}
+          workingOn={section1Text}
+          workedOnYesterday={section2Text}
+          blockers={section3Text}
           superMode={superMode}
           section1Bullets={section1Bullets}
           section2Bullets={section2Bullets}
@@ -493,7 +541,7 @@ export default function Home() {
             showSection3={showSection3}
             onShowSection3Change={setShowSection3}
             superMode={superMode}
-            onSuperModeChange={setSuperMode}
+            onSuperModeChange={handleSuperModeChange}
             onBackToForm={() => setCurrentPage('form')}
           />
         ) : (
@@ -501,6 +549,32 @@ export default function Home() {
         )}
       </div>
       <Toaster toasts={toasts} onDismiss={dismiss} />
+      
+      {/* Mode Switch Warning Modal */}
+      {showModeWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold mb-4">Switch Input Mode?</h3>
+            <p className="text-gray-600 mb-6">
+              Switching from {pendingModeChange ? 'regular text' : 'Super Mode'} to {pendingModeChange ? 'Super Mode' : 'regular text'} will clear your current standup update. Are you sure you want to continue?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={handleCancelModeChange}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleConfirmModeChange}
+              >
+                Yes, Clear Data
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

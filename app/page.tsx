@@ -348,7 +348,14 @@ export default function Home() {
         /* Input Form */
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle>Standup Details{superMode && ' - Super Mode'}</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Standup Details
+              {superMode && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Super Mode
+                </span>
+              )}
+            </CardTitle>
             <CardDescription>
               {superMode 
                 ? 'Type bullet points and press Enter to add them. Use the edit icon to modify existing bullets. Go to Settings to disable Super Mode or customize section headers.'

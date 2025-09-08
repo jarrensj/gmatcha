@@ -464,6 +464,10 @@ export default function Home() {
           workingOn={workingOn}
           workedOnYesterday={workedOnYesterday}
           blockers={blockers}
+          superMode={superMode}
+          workingOnBullets={workingOnBullets}
+          workedOnYesterdayBullets={workedOnYesterdayBullets}
+          blockersBullets={blockersBullets}
         />
       </div>
     </div>

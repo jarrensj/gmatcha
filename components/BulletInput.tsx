@@ -3,7 +3,26 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Edit2, Trash2, Plus } from "lucide-react";
+import { Edit2, Trash2, GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface BulletInputProps {
   bullets: string[];
@@ -11,18 +30,147 @@ interface BulletInputProps {
   placeholder?: string;
 }
 
+interface SortableBulletItemProps {
+  bullet: string;
+  index: number;
+  id: string;
+  isEditing: boolean;
+  editValue: string;
+  onStartEdit: (index: number) => void;
+  onSaveEdit: () => void;
+  onCancelEdit: () => void;
+  onDelete: (index: number) => void;
+  onEditValueChange: (value: string) => void;
+  onEditKeyPress: (e: React.KeyboardEvent) => void;
+}
+
+function SortableBulletItem({
+  bullet,
+  index,
+  id,
+  isEditing,
+  editValue,
+  onStartEdit,
+  onSaveEdit,
+  onCancelEdit,
+  onDelete,
+  onEditValueChange,
+  onEditKeyPress,
+}: SortableBulletItemProps) {
+  const editRef = useRef<HTMLInputElement>(null);
+  
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: 'none',
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  useEffect(() => {
+    if (isEditing && editRef.current) {
+      editRef.current.focus();
+    }
+  }, [isEditing]);
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-start gap-2 group ${isDragging ? 'z-50 bg-white shadow-lg rounded-md border' : ''}`}
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="flex-shrink-0 cursor-grab active:cursor-grabbing mt-1 p-1 rounded hover:bg-gray-100 transition-colors"
+      >
+        <GripVertical className="w-3 h-3 text-gray-400" />
+      </div>
+      <div className="flex-shrink-0 w-2 h-2 bg-gray-400 rounded-full mt-2" />
+      {isEditing ? (
+        <Input
+          ref={editRef}
+          value={editValue}
+          onChange={(e) => onEditValueChange(e.target.value)}
+          onKeyDown={onEditKeyPress}
+          onBlur={onSaveEdit}
+          className="flex-1"
+        />
+      ) : (
+        <>
+          <span className="flex-1 text-sm leading-relaxed mt-0.5">{bullet}</span>
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onStartEdit(index)}
+              className="h-6 w-6 p-0"
+            >
+              <Edit2 className="w-3 h-3" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(index)}
+              className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+            >
+              <Trash2 className="w-3 h-3" />
+            </Button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bullet point..." }: BulletInputProps) {
   const [currentInput, setCurrentInput] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
-  const editRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (editingIndex !== null && editRef.current) {
-      editRef.current.focus();
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 3,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = bullets.findIndex((_, index) => `bullet-${index}` === active.id);
+      const newIndex = bullets.findIndex((_, index) => `bullet-${index}` === over?.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newBullets = arrayMove(bullets, oldIndex, newIndex);
+        onBulletsChange(newBullets);
+        
+        // Update editing index if the currently edited item was moved
+        if (editingIndex === oldIndex) {
+          setEditingIndex(newIndex);
+        } else if (editingIndex !== null) {
+          if (oldIndex < editingIndex && newIndex >= editingIndex) {
+            setEditingIndex(editingIndex - 1);
+          } else if (oldIndex > editingIndex && newIndex <= editingIndex) {
+            setEditingIndex(editingIndex + 1);
+          }
+        }
+      }
     }
-  }, [editingIndex]);
+  };
 
   const handleAddBullet = () => {
     if (currentInput.trim()) {
@@ -78,45 +226,35 @@ export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bu
     <div className="space-y-3">
       {/* Existing bullets */}
       {bullets.length > 0 && (
-        <div className="space-y-2">
-          {bullets.map((bullet, index) => (
-            <div key={index} className="flex items-start gap-2 group">
-              <div className="flex-shrink-0 w-2 h-2 bg-gray-400 rounded-full mt-2" />
-              {editingIndex === index ? (
-                <Input
-                  ref={editRef}
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onKeyDown={handleEditKeyPress}
-                  onBlur={handleSaveEdit}
-                  className="flex-1"
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={bullets.map((_, index) => `bullet-${index}`)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-2">
+              {bullets.map((bullet, index) => (
+                <SortableBulletItem
+                  key={`bullet-${index}`}
+                  id={`bullet-${index}`}
+                  bullet={bullet}
+                  index={index}
+                  isEditing={editingIndex === index}
+                  editValue={editValue}
+                  onStartEdit={handleStartEdit}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={handleCancelEdit}
+                  onDelete={handleDeleteBullet}
+                  onEditValueChange={setEditValue}
+                  onEditKeyPress={handleEditKeyPress}
                 />
-              ) : (
-                <>
-                  <span className="flex-1 text-sm leading-relaxed mt-0.5">{bullet}</span>
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleStartEdit(index)}
-                      className="h-6 w-6 p-0"
-                    >
-                      <Edit2 className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteBullet(index)}
-                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </>
-              )}
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {/* Input for new bullet */}

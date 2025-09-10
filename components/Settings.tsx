@@ -21,6 +21,8 @@ interface SettingsProps {
   onShowSection2Change: (show: boolean) => void;
   showSection3: boolean;
   onShowSection3Change: (show: boolean) => void;
+  superMode: boolean;
+  onSuperModeChange: (enabled: boolean) => void;
   onBackToForm: () => void;
 }
 
@@ -39,6 +41,8 @@ export default function Settings({
   onShowSection2Change,
   showSection3,
   onShowSection3Change,
+  superMode,
+  onSuperModeChange,
   onBackToForm 
 }: SettingsProps) {
   
@@ -47,6 +51,7 @@ export default function Settings({
     onHeader2Change(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
     onHeader3Change(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?');
     onDefaultHeaderFormatChange('none');
+    onSuperModeChange(false);
     // Also restore all hidden sections
     onShowSection1Change(true);
     onShowSection2Change(true);
@@ -59,6 +64,7 @@ export default function Settings({
     header2 !== (process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?') ||
     header3 !== (process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?') ||
     defaultHeaderFormat !== 'none' ||
+    superMode ||
     !showSection1 || !showSection2 || !showSection3;
 
   return (
@@ -194,6 +200,30 @@ export default function Settings({
                 onShowSection3Change(!showSection3);
               }}
               disabled={showSection3 && !showSection1 && !showSection2}
+              className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Super Mode</CardTitle>
+          <CardDescription>
+            Enable streamlined bullet-point input for faster standup creation. In Super Mode, you can quickly add bullet points by typing and pressing Enter.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-base">Enable Super Mode</Label>
+              <div className="text-sm text-muted-foreground">
+                Switch to bullet-point input for each section
+              </div>
+            </div>
+            <Switch
+              checked={superMode}
+              onCheckedChange={onSuperModeChange}
               className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
             />
           </div>

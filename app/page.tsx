@@ -11,12 +11,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toast";
 import Settings from '../components/Settings';
 import { StandupImageCard } from '../components/StandupImageCard';
+import { BulletInput } from '../components/BulletInput';
 import html2canvas from 'html2canvas';
 
 export default function Home() {
-  const [workingOn, setWorkingOn] = useState('');
-  const [workedOnYesterday, setWorkedOnYesterday] = useState('');
-  const [blockers, setBlockers] = useState('');
+  const [section1Text, setSection1Text] = useState('');
+  const [section2Text, setSection2Text] = useState('');
+  const [section3Text, setSection3Text] = useState('');
   const [markdownOutput, setMarkdownOutput] = useState('');
   const [showOutput, setShowOutput] = useState(false);
   const [currentPage, setCurrentPage] = useState('form'); // 'form' or 'settings'
@@ -40,6 +41,66 @@ export default function Home() {
   
   // Default formatting setting (applies to all sections)
   const [defaultHeaderFormat, setDefaultHeaderFormat] = useState('none');
+  
+  // Super mode toggle
+  const [superMode, setSuperMode] = useState(false);
+  
+  // Bullet point storage for super mode
+  const [section1Bullets, setSection1Bullets] = useState<string[]>([]);
+  const [section2Bullets, setSection2Bullets] = useState<string[]>([]);
+  const [section3Bullets, setSection3Bullets] = useState<string[]>([]);
+
+  // Modal state for mode switch warning
+  const [showModeWarning, setShowModeWarning] = useState(false);
+  const [pendingModeChange, setPendingModeChange] = useState<boolean | null>(null);
+
+  // Handle super mode toggle with warning
+  const handleSuperModeChange = (enabled: boolean) => {
+    // Check if user has data that would be lost
+    const hasTextData = section1Text.trim() || section2Text.trim() || section3Text.trim();
+    const hasBulletData = section1Bullets.length > 0 || section2Bullets.length > 0 || section3Bullets.length > 0;
+    
+    const hasDataToLose = enabled ? hasTextData : hasBulletData;
+    
+    if (hasDataToLose) {
+      // Show modal and store the pending change
+      setPendingModeChange(enabled);
+      setShowModeWarning(true);
+    } else {
+      // No data to lose, switch immediately
+      setSuperMode(enabled);
+    }
+  };
+
+  // Handle modal confirmation
+  const handleConfirmModeChange = () => {
+    if (pendingModeChange !== null) {
+      // Clear all data when switching modes
+      setSection1Text('');
+      setSection2Text('');
+      setSection3Text('');
+      setSection1Bullets([]);
+      setSection2Bullets([]);
+      setSection3Bullets([]);
+      
+      // Reset to input form (not generated output page)
+      setShowOutput(false);
+      setMarkdownOutput('');
+      
+      // Switch the mode
+      setSuperMode(pendingModeChange);
+    }
+    
+    // Close modal and reset pending change
+    setShowModeWarning(false);
+    setPendingModeChange(null);
+  };
+
+  // Handle modal cancellation
+  const handleCancelModeChange = () => {
+    setShowModeWarning(false);
+    setPendingModeChange(null);
+  };
 
   // Load data from localStorage on component mount
   useEffect(() => {
@@ -47,9 +108,9 @@ export default function Home() {
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
-        setWorkingOn(parsed.workingOn || '');
-        setWorkedOnYesterday(parsed.workedOnYesterday || '');
-        setBlockers(parsed.blockers || '');
+        setSection1Text(parsed.section1Text || parsed.workingOn || '');
+        setSection2Text(parsed.section2Text || parsed.workedOnYesterday || '');
+        setSection3Text(parsed.section3Text || parsed.blockers || '');
         // Use environment variables if they exist, otherwise use defaults
         setHeader1(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
         setHeader2(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
@@ -61,6 +122,10 @@ export default function Home() {
         setShowSection2(parsed.showSection2 !== undefined ? parsed.showSection2 : true);
         setShowSection3(parsed.showSection3 !== undefined ? parsed.showSection3 : true);
         setDefaultHeaderFormat(parsed.defaultHeaderFormat || 'none');
+        setSuperMode(parsed.superMode || false);
+        setSection1Bullets(parsed.section1Bullets || parsed.workingOnBullets || []);
+        setSection2Bullets(parsed.section2Bullets || parsed.workedOnYesterdayBullets || []);
+        setSection3Bullets(parsed.section3Bullets || parsed.blockersBullets || []);
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -70,9 +135,9 @@ export default function Home() {
   // Save to localStorage whenever form data changes
   useEffect(() => {
     const formData = {
-      workingOn,
-      workedOnYesterday,
-      blockers,
+      section1Text,
+      section2Text,
+      section3Text,
       header1,
       header2,
       header3,
@@ -82,10 +147,14 @@ export default function Home() {
       showSection1,
       showSection2,
       showSection3,
-      defaultHeaderFormat
+      defaultHeaderFormat,
+      superMode,
+      section1Bullets,
+      section2Bullets,
+      section3Bullets
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [workingOn, workedOnYesterday, blockers, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat]);
+  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, section1Bullets, section2Bullets, section3Bullets]);
 
   const generateMarkdown = () => {
 
@@ -102,22 +171,33 @@ export default function Home() {
           return header;
       }
     };
+
+    const formatContent = (content: string, bullets: string[]) => {
+      if (superMode && bullets.length > 0) {
+        return bullets.map(bullet => `- ${bullet}`).join('\n');
+      }
+      return content.trim();
+    };
     
     let markdown = '';
     
-    if (showSection1 && workingOn.trim()) {
-      markdown += `${formatHeader(header1Format, header1)}\n${workingOn.trim()}\n\n`;
+    const section1Content = formatContent(section1Text, section1Bullets);
+    const section2Content = formatContent(section2Text, section2Bullets);
+    const section3Content = formatContent(section3Text, section3Bullets);
+    
+    if (showSection1 && section1Content) {
+      markdown += `${formatHeader(header1Format, header1)}\n${section1Content}\n\n`;
     }
     
-    if (showSection2 && workedOnYesterday.trim()) {
-      markdown += `${formatHeader(header2Format, header2)}\n${workedOnYesterday.trim()}\n\n`;
+    if (showSection2 && section2Content) {
+      markdown += `${formatHeader(header2Format, header2)}\n${section2Content}\n\n`;
     }
     
-    if (showSection3 && blockers.trim()) {
-      markdown += `${formatHeader(header3Format, header3)}\n${blockers.trim()}\n\n`;
+    if (showSection3 && section3Content) {
+      markdown += `${formatHeader(header3Format, header3)}\n${section3Content}\n\n`;
     }
     
-    if (!workingOn.trim() && !workedOnYesterday.trim() && !blockers.trim()) {
+    if (!section1Content && !section2Content && !section3Content) {
       markdown = "# Daily Standup\n\nPlease fill in at least one field to generate your standup.";
     }
 
@@ -202,9 +282,12 @@ export default function Home() {
 
 
   const resetForm = () => {
-    setWorkingOn('');
-    setWorkedOnYesterday('');
-    setBlockers('');
+    setSection1Text('');
+    setSection2Text('');
+    setSection3Text('');
+    setSection1Bullets([]);
+    setSection2Bullets([]);
+    setSection3Bullets([]);
     setMarkdownOutput('');
     setShowOutput(false);
   };
@@ -220,9 +303,18 @@ export default function Home() {
   // Calculate progress based on visible sections and their completion
   const calculateProgress = () => {
     const visibleSections = [
-      { visible: showSection1, filled: workingOn.trim() !== '' },
-      { visible: showSection2, filled: workedOnYesterday.trim() !== '' },
-      { visible: showSection3, filled: blockers.trim() !== '' }
+      { 
+        visible: showSection1, 
+        filled: superMode ? section1Bullets.length > 0 : section1Text.trim() !== '' 
+      },
+      { 
+        visible: showSection2, 
+        filled: superMode ? section2Bullets.length > 0 : section2Text.trim() !== '' 
+      },
+      { 
+        visible: showSection3, 
+        filled: superMode ? section3Bullets.length > 0 : section3Text.trim() !== '' 
+      }
     ].filter(section => section.visible);
 
     if (visibleSections.length === 0) return 0;
@@ -256,46 +348,79 @@ export default function Home() {
         /* Input Form */
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle>Standup Details</CardTitle>
-            <CardDescription>Fill in your standup information below. Go to Settings to customize section headers.</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              Standup Details
+              {superMode && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  Super Mode
+                </span>
+              )}
+            </CardTitle>
+            <CardDescription>
+              Fill in your standup information below.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {showSection1 && (
               <div className="space-y-2">
-                <Label htmlFor="workingOn">{header1}</Label>
-                <Textarea
-                  id="workingOn"
-                  placeholder={`${header1.toLowerCase().replace(/\?$/, '')}`}
-                  value={workingOn}
-                  onChange={(e) => setWorkingOn(e.target.value)}
-                  rows={3}
-                />
+                <Label htmlFor="section1Text">{header1}</Label>
+                {superMode ? (
+                  <BulletInput
+                    bullets={section1Bullets}
+                    onBulletsChange={setSection1Bullets}
+                    placeholder={`Add a bullet point for ${header1.toLowerCase().replace(/\?$/, '')}`}
+                  />
+                ) : (
+                  <Textarea
+                    id="section1Text"
+                    placeholder={`${header1.toLowerCase().replace(/\?$/, '')}`}
+                    value={section1Text}
+                    onChange={(e) => setSection1Text(e.target.value)}
+                    rows={3}
+                  />
+                )}
               </div>
             )}
 
             {showSection2 && (
               <div className="space-y-2">
-                <Label htmlFor="workedOnYesterday">{header2}</Label>
-                <Textarea
-                  id="workedOnYesterday"
-                  placeholder={`${header2.toLowerCase().replace(/\?$/, '')}`}
-                  value={workedOnYesterday}
-                  onChange={(e) => setWorkedOnYesterday(e.target.value)}
-                  rows={3}
-                />
+                <Label htmlFor="section2Text">{header2}</Label>
+                {superMode ? (
+                  <BulletInput
+                    bullets={section2Bullets}
+                    onBulletsChange={setSection2Bullets}
+                    placeholder={`Add a bullet point for ${header2.toLowerCase().replace(/\?$/, '')}`}
+                  />
+                ) : (
+                  <Textarea
+                    id="section2Text"
+                    placeholder={`${header2.toLowerCase().replace(/\?$/, '')}`}
+                    value={section2Text}
+                    onChange={(e) => setSection2Text(e.target.value)}
+                    rows={3}
+                  />
+                )}
               </div>
             )}
 
             {showSection3 && (
               <div className="space-y-2">
-                <Label htmlFor="blockers">{header3}</Label>
-                <Textarea
-                  id="blockers"
-                  placeholder={`${header3.toLowerCase().replace(/\?$/, '')}`}
-                  value={blockers}
-                  onChange={(e) => setBlockers(e.target.value)}
-                  rows={3}
-                />
+                <Label htmlFor="section3Text">{header3}</Label>
+                {superMode ? (
+                  <BulletInput
+                    bullets={section3Bullets}
+                    onBulletsChange={setSection3Bullets}
+                    placeholder={`Add a bullet point for ${header3.toLowerCase().replace(/\?$/, '')}`}
+                  />
+                ) : (
+                  <Textarea
+                    id="section3Text"
+                    placeholder={`${header3.toLowerCase().replace(/\?$/, '')}`}
+                    value={section3Text}
+                    onChange={(e) => setSection3Text(e.target.value)}
+                    rows={3}
+                  />
+                )}
               </div>
             )}
 
@@ -392,9 +517,13 @@ export default function Home() {
           showSection1={showSection1}
           showSection2={showSection2}
           showSection3={showSection3}
-          workingOn={workingOn}
-          workedOnYesterday={workedOnYesterday}
-          blockers={blockers}
+          workingOn={section1Text}
+          workedOnYesterday={section2Text}
+          blockers={section3Text}
+          superMode={superMode}
+          section1Bullets={section1Bullets}
+          section2Bullets={section2Bullets}
+          section3Bullets={section3Bullets}
         />
       </div>
     </div>
@@ -419,6 +548,8 @@ export default function Home() {
             onShowSection2Change={setShowSection2}
             showSection3={showSection3}
             onShowSection3Change={setShowSection3}
+            superMode={superMode}
+            onSuperModeChange={handleSuperModeChange}
             onBackToForm={() => setCurrentPage('form')}
           />
         ) : (
@@ -426,6 +557,32 @@ export default function Home() {
         )}
       </div>
       <Toaster toasts={toasts} onDismiss={dismiss} />
+      
+      {/* Mode Switch Warning Modal */}
+      {showModeWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold mb-4">Switch Mode?</h3>
+            <p className="text-gray-600 mb-6">
+              Switching from modes will clear your current standup update. Are you sure you want to continue?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={handleCancelModeChange}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleConfirmModeChange}
+              >
+                Yes, Clear Data
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

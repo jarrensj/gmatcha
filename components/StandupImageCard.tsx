@@ -14,6 +14,10 @@ interface StandupImageCardProps {
   workingOn: string;
   workedOnYesterday: string;
   blockers: string;
+  superMode: boolean;
+  section1Bullets: string[];
+  section2Bullets: string[];
+  section3Bullets: string[];
 }
 
 export const StandupImageCard: React.FC<StandupImageCardProps> = ({
@@ -29,6 +33,10 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
   workingOn,
   workedOnYesterday,
   blockers,
+  superMode,
+  section1Bullets,
+  section2Bullets,
+  section3Bullets,
 }) => {
   const formatHeader = (format: string, header: string) => {
     // For image generation, we'll handle formatting with CSS classes instead of markdown
@@ -46,6 +54,61 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
       case 'none':
       default:
         return 'font-semibold text-gray-800';
+    }
+  };
+
+  const getContentToDisplay = (textContent: string, bullets: string[]) => {
+    if (superMode && bullets.length > 0) {
+      return { type: 'bullets', content: bullets };
+    }
+    return { type: 'text', content: textContent.trim() };
+  };
+
+  const renderContent = (contentData: { type: string; content: string | string[] }) => {
+    if (contentData.type === 'bullets' && Array.isArray(contentData.content)) {
+      return (
+        <div className="space-y-2">
+          {contentData.content.map((bullet, index) => (
+            <div 
+              key={index} 
+              className="flex items-start gap-3"
+              style={{ 
+                color: '#4a4a4a',
+                fontSize: '16px',
+                lineHeight: '1.7',
+                fontWeight: 400,
+                letterSpacing: '0.1px'
+              }}
+            >
+              <div 
+                className="flex-shrink-0 mt-3"
+                style={{
+                  width: '4px',
+                  height: '4px',
+                  backgroundColor: '#8a8a8a',
+                  borderRadius: '50%'
+                }}
+              />
+              <span>{bullet}</span>
+            </div>
+          ))}
+        </div>
+      );
+    } else {
+      return (
+        <div 
+          className="leading-relaxed whitespace-pre-wrap"
+          style={{ 
+            color: '#4a4a4a',
+            fontSize: '16px',
+            lineHeight: '1.7',
+            fontWeight: 400,
+            letterSpacing: '0.1px'
+          }}
+        >
+          {contentData.content as string}
+        </div>
+      );
     }
   };
 
@@ -88,92 +151,80 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
 
       {/* Content - very spacious and breathable */}
       <div className="space-y-10">
-        {showSection1 && workingOn.trim() && (
-          <div className="space-y-4">
-            <h2 
-              className={getHeaderClassName(header1Format)}
-              style={{ 
-                color: '#7a9b7a', // soft muted green
-                fontWeight: 500,
-                letterSpacing: '0.2px',
-                fontSize: header1Format === '##' ? '22px' : header1Format === '###' ? '20px' : '18px',
-                lineHeight: '1.3'
-              }}
-            >
-              {formatHeader(header1Format, header1)}
-            </h2>
-            <div 
-              className="leading-relaxed whitespace-pre-wrap"
-              style={{ 
-                color: '#4a4a4a', // gentle charcoal
-                fontSize: '16px',
-                lineHeight: '1.7',
-                fontWeight: 400,
-                letterSpacing: '0.1px'
-              }}
-            >
-              {workingOn.trim()}
+        {(() => {
+          const section1Content = getContentToDisplay(workingOn, section1Bullets);
+          const hasContent = section1Content.type === 'bullets' 
+            ? (section1Content.content as string[]).length > 0
+            : (section1Content.content as string).length > 0;
+          
+          return showSection1 && hasContent && (
+            <div className="space-y-4">
+              <h2 
+                className={getHeaderClassName(header1Format)}
+                style={{ 
+                  color: '#7a9b7a', // soft muted green
+                  fontWeight: 500,
+                  letterSpacing: '0.2px',
+                  fontSize: header1Format === '##' ? '22px' : header1Format === '###' ? '20px' : '18px',
+                  lineHeight: '1.3'
+                }}
+              >
+                {formatHeader(header1Format, header1)}
+              </h2>
+              {renderContent(section1Content)}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
-        {showSection2 && workedOnYesterday.trim() && (
-          <div className="space-y-4">
-            <h2 
-              className={getHeaderClassName(header2Format)}
-              style={{ 
-                color: '#8b7355', // soft brown
-                fontWeight: 500,
-                letterSpacing: '0.2px',
-                fontSize: header2Format === '##' ? '22px' : header2Format === '###' ? '20px' : '18px',
-                lineHeight: '1.3'
-              }}
-            >
-              {formatHeader(header2Format, header2)}
-            </h2>
-            <div 
-              className="leading-relaxed whitespace-pre-wrap"
-              style={{ 
-                color: '#4a4a4a', // gentle charcoal
-                fontSize: '16px',
-                lineHeight: '1.7',
-                fontWeight: 400,
-                letterSpacing: '0.1px'
-              }}
-            >
-              {workedOnYesterday.trim()}
+        {(() => {
+          const section2Content = getContentToDisplay(workedOnYesterday, section2Bullets);
+          const hasContent = section2Content.type === 'bullets' 
+            ? (section2Content.content as string[]).length > 0
+            : (section2Content.content as string).length > 0;
+          
+          return showSection2 && hasContent && (
+            <div className="space-y-4">
+              <h2 
+                className={getHeaderClassName(header2Format)}
+                style={{ 
+                  color: '#8b7355', // soft brown
+                  fontWeight: 500,
+                  letterSpacing: '0.2px',
+                  fontSize: header2Format === '##' ? '22px' : header2Format === '###' ? '20px' : '18px',
+                  lineHeight: '1.3'
+                }}
+              >
+                {formatHeader(header2Format, header2)}
+              </h2>
+              {renderContent(section2Content)}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
-        {showSection3 && blockers.trim() && (
-          <div className="space-y-4">
-            <h2 
-              className={getHeaderClassName(header3Format)}
-              style={{ 
-                color: '#a67c7c', // very soft muted red/brown
-                fontWeight: 500,
-                letterSpacing: '0.2px',
-                fontSize: header3Format === '##' ? '22px' : header3Format === '###' ? '20px' : '18px',
-                lineHeight: '1.3'
-              }}
-            >
-              {formatHeader(header3Format, header3)}
-            </h2>
-            <div 
-              className="leading-relaxed whitespace-pre-wrap"
-              style={{ 
-                color: '#4a4a4a', // gentle charcoal
-                fontSize: '16px',
-                lineHeight: '1.7',
-                fontWeight: 400,
-                letterSpacing: '0.1px'
-              }}
-            >
-              {blockers.trim()}
+        {(() => {
+          const section3Content = getContentToDisplay(blockers, section3Bullets);
+          const hasContent = section3Content.type === 'bullets' 
+            ? (section3Content.content as string[]).length > 0
+            : (section3Content.content as string).length > 0;
+          
+          return showSection3 && hasContent && (
+            <div className="space-y-4">
+              <h2 
+                className={getHeaderClassName(header3Format)}
+                style={{ 
+                  color: '#a67c7c', // very soft muted red/brown
+                  fontWeight: 500,
+                  letterSpacing: '0.2px',
+                  fontSize: header3Format === '##' ? '22px' : header3Format === '###' ? '20px' : '18px',
+                  lineHeight: '1.3'
+                }}
+              >
+                {formatHeader(header3Format, header3)}
+              </h2>
+              {renderContent(section3Content)}
             </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
 
       {/* Footer - minimal and understated */}

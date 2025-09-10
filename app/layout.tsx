@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "standup formatter",
-  description: "standup update formatter",
+  description: "Write out your standup for easy copy and paste",
 };
 
 export default function RootLayout({

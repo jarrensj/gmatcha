@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SuperModeBadge } from "@/components/SuperModeBadge";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft, RotateCcw, Lock, Unlock } from "lucide-react";
 
 interface SettingsProps {
   defaultHeaderFormat: string;
@@ -24,6 +24,10 @@ interface SettingsProps {
   onShowSection3Change: (show: boolean) => void;
   superMode: boolean;
   onSuperModeChange: (enabled: boolean) => void;
+  headersLocked: boolean;
+  onHeadersLockedChange: (locked: boolean) => void;
+  visibilityLocked: boolean;
+  onVisibilityLockedChange: (locked: boolean) => void;
   onBackToForm: () => void;
 }
 
@@ -44,6 +48,10 @@ export default function Settings({
   onShowSection3Change,
   superMode,
   onSuperModeChange,
+  headersLocked,
+  onHeadersLockedChange,
+  visibilityLocked,
+  onVisibilityLockedChange,
   onBackToForm 
 }: SettingsProps) {
   
@@ -93,9 +101,24 @@ export default function Settings({
 
       <Card>
         <CardHeader>
-          <CardTitle>Section Header Titles</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            Section Header Titles
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onHeadersLockedChange(!headersLocked)}
+              className="h-8 w-8 p-0"
+            >
+              {headersLocked ? (
+                <Lock className="h-4 w-4 text-red-500" />
+              ) : (
+                <Unlock className="h-4 w-4 text-green-500" />
+              )}
+            </Button>
+          </CardTitle>
           <CardDescription>
             These titles will be used as the default headers for each section in your standup form.
+            {headersLocked && <span className="text-red-500 font-medium"> (Locked - click the lock to edit)</span>}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -107,7 +130,7 @@ export default function Settings({
               id="header1"
               value={header1}
               onChange={(e) => onHeader1Change(e.target.value)}
-              disabled={!showSection1}
+              disabled={!showSection1 || headersLocked}
               placeholder="Enter first section header"
             />
           </div>
@@ -120,7 +143,7 @@ export default function Settings({
               id="header2"
               value={header2}
               onChange={(e) => onHeader2Change(e.target.value)}
-              disabled={!showSection2}
+              disabled={!showSection2 || headersLocked}
               placeholder="Enter second section header"
             />
           </div>
@@ -133,7 +156,7 @@ export default function Settings({
               id="header3"
               value={header3}
               onChange={(e) => onHeader3Change(e.target.value)}
-              disabled={!showSection3}
+              disabled={!showSection3 || headersLocked}
               placeholder="Enter third section header"
             />
           </div>
@@ -142,9 +165,24 @@ export default function Settings({
 
       <Card>
         <CardHeader>
-          <CardTitle>Section Visibility</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            Section Visibility
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onVisibilityLockedChange(!visibilityLocked)}
+              className="h-8 w-8 p-0"
+            >
+              {visibilityLocked ? (
+                <Lock className="h-4 w-4 text-red-500" />
+              ) : (
+                <Unlock className="h-4 w-4 text-green-500" />
+              )}
+            </Button>
+          </CardTitle>
           <CardDescription>
             Toggle sections on or off. Hidden sections won&apos;t appear in your standup form or final output. At least one section must remain visible.
+            {visibilityLocked && <span className="text-red-500 font-medium"> (Locked - click the lock to edit)</span>}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -162,7 +200,7 @@ export default function Settings({
                 if (showSection1 && !showSection2 && !showSection3) return;
                 onShowSection1Change(!showSection1);
               }}
-              disabled={showSection1 && !showSection2 && !showSection3}
+              disabled={(showSection1 && !showSection2 && !showSection3) || visibilityLocked}
               className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
             />
           </div>
@@ -181,7 +219,7 @@ export default function Settings({
                 if (showSection2 && !showSection1 && !showSection3) return;
                 onShowSection2Change(!showSection2);
               }}
-              disabled={showSection2 && !showSection1 && !showSection3}
+              disabled={(showSection2 && !showSection1 && !showSection3) || visibilityLocked}
               className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
             />
           </div>
@@ -200,7 +238,7 @@ export default function Settings({
                 if (showSection3 && !showSection1 && !showSection2) return;
                 onShowSection3Change(!showSection3);
               }}
-              disabled={showSection3 && !showSection1 && !showSection2}
+              disabled={(showSection3 && !showSection1 && !showSection2) || visibilityLocked}
               className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
             />
           </div>

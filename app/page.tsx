@@ -46,6 +46,10 @@ export default function Home() {
   // Super mode toggle
   const [superMode, setSuperMode] = useState(true);
   
+  // Lock states for settings protection
+  const [headersLocked, setHeadersLocked] = useState(false);
+  const [visibilityLocked, setVisibilityLocked] = useState(false);
+  
   // Bullet point storage for super mode
   const [section1Bullets, setSection1Bullets] = useState<string[]>([]);
   const [section2Bullets, setSection2Bullets] = useState<string[]>([]);
@@ -124,6 +128,8 @@ export default function Home() {
         setShowSection3(parsed.showSection3 !== undefined ? parsed.showSection3 : true);
         setDefaultHeaderFormat(parsed.defaultHeaderFormat || 'none');
         setSuperMode(parsed.superMode || false);
+        setHeadersLocked(parsed.headersLocked || false);
+        setVisibilityLocked(parsed.visibilityLocked || false);
         setSection1Bullets(parsed.section1Bullets || parsed.workingOnBullets || []);
         setSection2Bullets(parsed.section2Bullets || parsed.workedOnYesterdayBullets || []);
         setSection3Bullets(parsed.section3Bullets || parsed.blockersBullets || []);
@@ -150,12 +156,14 @@ export default function Home() {
       showSection3,
       defaultHeaderFormat,
       superMode,
+      headersLocked,
+      visibilityLocked,
       section1Bullets,
       section2Bullets,
       section3Bullets
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, section1Bullets, section2Bullets, section3Bullets]);
+  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, headersLocked, visibilityLocked, section1Bullets, section2Bullets, section3Bullets]);
 
   const generateMarkdown = () => {
 
@@ -547,6 +555,10 @@ export default function Home() {
             onShowSection3Change={setShowSection3}
             superMode={superMode}
             onSuperModeChange={handleSuperModeChange}
+            headersLocked={headersLocked}
+            onHeadersLockedChange={setHeadersLocked}
+            visibilityLocked={visibilityLocked}
+            onVisibilityLockedChange={setVisibilityLocked}
             onBackToForm={() => setCurrentPage('form')}
           />
         ) : (

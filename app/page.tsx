@@ -43,7 +43,7 @@ export default function Home() {
   const [defaultHeaderFormat, setDefaultHeaderFormat] = useState('none');
   
   // Super mode toggle
-  const [superMode, setSuperMode] = useState(false);
+  const [superMode, setSuperMode] = useState(true);
   
   // Bullet point storage for super mode
   const [section1Bullets, setSection1Bullets] = useState<string[]>([]);

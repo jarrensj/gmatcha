@@ -111,10 +111,10 @@ export default function Home() {
         setSection1Text(parsed.section1Text || parsed.workingOn || '');
         setSection2Text(parsed.section2Text || parsed.workedOnYesterday || '');
         setSection3Text(parsed.section3Text || parsed.blockers || '');
-        // Use environment variables if they exist, otherwise use defaults
-        setHeader1(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
-        setHeader2(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
-        setHeader3(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?');
+        // Use saved headers if they exist, otherwise use environment variables or defaults
+        setHeader1(parsed.header1 || process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
+        setHeader2(parsed.header2 || process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
+        setHeader3(parsed.header3 || process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?');
         setHeader1Format(parsed.header1Format || 'none');
         setHeader2Format(parsed.header2Format || 'none');
         setHeader3Format(parsed.header3Format || 'none');

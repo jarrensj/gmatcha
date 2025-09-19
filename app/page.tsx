@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/toast";
 import Settings from '../components/Settings';
 import { StandupImageCard } from '../components/StandupImageCard';
 import { BulletInput } from '../components/BulletInput';
+import { SuperModeBadge } from '../components/SuperModeBadge';
 import html2canvas from 'html2canvas';
 
 export default function Home() {
@@ -350,11 +351,7 @@ export default function Home() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               Standup Details
-              {superMode && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  Super Mode
-                </span>
-              )}
+              {superMode && <SuperModeBadge />}
             </CardTitle>
             <CardDescription>
               Fill in your standup information below.

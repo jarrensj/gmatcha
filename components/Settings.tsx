@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SuperModeBadge } from "@/components/SuperModeBadge";
 import { ArrowLeft, RotateCcw } from "lucide-react";
 
 interface SettingsProps {
@@ -208,7 +209,10 @@ export default function Settings({
 
       <Card>
         <CardHeader>
-          <CardTitle>Super Mode</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Super Mode
+            <SuperModeBadge />
+          </CardTitle>
           <CardDescription>
             Enable streamlined bullet-point input for faster standup creation. In Super Mode, you can quickly add bullet points by typing and pressing Enter.
           </CardDescription>

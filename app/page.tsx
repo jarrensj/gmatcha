@@ -716,7 +716,7 @@ export default function Home() {
           <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
             <h3 className="text-lg font-semibold mb-4">Roll Today to Yesterday?</h3>
             <p className="text-gray-600 mb-6">
-              You already have content in the "Yesterday" section. Rolling over will replace it with today's content. Are you sure you want to continue?
+              You already have content in the &ldquo;Yesterday&rdquo; section. Rolling over will replace it with today&apos;s content. Are you sure you want to continue?
             </p>
             <div className="flex gap-3 justify-end">
               <Button

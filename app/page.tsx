@@ -127,15 +127,29 @@ export default function Home() {
     setPendingModeChange(null);
   };
 
-  // Handle unsaved changes modal confirmation
-  const handleConfirmUnsavedChanges = () => {
+  // State to track when we should generate markdown after saving
+  const [shouldGenerateAfterSave, setShouldGenerateAfterSave] = useState(false);
+
+  // Handle unsaved changes modal confirmation - save and continue
+  const handleSaveAndContinue = () => {
     setShowUnsavedWarning(false);
-    // Clear unsaved inputs and proceed with generation
-    setSection1CurrentInput('');
-    setSection2CurrentInput('');
-    setSection3CurrentInput('');
-    // Proceed with markdown generation
-    generateMarkdownForced();
+    
+    // Save any unsaved inputs as bullet points
+    if (section1CurrentInput.trim()) {
+      setSection1Bullets(prev => [...prev, section1CurrentInput.trim()]);
+      setSection1CurrentInput('');
+    }
+    if (section2CurrentInput.trim()) {
+      setSection2Bullets(prev => [...prev, section2CurrentInput.trim()]);
+      setSection2CurrentInput('');
+    }
+    if (section3CurrentInput.trim()) {
+      setSection3Bullets(prev => [...prev, section3CurrentInput.trim()]);
+      setSection3CurrentInput('');
+    }
+    
+    // Set flag to generate markdown after state updates
+    setShouldGenerateAfterSave(true);
   };
 
   // Handle unsaved changes modal cancellation
@@ -196,6 +210,14 @@ export default function Home() {
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
   }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, section1Bullets, section2Bullets, section3Bullets]);
+
+  // Generate markdown after saving unsaved changes
+  useEffect(() => {
+    if (shouldGenerateAfterSave) {
+      generateMarkdownForced();
+      setShouldGenerateAfterSave(false);
+    }
+  }, [section1Bullets, section2Bullets, section3Bullets, shouldGenerateAfterSave]);
 
   const generateMarkdownForced = () => {
     const formatHeader = (format: string, header: string) => {
@@ -765,7 +787,7 @@ export default function Home() {
           <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
             <h3 className="text-lg font-semibold mb-4">Unsaved Changes</h3>
             <p className="text-gray-600 mb-6">
-              You have unsaved text in your bullet points. If you continue, this text will be lost. Would you like to go back and save it, or proceed without it?
+              You have unsaved text in your bullet points. Would you like to save this text as bullet points and continue, or go back to finish editing?
             </p>
             <div className="flex gap-3 justify-end">
               <Button
@@ -775,10 +797,9 @@ export default function Home() {
                 Go Back
               </Button>
               <Button
-                variant="destructive"
-                onClick={handleConfirmUnsavedChanges}
+                onClick={handleSaveAndContinue}
               >
-                Proceed Without Saving
+                Save & Continue
               </Button>
             </div>
           </div>

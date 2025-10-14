@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "standup formatter",
+  title: "gmatcha",
   description: "Write out your standup for easy copy and paste",
 };
 

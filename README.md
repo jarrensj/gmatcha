@@ -1,4 +1,4 @@
-# standup formatter
+# gmatcha
 
 speedrun writing your standup update 
 

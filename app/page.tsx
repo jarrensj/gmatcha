@@ -505,7 +505,7 @@ export default function Home() {
     <div className="mx-auto max-w-4xl space-y-6">
       <div className="text-center space-y-2">
         <div className="relative">
-          <h1 className="text-3xl font-bold text-balance">Standup Formatter</h1>
+          <h1 className="text-3xl font-bold text-balance">gmatcha</h1>
           <div className="absolute top-0 right-0">
             <Button
               variant="outline"

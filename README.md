@@ -12,7 +12,7 @@ speedrun writing your standup update
 - **mobile responsive**: works on desktop and mobile devices
 - **reset functionality**: easily clear form data or reset all settings to app defaults
 - **local-only storage**: nothing is pushed to a database
-- **rollover": roll today's section into yesterday's section for the following day's standup update
+- **rollover**: roll today's section into yesterday's section for the following day's standup update
 
 ## getting started
 

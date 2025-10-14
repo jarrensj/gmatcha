@@ -48,9 +48,9 @@ export default function Settings({
 }: SettingsProps) {
   
   const resetHeaders = () => {
-    onHeader1Change(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
-    onHeader2Change(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
-    onHeader3Change(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?');
+    onHeader1Change(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'Yesterday:');
+    onHeader2Change(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'Today:');
+    onHeader3Change(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'Blockers:');
     onDefaultHeaderFormatChange('none');
     onSuperModeChange(false);
     // Also restore all hidden sections
@@ -61,9 +61,9 @@ export default function Settings({
 
   // Check if current values differ from defaults
   const hasChanges = 
-    header1 !== (process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?') ||
-    header2 !== (process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?') ||
-    header3 !== (process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?') ||
+    header1 !== (process.env.NEXT_PUBLIC_SECTION1_HEADER || 'Yesterday:') ||
+    header2 !== (process.env.NEXT_PUBLIC_SECTION2_HEADER || 'Today:') ||
+    header3 !== (process.env.NEXT_PUBLIC_SECTION3_HEADER || 'Blockers:') ||
     defaultHeaderFormat !== 'none' ||
     superMode ||
     !showSection1 || !showSection2 || !showSection3;

@@ -28,6 +28,7 @@ interface BulletInputProps {
   bullets: string[];
   onBulletsChange: (bullets: string[]) => void;
   placeholder?: string;
+  onCurrentInputChange?: (input: string) => void;
 }
 
 interface SortableBulletItemProps {
@@ -130,7 +131,7 @@ function SortableBulletItem({
   );
 }
 
-export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bullet point..." }: BulletInputProps) {
+export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bullet point...", onCurrentInputChange }: BulletInputProps) {
   const [currentInput, setCurrentInput] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -176,6 +177,7 @@ export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bu
     if (currentInput.trim()) {
       onBulletsChange([...bullets, currentInput.trim()]);
       setCurrentInput('');
+      onCurrentInputChange?.('');
       // Focus back to input for continuous typing
       setTimeout(() => inputRef.current?.focus(), 0);
     }
@@ -263,7 +265,10 @@ export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bu
           <Input
             ref={inputRef}
             value={currentInput}
-            onChange={(e) => setCurrentInput(e.target.value)}
+            onChange={(e) => {
+              setCurrentInput(e.target.value);
+              onCurrentInputChange?.(e.target.value);
+            }}
             onKeyDown={handleKeyPress}
             placeholder={placeholder}
             className="flex-1"

@@ -51,12 +51,33 @@ export default function Home() {
   const [section2Bullets, setSection2Bullets] = useState<string[]>([]);
   const [section3Bullets, setSection3Bullets] = useState<string[]>([]);
 
+  // Track current unsaved input in bullet mode
+  const [section1CurrentInput, setSection1CurrentInput] = useState('');
+  const [section2CurrentInput, setSection2CurrentInput] = useState('');
+  const [section3CurrentInput, setSection3CurrentInput] = useState('');
+
   // Modal state for mode switch warning
   const [showModeWarning, setShowModeWarning] = useState(false);
   const [pendingModeChange, setPendingModeChange] = useState<boolean | null>(null);
 
+  // Modal state for unsaved changes warning
+  const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
+
   // Modal state for rollover confirmation
   const [showRolloverWarning, setShowRolloverWarning] = useState(false);
+
+  // Function to detect unsaved changes in bullet mode
+  const hasUnsavedChanges = () => {
+    if (!superMode) return false;
+    
+    const hasUnsavedInput = (
+      (showSection1 && section1CurrentInput.trim()) ||
+      (showSection2 && section2CurrentInput.trim()) ||
+      (showSection3 && section3CurrentInput.trim())
+    );
+    
+    return hasUnsavedInput;
+  };
 
   // Handle super mode toggle with warning
   const handleSuperModeChange = (enabled: boolean) => {
@@ -104,6 +125,36 @@ export default function Home() {
   const handleCancelModeChange = () => {
     setShowModeWarning(false);
     setPendingModeChange(null);
+  };
+
+  // State to track when we should generate markdown after saving
+  const [shouldGenerateAfterSave, setShouldGenerateAfterSave] = useState(false);
+
+  // Handle unsaved changes modal confirmation - save and continue
+  const handleSaveAndContinue = () => {
+    setShowUnsavedWarning(false);
+    
+    // Save any unsaved inputs as bullet points
+    if (section1CurrentInput.trim()) {
+      setSection1Bullets(prev => [...prev, section1CurrentInput.trim()]);
+      setSection1CurrentInput('');
+    }
+    if (section2CurrentInput.trim()) {
+      setSection2Bullets(prev => [...prev, section2CurrentInput.trim()]);
+      setSection2CurrentInput('');
+    }
+    if (section3CurrentInput.trim()) {
+      setSection3Bullets(prev => [...prev, section3CurrentInput.trim()]);
+      setSection3CurrentInput('');
+    }
+    
+    // Set flag to generate markdown after state updates
+    setShouldGenerateAfterSave(true);
+  };
+
+  // Handle unsaved changes modal cancellation
+  const handleCancelUnsavedChanges = () => {
+    setShowUnsavedWarning(false);
   };
 
   // Load data from localStorage on component mount
@@ -160,8 +211,15 @@ export default function Home() {
     localStorage.setItem('standupFormData', JSON.stringify(formData));
   }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, section1Bullets, section2Bullets, section3Bullets]);
 
-  const generateMarkdown = () => {
+  // Generate markdown after saving unsaved changes
+  useEffect(() => {
+    if (shouldGenerateAfterSave) {
+      generateMarkdownForced();
+      setShouldGenerateAfterSave(false);
+    }
+  }, [section1Bullets, section2Bullets, section3Bullets, shouldGenerateAfterSave]);
 
+  const generateMarkdownForced = () => {
     const formatHeader = (format: string, header: string) => {
       switch (format) {
         case 'bold':
@@ -207,6 +265,16 @@ export default function Home() {
 
     setMarkdownOutput(markdown);
     setShowOutput(true);
+  };
+
+  const generateMarkdown = () => {
+    // Check for unsaved changes in bullet mode
+    if (hasUnsavedChanges()) {
+      setShowUnsavedWarning(true);
+      return;
+    }
+
+    generateMarkdownForced();
   };
 
   const copyToClipboard = async () => {
@@ -475,6 +543,7 @@ export default function Home() {
                     bullets={section1Bullets}
                     onBulletsChange={setSection1Bullets}
                     placeholder={`Add a bullet point for ${header1.toLowerCase().replace(/\?$/, '')}`}
+                    onCurrentInputChange={setSection1CurrentInput}
                   />
                 ) : (
                   <Textarea
@@ -496,6 +565,7 @@ export default function Home() {
                     bullets={section2Bullets}
                     onBulletsChange={setSection2Bullets}
                     placeholder={`Add a bullet point for ${header2.toLowerCase().replace(/\?$/, '')}`}
+                    onCurrentInputChange={setSection2CurrentInput}
                   />
                 ) : (
                   <Textarea
@@ -517,6 +587,7 @@ export default function Home() {
                     bullets={section3Bullets}
                     onBulletsChange={setSection3Bullets}
                     placeholder={`Add a bullet point for ${header3.toLowerCase().replace(/\?$/, '')}`}
+                    onCurrentInputChange={setSection3CurrentInput}
                   />
                 ) : (
                   <Textarea
@@ -704,6 +775,31 @@ export default function Home() {
                 onClick={handleConfirmModeChange}
               >
                 Yes, Clear Data
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Unsaved Changes Warning Modal */}
+      {showUnsavedWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold mb-4">Unsaved Changes</h3>
+            <p className="text-gray-600 mb-6">
+              You have unsaved text in your bullet points. Would you like to save this text as bullet points and continue, or go back to finish editing?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={handleCancelUnsavedChanges}
+              >
+                Go Back
+              </Button>
+              <Button
+                onClick={handleSaveAndContinue}
+              >
+                Save & Continue
               </Button>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ProgressButton } from "@/components/ui/progress-button";
-import { Copy, Settings as SettingsIcon, RotateCcw, Download } from "lucide-react";
+import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toast";
 import Settings from '../components/Settings';
@@ -54,6 +54,9 @@ export default function Home() {
   // Modal state for mode switch warning
   const [showModeWarning, setShowModeWarning] = useState(false);
   const [pendingModeChange, setPendingModeChange] = useState<boolean | null>(null);
+
+  // Modal state for rollover confirmation
+  const [showRolloverWarning, setShowRolloverWarning] = useState(false);
 
   // Handle super mode toggle with warning
   const handleSuperModeChange = (enabled: boolean) => {
@@ -293,6 +296,112 @@ export default function Home() {
     setShowOutput(false);
   };
 
+  // Detect which section represents "today" vs "yesterday" based on header content using regex
+  const detectSections = () => {
+    // Regex patterns for "today" variations
+    const todayPatterns = [
+      /\btoday\b/i,                    // exact word "today"
+      /\bworking\s+on\b/i,             // "working on" (present tense)
+      /\bcurrent(ly)?\b/i,             // "current" or "currently"
+      /\bnow\b/i,                      // "now"
+      /\bthis\s+(week|day|sprint)\b/i, // "this week/day/sprint"
+      /\bwhat\s+(are|will)\s+you\b/i,  // "what are you" or "what will you"
+      /\bplanning\s+to\b/i,            // "planning to"
+      /\bgoing\s+to\b/i                // "going to"
+    ];
+    
+    // Regex patterns for "yesterday" variations  
+    const yesterdayPatterns = [
+      /\byesterday\b/i,                      // exact word "yesterday"
+      /\bworked\s+on\b/i,                    // "worked on" (past tense)
+      /\bprevious(ly)?\b/i,                  // "previous" or "previously"
+      /\blast\s+(week|day|sprint|time)\b/i,  // "last week/day/sprint/time"
+      /\bwhat\s+did\s+you\b/i,               // "what did you"
+      /\bwhat\s+have\s+you\b/i,              // "what have you"
+      /\bcompleted?\b/i,                     // "complete" or "completed"
+      /\bfinished?\b/i,                      // "finish" or "finished"
+      /\baccomplished?\b/i,                  // "accomplish" or "accomplished"
+      /\bdone\b/i                            // "done"
+    ];
+    
+    // Test headers against patterns
+    const header1IsToday = todayPatterns.some(pattern => pattern.test(header1));
+    const header2IsToday = todayPatterns.some(pattern => pattern.test(header2));
+    const header1IsYesterday = yesterdayPatterns.some(pattern => pattern.test(header1));
+    const header2IsYesterday = yesterdayPatterns.some(pattern => pattern.test(header2));
+    
+    // Determine which section is today vs yesterday
+    if (header1IsToday && header2IsYesterday) {
+      return { todaySection: 1, yesterdaySection: 2 };
+    } else if (header2IsToday && header1IsYesterday) {
+      return { todaySection: 2, yesterdaySection: 1 };
+    } else {
+      // Fallback to default assumption: section1 = today, section2 = yesterday
+      return { todaySection: 1, yesterdaySection: 2 };
+    }
+  };
+
+  // Handle rollover functionality
+  const handleRollover = () => {
+    const { yesterdaySection } = detectSections();
+    
+    // Check if there's existing yesterday content that would be overwritten
+    const hasYesterdayContent = yesterdaySection === 1 
+      ? (superMode ? section1Bullets.length > 0 : section1Text.trim() !== '')
+      : (superMode ? section2Bullets.length > 0 : section2Text.trim() !== '');
+    
+    if (hasYesterdayContent) {
+      // Show confirmation modal
+      setShowRolloverWarning(true);
+    } else {
+      // No existing content, proceed with rollover
+      performRollover();
+    }
+  };
+
+  const performRollover = () => {
+    const { todaySection, yesterdaySection } = detectSections();
+    
+    // Move today's content to yesterday
+    if (todaySection === 1 && yesterdaySection === 2) {
+      // Section 1 is today, Section 2 is yesterday
+      if (superMode) {
+        setSection2Bullets([...section1Bullets]);
+        setSection1Bullets([]);
+      } else {
+        setSection2Text(section1Text);
+        setSection1Text('');
+      }
+    } else if (todaySection === 2 && yesterdaySection === 1) {
+      // Section 2 is today, Section 1 is yesterday
+      if (superMode) {
+        setSection1Bullets([...section2Bullets]);
+        setSection2Bullets([]);
+      } else {
+        setSection1Text(section2Text);
+        setSection2Text('');
+      }
+    }
+    
+    // Reset output state since we've changed the content
+    setShowOutput(false);
+    setMarkdownOutput('');
+    
+    toast({
+      title: "Rollover Complete!",
+      description: "Today's content has been moved to yesterday. Ready for your next update.",
+    });
+  };
+
+  const handleConfirmRollover = () => {
+    performRollover();
+    setShowRolloverWarning(false);
+  };
+
+  const handleCancelRollover = () => {
+    setShowRolloverWarning(false);
+  };
+
   const handleDefaultHeaderFormatChange = (newFormat: string) => {
     setDefaultHeaderFormat(newFormat);
     // Apply the new format to all current sections immediately
@@ -472,14 +581,34 @@ export default function Home() {
               <Button variant="outline" onClick={() => setShowOutput(false)} className="w-full">
                 Edit
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={resetForm}
-                className="w-full"
-              >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Create New Update
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={resetForm}
+                  className="flex-1"
+                >
+                  <RotateCcw className="w-4 h-4 mr-2" />
+                  Create New Update
+                </Button>
+                
+                {/* Rollover button - only show if there's content in today's section and both sections are visible */}
+                {(() => {
+                  const { todaySection } = detectSections();
+                  const hasTodayContent = todaySection === 1 
+                    ? (superMode ? section1Bullets.length > 0 : section1Text.trim() !== '')
+                    : (superMode ? section2Bullets.length > 0 : section2Text.trim() !== '');
+                  return showSection1 && showSection2 && hasTodayContent;
+                })() && (
+                  <Button 
+                    variant="outline" 
+                    onClick={handleRollover}
+                    className="flex-1"
+                  >
+                    <ArrowDown className="w-4 h-4 mr-2" />
+                    Roll to Tomorrow
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -575,6 +704,31 @@ export default function Home() {
                 onClick={handleConfirmModeChange}
               >
                 Yes, Clear Data
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rollover Confirmation Modal */}
+      {showRolloverWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold mb-4">Roll Today to Yesterday?</h3>
+            <p className="text-gray-600 mb-6">
+              You already have content in the &ldquo;Yesterday&rdquo; section. Rolling over will replace it with today&apos;s content. Are you sure you want to continue?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={handleCancelRollover}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConfirmRollover}
+              >
+                Yes, Roll Over
               </Button>
             </div>
           </div>

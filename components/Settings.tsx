@@ -5,7 +5,24 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SuperModeBadge } from "@/components/SuperModeBadge";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft, RotateCcw, GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface SettingsProps {
   defaultHeaderFormat: string;
@@ -24,6 +41,8 @@ interface SettingsProps {
   onShowSection3Change: (show: boolean) => void;
   superMode: boolean;
   onSuperModeChange: (enabled: boolean) => void;
+  sectionOrder: Array<'section1' | 'section2' | 'section3'>;
+  onSectionOrderChange: (order: Array<'section1' | 'section2' | 'section3'>) => void;
   onBackToForm: () => void;
 }
 
@@ -44,6 +63,8 @@ export default function Settings({
   onShowSection3Change,
   superMode,
   onSuperModeChange,
+  sectionOrder,
+  onSectionOrderChange,
   onBackToForm 
 }: SettingsProps) {
   
@@ -57,6 +78,7 @@ export default function Settings({
     onShowSection1Change(true);
     onShowSection2Change(true);
     onShowSection3Change(true);
+    onSectionOrderChange(['section1','section2','section3']);
   };
 
   // Check if current values differ from defaults
@@ -67,6 +89,53 @@ export default function Settings({
     defaultHeaderFormat !== 'none' ||
     superMode ||
     !showSection1 || !showSection2 || !showSection3;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 3 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleOrderDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = sectionOrder.findIndex((id) => id === active.id);
+    const newIndex = sectionOrder.findIndex((id) => id === over.id);
+    if (oldIndex !== -1 && newIndex !== -1) {
+      onSectionOrderChange(arrayMove(sectionOrder, oldIndex, newIndex));
+    }
+  };
+
+  const SortableSectionItem = ({ id, label, muted }: { id: 'section1'|'section2'|'section3'; label: string; muted?: boolean }) => {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+    const style: React.CSSProperties = {
+      transform: CSS.Transform.toString(transform),
+      transition: 'none',
+      opacity: isDragging ? 0.6 : 1,
+    };
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={`flex items-center justify-between rounded-md border p-3 bg-card ${muted ? 'opacity-60' : ''} ${isDragging ? 'shadow-md' : ''}`}
+      >
+        <div className="flex items-center gap-3">
+          <button
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-muted"
+            aria-label="Drag to reorder"
+          >
+            <GripVertical className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <span className="font-medium">{label}</span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -90,6 +159,31 @@ export default function Settings({
           All changes are saved automatically
         </p>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Section Order</CardTitle>
+          <CardDescription>
+            Drag to reorder how sections appear in the form and output.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleOrderDragEnd}>
+            <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+              <div className="space-y-2">
+                {sectionOrder.map((id) => (
+                  <SortableSectionItem
+                    key={id}
+                    id={id}
+                    label={id === 'section1' ? header1 : id === 'section2' ? header2 : header3}
+                    muted={id === 'section1' ? !showSection1 : id === 'section2' ? !showSection2 : !showSection3}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

@@ -18,6 +18,7 @@ interface StandupImageCardProps {
   section1Bullets: string[];
   section2Bullets: string[];
   section3Bullets: string[];
+  sectionOrder?: Array<'section1' | 'section2' | 'section3'>;
 }
 
 export const StandupImageCard: React.FC<StandupImageCardProps> = ({
@@ -37,6 +38,7 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
   section1Bullets,
   section2Bullets,
   section3Bullets,
+  sectionOrder,
 }) => {
   const formatHeader = (format: string, header: string) => {
     // For image generation, we'll handle formatting with CSS classes instead of markdown
@@ -151,18 +153,17 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
 
       {/* Content - very spacious and breathable */}
       <div className="space-y-10">
-        {(() => {
+        {((order) => {
           const section1Content = getContentToDisplay(workingOn, section1Bullets);
           const hasContent = section1Content.type === 'bullets' 
             ? (section1Content.content as string[]).length > 0
             : (section1Content.content as string).length > 0;
-          
-          return showSection1 && hasContent && (
+          return order.includes('section1') && showSection1 && hasContent && (
             <div className="space-y-4">
               <h2 
                 className={getHeaderClassName(header1Format)}
                 style={{ 
-                  color: '#7a9b7a', // soft muted green
+                  color: '#7a9b7a',
                   fontWeight: 500,
                   letterSpacing: '0.2px',
                   fontSize: header1Format === '##' ? '22px' : header1Format === '###' ? '20px' : '18px',
@@ -174,20 +175,19 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
               {renderContent(section1Content)}
             </div>
           );
-        })()}
+        })(sectionOrder || ['section1','section2','section3'])}
 
-        {(() => {
+        {((order) => {
           const section2Content = getContentToDisplay(workedOnYesterday, section2Bullets);
           const hasContent = section2Content.type === 'bullets' 
             ? (section2Content.content as string[]).length > 0
             : (section2Content.content as string).length > 0;
-          
-          return showSection2 && hasContent && (
+          return order.includes('section2') && showSection2 && hasContent && (
             <div className="space-y-4">
               <h2 
                 className={getHeaderClassName(header2Format)}
                 style={{ 
-                  color: '#8b7355', // soft brown
+                  color: '#8b7355',
                   fontWeight: 500,
                   letterSpacing: '0.2px',
                   fontSize: header2Format === '##' ? '22px' : header2Format === '###' ? '20px' : '18px',
@@ -199,20 +199,19 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
               {renderContent(section2Content)}
             </div>
           );
-        })()}
+        })(sectionOrder || ['section1','section2','section3'])}
 
-        {(() => {
+        {((order) => {
           const section3Content = getContentToDisplay(blockers, section3Bullets);
           const hasContent = section3Content.type === 'bullets' 
             ? (section3Content.content as string[]).length > 0
             : (section3Content.content as string).length > 0;
-          
-          return showSection3 && hasContent && (
+          return order.includes('section3') && showSection3 && hasContent && (
             <div className="space-y-4">
               <h2 
                 className={getHeaderClassName(header3Format)}
                 style={{ 
-                  color: '#a67c7c', // very soft muted red/brown
+                  color: '#a67c7c',
                   fontWeight: 500,
                   letterSpacing: '0.2px',
                   fontSize: header3Format === '##' ? '22px' : header3Format === '###' ? '20px' : '18px',
@@ -224,7 +223,7 @@ export const StandupImageCard: React.FC<StandupImageCardProps> = ({
               {renderContent(section3Content)}
             </div>
           );
-        })()}
+        })(sectionOrder || ['section1','section2','section3'])}
       </div>
 
       {/* Footer - minimal and understated */}

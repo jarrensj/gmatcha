@@ -40,6 +40,13 @@ export default function Home() {
   const [showSection2, setShowSection2] = useState(true);
   const [showSection3, setShowSection3] = useState(true);
   
+  // Section ordering (draggable in Settings)
+  const [sectionOrder, setSectionOrder] = useState<Array<'section1' | 'section2' | 'section3'>>([
+    'section1',
+    'section2',
+    'section3',
+  ]);
+  
   // Default formatting setting (applies to all sections)
   const [defaultHeaderFormat, setDefaultHeaderFormat] = useState('none');
   
@@ -181,6 +188,7 @@ export default function Home() {
         setSection1Bullets(parsed.section1Bullets || parsed.workingOnBullets || []);
         setSection2Bullets(parsed.section2Bullets || parsed.workedOnYesterdayBullets || []);
         setSection3Bullets(parsed.section3Bullets || parsed.blockersBullets || []);
+        setSectionOrder(parsed.sectionOrder || ['section1', 'section2', 'section3']);
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -206,10 +214,11 @@ export default function Home() {
       superMode,
       section1Bullets,
       section2Bullets,
-      section3Bullets
+      section3Bullets,
+      sectionOrder
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, section1Bullets, section2Bullets, section3Bullets]);
+  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, section1Bullets, section2Bullets, section3Bullets, sectionOrder]);
 
   // Generate markdown after saving unsaved changes
   useEffect(() => {
@@ -246,18 +255,24 @@ export default function Home() {
     const section1Content = formatContent(section1Text, section1Bullets);
     const section2Content = formatContent(section2Text, section2Bullets);
     const section3Content = formatContent(section3Text, section3Bullets);
-    
-    if (showSection1 && section1Content) {
-      markdown += `${formatHeader(header1Format, header1)}\n${section1Content}\n\n`;
-    }
-    
-    if (showSection2 && section2Content) {
-      markdown += `${formatHeader(header2Format, header2)}\n${section2Content}\n\n`;
-    }
-    
-    if (showSection3 && section3Content) {
-      markdown += `${formatHeader(header3Format, header3)}\n${section3Content}\n\n`;
-    }
+
+    const appendSection = (sectionId: 'section1' | 'section2' | 'section3') => {
+      if (sectionId === 'section1') {
+        if (showSection1 && section1Content) {
+          markdown += `${formatHeader(header1Format, header1)}\n${section1Content}\n\n`;
+        }
+      } else if (sectionId === 'section2') {
+        if (showSection2 && section2Content) {
+          markdown += `${formatHeader(header2Format, header2)}\n${section2Content}\n\n`;
+        }
+      } else if (sectionId === 'section3') {
+        if (showSection3 && section3Content) {
+          markdown += `${formatHeader(header3Format, header3)}\n${section3Content}\n\n`;
+        }
+      }
+    };
+
+    sectionOrder.forEach(appendSection);
     
     if (!section1Content && !section2Content && !section3Content) {
       markdown = "# Daily Standup\n\nPlease fill in at least one field to generate your standup.";
@@ -392,31 +407,40 @@ export default function Home() {
       /\bdone\b/i                            // "done"
     ];
     
-    // Test headers against patterns
-    const header1IsToday = todayPatterns.some(pattern => pattern.test(header1));
-    const header2IsToday = todayPatterns.some(pattern => pattern.test(header2));
-    const header1IsYesterday = yesterdayPatterns.some(pattern => pattern.test(header1));
-    const header2IsYesterday = yesterdayPatterns.some(pattern => pattern.test(header2));
-    
-    // Determine which section is today vs yesterday
-    if (header1IsToday && header2IsYesterday) {
-      return { todaySection: 1, yesterdaySection: 2 };
-    } else if (header2IsToday && header1IsYesterday) {
-      return { todaySection: 2, yesterdaySection: 1 };
-    } else {
-      // Fallback to default assumption: section1 = today, section2 = yesterday
-      return { todaySection: 1, yesterdaySection: 2 };
+    // Evaluate all headers and return ids instead of indices
+    const ids: Array<'section1' | 'section2' | 'section3'> = ['section1', 'section2', 'section3'];
+    const headerById: Record<'section1' | 'section2' | 'section3', string> = {
+      section1: header1,
+      section2: header2,
+      section3: header3,
+    };
+
+    const todayMatches = ids.filter((id) => todayPatterns.some((p) => p.test(headerById[id])));
+    const yesterdayMatches = ids.filter((id) => yesterdayPatterns.some((p) => p.test(headerById[id])));
+
+    let todaySectionId: 'section1' | 'section2' | 'section3' = todayMatches.length === 1 ? todayMatches[0] : 'section1';
+    let yesterdaySectionId: 'section1' | 'section2' | 'section3' = yesterdayMatches.length === 1 ? yesterdayMatches[0] : 'section2';
+
+    if (yesterdaySectionId === todaySectionId) {
+      const alternative = ids.find((id) => id !== todaySectionId);
+      if (alternative) {
+        yesterdaySectionId = alternative as 'section1' | 'section2' | 'section3';
+      }
     }
+
+    return { todaySectionId, yesterdaySectionId };
   };
 
   // Handle rollover functionality
   const handleRollover = () => {
-    const { yesterdaySection } = detectSections();
+    const { yesterdaySectionId } = detectSections();
     
     // Check if there's existing yesterday content that would be overwritten
-    const hasYesterdayContent = yesterdaySection === 1 
+    const hasYesterdayContent = yesterdaySectionId === 'section1' 
       ? (superMode ? section1Bullets.length > 0 : section1Text.trim() !== '')
-      : (superMode ? section2Bullets.length > 0 : section2Text.trim() !== '');
+      : yesterdaySectionId === 'section2'
+        ? (superMode ? section2Bullets.length > 0 : section2Text.trim() !== '')
+        : (superMode ? section3Bullets.length > 0 : section3Text.trim() !== '');
     
     if (hasYesterdayContent) {
       // Show confirmation modal
@@ -428,28 +452,31 @@ export default function Home() {
   };
 
   const performRollover = () => {
-    const { todaySection, yesterdaySection } = detectSections();
+    const { todaySectionId, yesterdaySectionId } = detectSections();
     
     // Move today's content to yesterday
-    if (todaySection === 1 && yesterdaySection === 2) {
-      // Section 1 is today, Section 2 is yesterday
+    const moveText = (from: 'section1' | 'section2' | 'section3', to: 'section1' | 'section2' | 'section3') => {
+      if (from === to) return;
       if (superMode) {
-        setSection2Bullets([...section1Bullets]);
-        setSection1Bullets([]);
+        const fromBullets = from === 'section1' ? section1Bullets : from === 'section2' ? section2Bullets : section3Bullets;
+        if (to === 'section1') setSection1Bullets([...fromBullets]);
+        if (to === 'section2') setSection2Bullets([...fromBullets]);
+        if (to === 'section3') setSection3Bullets([...fromBullets]);
+        if (from === 'section1') setSection1Bullets([]);
+        if (from === 'section2') setSection2Bullets([]);
+        if (from === 'section3') setSection3Bullets([]);
       } else {
-        setSection2Text(section1Text);
-        setSection1Text('');
+        const fromText = from === 'section1' ? section1Text : from === 'section2' ? section2Text : section3Text;
+        if (to === 'section1') setSection1Text(fromText);
+        if (to === 'section2') setSection2Text(fromText);
+        if (to === 'section3') setSection3Text(fromText);
+        if (from === 'section1') setSection1Text('');
+        if (from === 'section2') setSection2Text('');
+        if (from === 'section3') setSection3Text('');
       }
-    } else if (todaySection === 2 && yesterdaySection === 1) {
-      // Section 2 is today, Section 1 is yesterday
-      if (superMode) {
-        setSection1Bullets([...section2Bullets]);
-        setSection2Bullets([]);
-      } else {
-        setSection1Text(section2Text);
-        setSection2Text('');
-      }
-    }
+    };
+
+    moveText(todaySectionId, yesterdaySectionId);
     
     // Reset output state since we've changed the content
     setShowOutput(false);
@@ -535,71 +562,81 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {showSection1 && (
-              <div className="space-y-2">
-                <Label htmlFor="section1Text">{header1}</Label>
-                {superMode ? (
-                  <BulletInput
-                    bullets={section1Bullets}
-                    onBulletsChange={setSection1Bullets}
-                    placeholder={`Add a bullet point for ${header1.toLowerCase().replace(/\?$/, '')}`}
-                    onCurrentInputChange={setSection1CurrentInput}
-                  />
-                ) : (
-                  <Textarea
-                    id="section1Text"
-                    placeholder={`${header1.toLowerCase().replace(/\?$/, '')}`}
-                    value={section1Text}
-                    onChange={(e) => setSection1Text(e.target.value)}
-                    rows={3}
-                  />
-                )}
-              </div>
-            )}
-
-            {showSection2 && (
-              <div className="space-y-2">
-                <Label htmlFor="section2Text">{header2}</Label>
-                {superMode ? (
-                  <BulletInput
-                    bullets={section2Bullets}
-                    onBulletsChange={setSection2Bullets}
-                    placeholder={`Add a bullet point for ${header2.toLowerCase().replace(/\?$/, '')}`}
-                    onCurrentInputChange={setSection2CurrentInput}
-                  />
-                ) : (
-                  <Textarea
-                    id="section2Text"
-                    placeholder={`${header2.toLowerCase().replace(/\?$/, '')}`}
-                    value={section2Text}
-                    onChange={(e) => setSection2Text(e.target.value)}
-                    rows={3}
-                  />
-                )}
-              </div>
-            )}
-
-            {showSection3 && (
-              <div className="space-y-2">
-                <Label htmlFor="section3Text">{header3}</Label>
-                {superMode ? (
-                  <BulletInput
-                    bullets={section3Bullets}
-                    onBulletsChange={setSection3Bullets}
-                    placeholder={`Add a bullet point for ${header3.toLowerCase().replace(/\?$/, '')}`}
-                    onCurrentInputChange={setSection3CurrentInput}
-                  />
-                ) : (
-                  <Textarea
-                    id="section3Text"
-                    placeholder={`${header3.toLowerCase().replace(/\?$/, '')}`}
-                    value={section3Text}
-                    onChange={(e) => setSection3Text(e.target.value)}
-                    rows={3}
-                  />
-                )}
-              </div>
-            )}
+            {sectionOrder.map((id) => {
+              if (id === 'section1') {
+                if (!showSection1) return null;
+                return (
+                  <div key="section1" className="space-y-2">
+                    <Label htmlFor="section1Text">{header1}</Label>
+                    {superMode ? (
+                      <BulletInput
+                        bullets={section1Bullets}
+                        onBulletsChange={setSection1Bullets}
+                        placeholder={`Add a bullet point for ${header1.toLowerCase().replace(/\?$/, '')}`}
+                        onCurrentInputChange={setSection1CurrentInput}
+                      />
+                    ) : (
+                      <Textarea
+                        id="section1Text"
+                        placeholder={`${header1.toLowerCase().replace(/\?$/, '')}`}
+                        value={section1Text}
+                        onChange={(e) => setSection1Text(e.target.value)}
+                        rows={3}
+                      />
+                    )}
+                  </div>
+                );
+              }
+              if (id === 'section2') {
+                if (!showSection2) return null;
+                return (
+                  <div key="section2" className="space-y-2">
+                    <Label htmlFor="section2Text">{header2}</Label>
+                    {superMode ? (
+                      <BulletInput
+                        bullets={section2Bullets}
+                        onBulletsChange={setSection2Bullets}
+                        placeholder={`Add a bullet point for ${header2.toLowerCase().replace(/\?$/, '')}`}
+                        onCurrentInputChange={setSection2CurrentInput}
+                      />
+                    ) : (
+                      <Textarea
+                        id="section2Text"
+                        placeholder={`${header2.toLowerCase().replace(/\?$/, '')}`}
+                        value={section2Text}
+                        onChange={(e) => setSection2Text(e.target.value)}
+                        rows={3}
+                      />
+                    )}
+                  </div>
+                );
+              }
+              if (id === 'section3') {
+                if (!showSection3) return null;
+                return (
+                  <div key="section3" className="space-y-2">
+                    <Label htmlFor="section3Text">{header3}</Label>
+                    {superMode ? (
+                      <BulletInput
+                        bullets={section3Bullets}
+                        onBulletsChange={setSection3Bullets}
+                        placeholder={`Add a bullet point for ${header3.toLowerCase().replace(/\?$/, '')}`}
+                        onCurrentInputChange={setSection3CurrentInput}
+                      />
+                    ) : (
+                      <Textarea
+                        id="section3Text"
+                        placeholder={`${header3.toLowerCase().replace(/\?$/, '')}`}
+                        value={section3Text}
+                        onChange={(e) => setSection3Text(e.target.value)}
+                        rows={3}
+                      />
+                    )}
+                  </div>
+                );
+              }
+              return null;
+            })}
 
             <ProgressButton 
               onClick={generateMarkdown} 
@@ -664,11 +701,14 @@ export default function Home() {
                 
                 {/* Rollover button - only show if there's content in today's section and both sections are visible */}
                 {(() => {
-                  const { todaySection } = detectSections();
-                  const hasTodayContent = todaySection === 1 
+                  const { todaySectionId } = detectSections();
+                  const hasTodayContent = todaySectionId === 'section1' 
                     ? (superMode ? section1Bullets.length > 0 : section1Text.trim() !== '')
-                    : (superMode ? section2Bullets.length > 0 : section2Text.trim() !== '');
-                  return showSection1 && showSection2 && hasTodayContent;
+                    : todaySectionId === 'section2'
+                      ? (superMode ? section2Bullets.length > 0 : section2Text.trim() !== '')
+                      : (superMode ? section3Bullets.length > 0 : section3Text.trim() !== '');
+                  const visibleCount = [showSection1, showSection2, showSection3].filter(Boolean).length;
+                  return visibleCount >= 2 && hasTodayContent;
                 })() && (
                   <Button 
                     variant="outline" 
@@ -703,7 +743,7 @@ export default function Home() {
           zIndex: -1
         }}
       >
-        <StandupImageCard
+          <StandupImageCard
           markdownOutput={markdownOutput}
           header1={header1}
           header2={header2}
@@ -720,7 +760,8 @@ export default function Home() {
           superMode={superMode}
           section1Bullets={section1Bullets}
           section2Bullets={section2Bullets}
-          section3Bullets={section3Bullets}
+            section3Bullets={section3Bullets}
+            sectionOrder={sectionOrder}
         />
       </div>
     </div>
@@ -747,6 +788,8 @@ export default function Home() {
             onShowSection3Change={setShowSection3}
             superMode={superMode}
             onSuperModeChange={handleSuperModeChange}
+            sectionOrder={sectionOrder}
+            onSectionOrderChange={setSectionOrder}
             onBackToForm={() => setCurrentPage('form')}
           />
         ) : (

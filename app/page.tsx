@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -137,6 +137,60 @@ export default function Home() {
   // State to track when we should generate markdown after saving
   const [shouldGenerateAfterSave, setShouldGenerateAfterSave] = useState(false);
 
+  const generateMarkdownForced = useCallback(() => {
+    const formatHeader = (format: string, header: string) => {
+      switch (format) {
+        case 'bold':
+          return `**${header}**`;
+        case '##':
+          return `## ${header}`;
+        case '###':
+          return `### ${header}`;
+        case 'none':
+        default:
+          return header;
+      }
+    };
+
+    const formatContent = (content: string, bullets: string[]) => {
+      if (superMode && bullets.length > 0) {
+        return bullets.map(bullet => `- ${bullet}`).join('\n');
+      }
+      return content.trim();
+    };
+    
+    let markdown = '';
+    
+    const section1Content = formatContent(section1Text, section1Bullets);
+    const section2Content = formatContent(section2Text, section2Bullets);
+    const section3Content = formatContent(section3Text, section3Bullets);
+
+    const appendSection = (sectionId: 'section1' | 'section2' | 'section3') => {
+      if (sectionId === 'section1') {
+        if (showSection1 && section1Content) {
+          markdown += `${formatHeader(header1Format, header1)}\n${section1Content}\n\n`;
+        }
+      } else if (sectionId === 'section2') {
+        if (showSection2 && section2Content) {
+          markdown += `${formatHeader(header2Format, header2)}\n${section2Content}\n\n`;
+        }
+      } else if (sectionId === 'section3') {
+        if (showSection3 && section3Content) {
+          markdown += `${formatHeader(header3Format, header3)}\n${section3Content}\n\n`;
+        }
+      }
+    };
+
+    sectionOrder.forEach(appendSection);
+    
+    if (!section1Content && !section2Content && !section3Content) {
+      markdown = "# Daily Standup\n\nPlease fill in at least one field to generate your standup.";
+    }
+
+    setMarkdownOutput(markdown);
+    setShowOutput(true);
+  }, [section1Text, section1Bullets, section2Text, section2Bullets, section3Text, section3Bullets, superMode, showSection1, showSection2, showSection3, header1Format, header2Format, header3Format, header1, header2, header3, sectionOrder]);
+
   // Handle unsaved changes modal confirmation - save and continue
   const handleSaveAndContinue = () => {
     setShowUnsavedWarning(false);
@@ -226,61 +280,7 @@ export default function Home() {
       generateMarkdownForced();
       setShouldGenerateAfterSave(false);
     }
-  }, [section1Bullets, section2Bullets, section3Bullets, shouldGenerateAfterSave]);
-
-  const generateMarkdownForced = () => {
-    const formatHeader = (format: string, header: string) => {
-      switch (format) {
-        case 'bold':
-          return `**${header}**`;
-        case '##':
-          return `## ${header}`;
-        case '###':
-          return `### ${header}`;
-        case 'none':
-        default:
-          return header;
-      }
-    };
-
-    const formatContent = (content: string, bullets: string[]) => {
-      if (superMode && bullets.length > 0) {
-        return bullets.map(bullet => `- ${bullet}`).join('\n');
-      }
-      return content.trim();
-    };
-    
-    let markdown = '';
-    
-    const section1Content = formatContent(section1Text, section1Bullets);
-    const section2Content = formatContent(section2Text, section2Bullets);
-    const section3Content = formatContent(section3Text, section3Bullets);
-
-    const appendSection = (sectionId: 'section1' | 'section2' | 'section3') => {
-      if (sectionId === 'section1') {
-        if (showSection1 && section1Content) {
-          markdown += `${formatHeader(header1Format, header1)}\n${section1Content}\n\n`;
-        }
-      } else if (sectionId === 'section2') {
-        if (showSection2 && section2Content) {
-          markdown += `${formatHeader(header2Format, header2)}\n${section2Content}\n\n`;
-        }
-      } else if (sectionId === 'section3') {
-        if (showSection3 && section3Content) {
-          markdown += `${formatHeader(header3Format, header3)}\n${section3Content}\n\n`;
-        }
-      }
-    };
-
-    sectionOrder.forEach(appendSection);
-    
-    if (!section1Content && !section2Content && !section3Content) {
-      markdown = "# Daily Standup\n\nPlease fill in at least one field to generate your standup.";
-    }
-
-    setMarkdownOutput(markdown);
-    setShowOutput(true);
-  };
+  }, [shouldGenerateAfterSave, generateMarkdownForced]);
 
   const generateMarkdown = () => {
     // Check for unsaved changes in bullet mode
@@ -418,7 +418,7 @@ export default function Home() {
     const todayMatches = ids.filter((id) => todayPatterns.some((p) => p.test(headerById[id])));
     const yesterdayMatches = ids.filter((id) => yesterdayPatterns.some((p) => p.test(headerById[id])));
 
-    let todaySectionId: 'section1' | 'section2' | 'section3' = todayMatches.length === 1 ? todayMatches[0] : 'section1';
+    const todaySectionId: 'section1' | 'section2' | 'section3' = todayMatches.length === 1 ? todayMatches[0] : 'section1';
     let yesterdaySectionId: 'section1' | 'section2' | 'section3' = yesterdayMatches.length === 1 ? yesterdayMatches[0] : 'section2';
 
     if (yesterdaySectionId === todaySectionId) {

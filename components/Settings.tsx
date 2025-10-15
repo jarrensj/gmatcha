@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SuperModeBadge } from "@/components/SuperModeBadge";
-import { ArrowLeft, RotateCcw, GripVertical } from "lucide-react";
+import { ArrowLeft, GripVertical } from "lucide-react";
 import {
   DndContext,
   closestCenter,
@@ -110,10 +110,10 @@ export default function Settings({
   };
 
   const SortableSectionItem = ({ id, label, muted }: { id: 'section1'|'section2'|'section3'; label: string; muted?: boolean }) => {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useSortable({ id });
     const style: React.CSSProperties = {
       transform: CSS.Transform.toString(transform),
-      transition: 'none',
+      // transition deliberately disabled for snappier drag feel
       opacity: isDragging ? 0.6 : 1,
     };
     return (

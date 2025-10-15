@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -226,9 +226,9 @@ export default function Home() {
       generateMarkdownForced();
       setShouldGenerateAfterSave(false);
     }
-  }, [section1Bullets, section2Bullets, section3Bullets, shouldGenerateAfterSave]);
+  }, [shouldGenerateAfterSave, generateMarkdownForced]);
 
-  const generateMarkdownForced = () => {
+  const generateMarkdownForced = useCallback(() => {
     const formatHeader = (format: string, header: string) => {
       switch (format) {
         case 'bold':
@@ -280,7 +280,25 @@ export default function Home() {
 
     setMarkdownOutput(markdown);
     setShowOutput(true);
-  };
+  }, [
+    superMode,
+    section1Bullets,
+    section2Bullets,
+    section3Bullets,
+    section1Text,
+    section2Text,
+    section3Text,
+    showSection1,
+    showSection2,
+    showSection3,
+    header1Format,
+    header2Format,
+    header3Format,
+    header1,
+    header2,
+    header3,
+    sectionOrder,
+  ]);
 
   const generateMarkdown = () => {
     // Check for unsaved changes in bullet mode
@@ -418,7 +436,7 @@ export default function Home() {
     const todayMatches = ids.filter((id) => todayPatterns.some((p) => p.test(headerById[id])));
     const yesterdayMatches = ids.filter((id) => yesterdayPatterns.some((p) => p.test(headerById[id])));
 
-    let todaySectionId: 'section1' | 'section2' | 'section3' = todayMatches.length === 1 ? todayMatches[0] : 'section1';
+    const todaySectionId: 'section1' | 'section2' | 'section3' = todayMatches.length === 1 ? todayMatches[0] : 'section1';
     let yesterdaySectionId: 'section1' | 'section2' | 'section3' = yesterdayMatches.length === 1 ? yesterdayMatches[0] : 'section2';
 
     if (yesterdaySectionId === todaySectionId) {

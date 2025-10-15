@@ -39,7 +39,6 @@ interface SortableBulletItemProps {
   editValue: string;
   onStartEdit: (index: number) => void;
   onSaveEdit: () => void;
-  onCancelEdit: () => void;
   onDelete: (index: number) => void;
   onEditValueChange: (value: string) => void;
   onEditKeyPress: (e: React.KeyboardEvent) => void;
@@ -53,7 +52,6 @@ function SortableBulletItem({
   editValue,
   onStartEdit,
   onSaveEdit,
-  onCancelEdit,
   onDelete,
   onEditValueChange,
   onEditKeyPress,
@@ -71,7 +69,7 @@ function SortableBulletItem({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: 'none',
+    // transition deliberately disabled for snappier drag feel
     opacity: isDragging ? 0.5 : 1,
   };
 

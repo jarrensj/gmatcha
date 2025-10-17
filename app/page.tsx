@@ -26,9 +26,9 @@ export default function Home() {
   const { toast, toasts, dismiss } = useToast();
 
   // Custom headers for each section - using environment variables with fallbacks
-  const [header1, setHeader1] = useState(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
-  const [header2, setHeader2] = useState(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
-  const [header3, setHeader3] = useState(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?');
+  const [header1, setHeader1] = useState(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'Yesterday');
+  const [header2, setHeader2] = useState(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'Today');
+  const [header3, setHeader3] = useState(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'Blockers');
   
   // Header formatting options
   const [header1Format, setHeader1Format] = useState('none');
@@ -167,9 +167,9 @@ export default function Home() {
         setSection2Text(parsed.section2Text || parsed.workedOnYesterday || '');
         setSection3Text(parsed.section3Text || parsed.blockers || '');
         // Use saved headers if they exist, otherwise use environment variables or defaults
-        setHeader1(parsed.header1 || process.env.NEXT_PUBLIC_SECTION1_HEADER || 'What are you working on today?');
-        setHeader2(parsed.header2 || process.env.NEXT_PUBLIC_SECTION2_HEADER || 'What did you work on yesterday?');
-        setHeader3(parsed.header3 || process.env.NEXT_PUBLIC_SECTION3_HEADER || 'What are your blockers?');
+        setHeader1(parsed.header1 || process.env.NEXT_PUBLIC_SECTION1_HEADER || 'Yesterday');
+        setHeader2(parsed.header2 || process.env.NEXT_PUBLIC_SECTION2_HEADER || 'Today');
+        setHeader3(parsed.header3 || process.env.NEXT_PUBLIC_SECTION3_HEADER || 'Blockers');
         setHeader1Format(parsed.header1Format || 'none');
         setHeader2Format(parsed.header2Format || 'none');
         setHeader3Format(parsed.header3Format || 'none');

@@ -141,6 +141,16 @@ select {
   animation: gentle-bounce 2s ease-in-out infinite;
 }
 
+/* Slow pulse animation for hint text */
+@keyframes slow-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-slow-pulse {
+  animation: slow-pulse 3s ease-in-out infinite;
+}
+
 /* Diagonal stripe animation for progress bar */
 @keyframes diagonal-stripes {
   0% {

@@ -278,7 +278,9 @@ export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bu
         {/* Helper text directly under input */}
         <div className="text-[9px] text-muted-foreground/40">
           {currentInput.trim() ? (
-            <span>Press Enter to add bullet point</span>
+            <span className={bullets.length === 0 ? "animate-slow-pulse text-blue-500/80 font-medium" : ""}>
+              Press Enter to add bullet point
+            </span>
           ) : (
             <span>Type above to insert a bullet point item.</span>
           )}

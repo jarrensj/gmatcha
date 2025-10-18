@@ -23,11 +23,35 @@
   --accent-secondary: var(--secondary-teal);
   --accent-disabled: var(--disabled-light);
   --text-muted: var(--sketch-gray);
+  
+  /* Shadcn UI design tokens for select/dropdown components */
+  --popover: var(--warm-white);
+  --popover-foreground: var(--soft-charcoal);
+  --accent: var(--light-gray);
+  --accent-foreground: var(--soft-charcoal);
+  --muted: var(--soft-gray);
+  --muted-foreground: var(--sketch-gray);
+  --card: var(--card-bg);
+  --card-foreground: var(--soft-charcoal);
+  --border: var(--border-color);
+  --input: var(--border-color);
+  --ring: var(--accent-primary);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'Courier New', monospace;
 }
@@ -47,6 +71,19 @@
     --primary-blue: #6ba3f5;
     --secondary-teal: #7cc7ba;
     --disabled-light: #5a5a5a;
+    
+    /* Shadcn UI design tokens for dark mode */
+    --popover: var(--warm-white);
+    --popover-foreground: var(--soft-charcoal);
+    --accent: var(--light-gray);
+    --accent-foreground: var(--soft-charcoal);
+    --muted: var(--soft-gray);
+    --muted-foreground: var(--sketch-gray);
+    --card: var(--card-bg);
+    --card-foreground: var(--soft-charcoal);
+    --border: var(--border-color);
+    --input: var(--border-color);
+    --ring: var(--accent-primary);
   }
 }
 

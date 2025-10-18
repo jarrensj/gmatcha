@@ -13,6 +13,7 @@ import Settings from '../components/Settings';
 import { StandupImageCard } from '../components/StandupImageCard';
 import { BulletInput } from '../components/BulletInput';
 import { SuperModeBadge } from '../components/SuperModeBadge';
+import { UnsavedChangesModal } from '../components/UnsavedChangesModal';
 import html2canvas from 'html2canvas';
 
 export default function Home() {
@@ -130,8 +131,8 @@ export default function Home() {
     setPendingModeChange(null);
   };
 
-  // State to track when we should generate markdown after saving
-  const [shouldGenerateAfterSave, setShouldGenerateAfterSave] = useState(false);
+  // State to track what action to take after saving unsaved changes
+  const [pendingAction, setPendingAction] = useState<'generate' | 'navigate-settings' | null>(null);
 
   // Handle unsaved changes modal confirmation - save and continue
   const handleSaveAndContinue = () => {
@@ -150,14 +151,12 @@ export default function Home() {
       setSection3Bullets(prev => [...prev, section3CurrentInput.trim()]);
       setSection3CurrentInput('');
     }
-    
-    // Set flag to generate markdown after state updates
-    setShouldGenerateAfterSave(true);
   };
 
   // Handle unsaved changes modal cancellation
   const handleCancelUnsavedChanges = () => {
     setShowUnsavedWarning(false);
+    setPendingAction(null);
   };
 
   // Load data from localStorage on component mount
@@ -216,13 +215,19 @@ export default function Home() {
     localStorage.setItem('standupFormData', JSON.stringify(formData));
   }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, sectionOrder, section1Bullets, section2Bullets, section3Bullets]);
 
-  // Generate markdown after saving unsaved changes
+  // Execute pending action after saving unsaved changes
   useEffect(() => {
-    if (shouldGenerateAfterSave) {
-      generateMarkdownForced();
-      setShouldGenerateAfterSave(false);
+    // Only execute if there's a pending action AND no unsaved changes
+    if (!hasUnsavedChanges() && pendingAction) {
+      if (pendingAction === 'generate') {
+        generateMarkdownForced();
+        setPendingAction(null);
+      } else if (pendingAction === 'navigate-settings') {
+        setCurrentPage('settings');
+        setPendingAction(null);
+      }
     }
-  }, [section1Bullets, section2Bullets, section3Bullets, shouldGenerateAfterSave]);
+  }, [section1Bullets, section2Bullets, section3Bullets, pendingAction]);
 
   const generateMarkdownForced = () => {
     const formatHeader = (format: string, header: string) => {
@@ -291,11 +296,23 @@ export default function Home() {
   const generateMarkdown = () => {
     // Check for unsaved changes in bullet mode
     if (hasUnsavedChanges()) {
+      setPendingAction('generate');
       setShowUnsavedWarning(true);
       return;
     }
 
     generateMarkdownForced();
+  };
+
+  const handleNavigateToSettings = () => {
+    // Check for unsaved changes in bullet mode before navigating
+    if (hasUnsavedChanges()) {
+      setPendingAction('navigate-settings');
+      setShowUnsavedWarning(true);
+      return;
+    }
+
+    setCurrentPage('settings');
   };
 
   const copyToClipboard = async () => {
@@ -597,7 +614,7 @@ export default function Home() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setCurrentPage('settings')}
+              onClick={handleNavigateToSettings}
             >
               <SettingsIcon className="w-4 h-4 mr-2" />
               Settings
@@ -885,29 +902,12 @@ export default function Home() {
       )}
 
       {/* Unsaved Changes Warning Modal */}
-      {showUnsavedWarning && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold mb-4">Unsaved Changes</h3>
-            <p className="text-gray-600 mb-6">
-              You have unsaved text in your bullet points. Would you like to save this text as bullet points and continue, or go back to finish editing?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={handleCancelUnsavedChanges}
-              >
-                Go Back
-              </Button>
-              <Button
-                onClick={handleSaveAndContinue}
-              >
-                Save & Continue
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <UnsavedChangesModal
+        isOpen={showUnsavedWarning}
+        pendingAction={pendingAction}
+        onCancel={handleCancelUnsavedChanges}
+        onSaveAndContinue={handleSaveAndContinue}
+      />
 
       {/* Rollover Confirmation Modal */}
       {showRolloverWarning && (

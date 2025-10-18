@@ -46,6 +46,9 @@ export default function Home() {
   // Super mode toggle
   const [superMode, setSuperMode] = useState(true);
   
+  // Section order (default: 1, 2, 3)
+  const [sectionOrder, setSectionOrder] = useState<number[]>([1, 2, 3]);
+  
   // Bullet point storage for super mode
   const [section1Bullets, setSection1Bullets] = useState<string[]>([]);
   const [section2Bullets, setSection2Bullets] = useState<string[]>([]);
@@ -178,6 +181,7 @@ export default function Home() {
         setShowSection3(parsed.showSection3 !== undefined ? parsed.showSection3 : true);
         setDefaultHeaderFormat(parsed.defaultHeaderFormat || 'none');
         setSuperMode(parsed.superMode || false);
+        setSectionOrder(parsed.sectionOrder || [1, 2, 3]);
         setSection1Bullets(parsed.section1Bullets || parsed.workingOnBullets || []);
         setSection2Bullets(parsed.section2Bullets || parsed.workedOnYesterdayBullets || []);
         setSection3Bullets(parsed.section3Bullets || parsed.blockersBullets || []);
@@ -204,12 +208,13 @@ export default function Home() {
       showSection3,
       defaultHeaderFormat,
       superMode,
+      sectionOrder,
       section1Bullets,
       section2Bullets,
       section3Bullets
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, section1Bullets, section2Bullets, section3Bullets]);
+  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, sectionOrder, section1Bullets, section2Bullets, section3Bullets]);
 
   // Generate markdown after saving unsaved changes
   useEffect(() => {
@@ -243,23 +248,39 @@ export default function Home() {
     
     let markdown = '';
     
-    const section1Content = formatContent(section1Text, section1Bullets);
-    const section2Content = formatContent(section2Text, section2Bullets);
-    const section3Content = formatContent(section3Text, section3Bullets);
+    const sections = [
+      {
+        num: 1,
+        content: formatContent(section1Text, section1Bullets),
+        header: header1,
+        format: header1Format,
+        show: showSection1
+      },
+      {
+        num: 2,
+        content: formatContent(section2Text, section2Bullets),
+        header: header2,
+        format: header2Format,
+        show: showSection2
+      },
+      {
+        num: 3,
+        content: formatContent(section3Text, section3Bullets),
+        header: header3,
+        format: header3Format,
+        show: showSection3
+      }
+    ];
     
-    if (showSection1 && section1Content) {
-      markdown += `${formatHeader(header1Format, header1)}\n${section1Content}\n\n`;
+    // Generate markdown in the order specified by sectionOrder
+    for (const sectionNum of sectionOrder) {
+      const section = sections.find(s => s.num === sectionNum);
+      if (section && section.show && section.content) {
+        markdown += `${formatHeader(section.format, section.header)}\n${section.content}\n\n`;
+      }
     }
     
-    if (showSection2 && section2Content) {
-      markdown += `${formatHeader(header2Format, header2)}\n${section2Content}\n\n`;
-    }
-    
-    if (showSection3 && section3Content) {
-      markdown += `${formatHeader(header3Format, header3)}\n${section3Content}\n\n`;
-    }
-    
-    if (!section1Content && !section2Content && !section3Content) {
+    if (!markdown.trim()) {
       markdown = "# Daily Standup\n\nPlease fill in at least one field to generate your standup.";
     }
 
@@ -535,71 +556,64 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {showSection1 && (
-              <div className="space-y-2">
-                <Label htmlFor="section1Text">{header1}</Label>
-                {superMode ? (
-                  <BulletInput
-                    bullets={section1Bullets}
-                    onBulletsChange={setSection1Bullets}
-                    placeholder={`Add a bullet point for ${header1.toLowerCase().replace(/\?$/, '')}`}
-                    onCurrentInputChange={setSection1CurrentInput}
-                  />
-                ) : (
-                  <Textarea
-                    id="section1Text"
-                    placeholder={`${header1.toLowerCase().replace(/\?$/, '')}`}
-                    value={section1Text}
-                    onChange={(e) => setSection1Text(e.target.value)}
-                    rows={3}
-                  />
-                )}
-              </div>
-            )}
+            {sectionOrder.map((sectionNum) => {
+              const sectionData = {
+                1: {
+                  show: showSection1,
+                  header: header1,
+                  bullets: section1Bullets,
+                  onBulletsChange: setSection1Bullets,
+                  text: section1Text,
+                  onTextChange: setSection1Text,
+                  onCurrentInputChange: setSection1CurrentInput,
+                  id: 'section1Text'
+                },
+                2: {
+                  show: showSection2,
+                  header: header2,
+                  bullets: section2Bullets,
+                  onBulletsChange: setSection2Bullets,
+                  text: section2Text,
+                  onTextChange: setSection2Text,
+                  onCurrentInputChange: setSection2CurrentInput,
+                  id: 'section2Text'
+                },
+                3: {
+                  show: showSection3,
+                  header: header3,
+                  bullets: section3Bullets,
+                  onBulletsChange: setSection3Bullets,
+                  text: section3Text,
+                  onTextChange: setSection3Text,
+                  onCurrentInputChange: setSection3CurrentInput,
+                  id: 'section3Text'
+                }
+              }[sectionNum];
 
-            {showSection2 && (
-              <div className="space-y-2">
-                <Label htmlFor="section2Text">{header2}</Label>
-                {superMode ? (
-                  <BulletInput
-                    bullets={section2Bullets}
-                    onBulletsChange={setSection2Bullets}
-                    placeholder={`Add a bullet point for ${header2.toLowerCase().replace(/\?$/, '')}`}
-                    onCurrentInputChange={setSection2CurrentInput}
-                  />
-                ) : (
-                  <Textarea
-                    id="section2Text"
-                    placeholder={`${header2.toLowerCase().replace(/\?$/, '')}`}
-                    value={section2Text}
-                    onChange={(e) => setSection2Text(e.target.value)}
-                    rows={3}
-                  />
-                )}
-              </div>
-            )}
+              if (!sectionData?.show) return null;
 
-            {showSection3 && (
-              <div className="space-y-2">
-                <Label htmlFor="section3Text">{header3}</Label>
-                {superMode ? (
-                  <BulletInput
-                    bullets={section3Bullets}
-                    onBulletsChange={setSection3Bullets}
-                    placeholder={`Add a bullet point for ${header3.toLowerCase().replace(/\?$/, '')}`}
-                    onCurrentInputChange={setSection3CurrentInput}
-                  />
-                ) : (
-                  <Textarea
-                    id="section3Text"
-                    placeholder={`${header3.toLowerCase().replace(/\?$/, '')}`}
-                    value={section3Text}
-                    onChange={(e) => setSection3Text(e.target.value)}
-                    rows={3}
-                  />
-                )}
-              </div>
-            )}
+              return (
+                <div key={sectionNum} className="space-y-2">
+                  <Label htmlFor={sectionData.id}>{sectionData.header}</Label>
+                  {superMode ? (
+                    <BulletInput
+                      bullets={sectionData.bullets}
+                      onBulletsChange={sectionData.onBulletsChange}
+                      placeholder={`Add a bullet point for ${sectionData.header.toLowerCase().replace(/\?$/, '')}`}
+                      onCurrentInputChange={sectionData.onCurrentInputChange}
+                    />
+                  ) : (
+                    <Textarea
+                      id={sectionData.id}
+                      placeholder={`${sectionData.header.toLowerCase().replace(/\?$/, '')}`}
+                      value={sectionData.text}
+                      onChange={(e) => sectionData.onTextChange(e.target.value)}
+                      rows={3}
+                    />
+                  )}
+                </div>
+              );
+            })}
 
             <ProgressButton 
               onClick={generateMarkdown} 
@@ -747,6 +761,8 @@ export default function Home() {
             onShowSection3Change={setShowSection3}
             superMode={superMode}
             onSuperModeChange={handleSuperModeChange}
+            sectionOrder={sectionOrder}
+            onSectionOrderChange={setSectionOrder}
             onBackToForm={() => setCurrentPage('form')}
           />
         ) : (

@@ -80,7 +80,7 @@ export default function Settings({
     onHeader2Change(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'Today');
     onHeader3Change(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'Blockers');
     onDefaultHeaderFormatChange('none');
-    onSuperModeChange(false);
+    onSuperModeChange(true);
     onSectionOrderChange([1, 2, 3]);
     // Also restore all hidden sections
     onShowSection1Change(true);
@@ -94,9 +94,40 @@ export default function Settings({
     header2 !== (process.env.NEXT_PUBLIC_SECTION2_HEADER || 'Today') ||
     header3 !== (process.env.NEXT_PUBLIC_SECTION3_HEADER || 'Blockers') ||
     defaultHeaderFormat !== 'none' ||
-    superMode ||
+    !superMode ||
     JSON.stringify(sectionOrder) !== JSON.stringify([1, 2, 3]) ||
     !showSection1 || !showSection2 || !showSection3;
+
+  // Check for duplicate headers among visible sections
+  const getDuplicateHeaders = () => {
+    const visibleHeaders: { header: string; num: number }[] = [];
+    if (showSection1) visibleHeaders.push({ header: header1.trim().toLowerCase(), num: 1 });
+    if (showSection2) visibleHeaders.push({ header: header2.trim().toLowerCase(), num: 2 });
+    if (showSection3) visibleHeaders.push({ header: header3.trim().toLowerCase(), num: 3 });
+    
+    const headerCounts = new Map<string, number[]>();
+    visibleHeaders.forEach(({ header, num }) => {
+      if (header) { // Only count non-empty headers
+        if (!headerCounts.has(header)) {
+          headerCounts.set(header, []);
+        }
+        headerCounts.get(header)?.push(num);
+      }
+    });
+    
+    // Find headers that appear more than once
+    const duplicates: { header: string; sections: number[] }[] = [];
+    headerCounts.forEach((sections, header) => {
+      if (sections.length > 1) {
+        duplicates.push({ header, sections });
+      }
+    });
+    
+    return duplicates;
+  };
+
+  const duplicateHeaders = getDuplicateHeaders();
+  const hasDuplicates = duplicateHeaders.length > 0;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -156,6 +187,13 @@ export default function Settings({
 
             if (!sectionData) return null;
 
+            // Check if this section's header is a duplicate
+            const duplicateEntry = duplicateHeaders.find(dup => dup.sections.includes(sectionNum));
+            const isDuplicate = !!duplicateEntry;
+            
+            // Get other section numbers that share this header
+            const otherSections = duplicateEntry?.sections.filter(s => s !== sectionNum) || [];
+
             return (
               <div
                 key={sectionNum}
@@ -171,16 +209,24 @@ export default function Settings({
                   <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                   <Label htmlFor={sectionData.id} className="flex-grow">
                     Header {sectionNum} {!sectionData.show && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
+                    {isDuplicate && <span className="text-xs text-yellow-600 ml-2">(Duplicate)</span>}
                   </Label>
                 </div>
-                <Input
-                  id={sectionData.id}
-                  value={sectionData.header}
-                  onChange={(e) => sectionData.onChange(e.target.value)}
-                  disabled={!sectionData.show}
-                  placeholder={sectionData.placeholder}
-                  className="ml-6"
-                />
+                <div className="ml-6 space-y-1">
+                  <Input
+                    id={sectionData.id}
+                    value={sectionData.header}
+                    onChange={(e) => sectionData.onChange(e.target.value)}
+                    disabled={!sectionData.show}
+                    placeholder={sectionData.placeholder}
+                    className={isDuplicate ? 'border-yellow-400 focus:border-yellow-500 focus:ring-yellow-500' : ''}
+                  />
+                  {isDuplicate && (
+                    <div className="text-xs text-yellow-700 bg-yellow-50 px-2 py-1.5 rounded">
+                      Duplicate of section {otherSections.join(' and ')}
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}

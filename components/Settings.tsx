@@ -80,7 +80,7 @@ export default function Settings({
     onHeader2Change(process.env.NEXT_PUBLIC_SECTION2_HEADER || 'Today');
     onHeader3Change(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'Blockers');
     onDefaultHeaderFormatChange('none');
-    onSuperModeChange(false);
+    onSuperModeChange(true);
     onSectionOrderChange([1, 2, 3]);
     // Also restore all hidden sections
     onShowSection1Change(true);
@@ -94,7 +94,7 @@ export default function Settings({
     header2 !== (process.env.NEXT_PUBLIC_SECTION2_HEADER || 'Today') ||
     header3 !== (process.env.NEXT_PUBLIC_SECTION3_HEADER || 'Blockers') ||
     defaultHeaderFormat !== 'none' ||
-    superMode ||
+    !superMode ||
     JSON.stringify(sectionOrder) !== JSON.stringify([1, 2, 3]) ||
     !showSection1 || !showSection2 || !showSection3;
 

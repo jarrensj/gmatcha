@@ -442,22 +442,16 @@ export default function Home() {
     let todaySection = null;
     let yesterdaySection = null;
     
-    // Check all combinations, prioritizing visible sections
-    // For "today" - check in order, but prefer visible sections
+    // Check visible sections only - hidden sections don't participate in rollover
+    // For "today" - check in order
     if (header1IsToday && showSection1) todaySection = 1;
     else if (header2IsToday && showSection2) todaySection = 2;
     else if (header3IsToday && showSection3) todaySection = 3;
-    else if (header1IsToday) todaySection = 1;
-    else if (header2IsToday) todaySection = 2;
-    else if (header3IsToday) todaySection = 3;
     
-    // For "yesterday" - check in order, but prefer visible sections
+    // For "yesterday" - check in order
     if (header1IsYesterday && showSection1) yesterdaySection = 1;
     else if (header2IsYesterday && showSection2) yesterdaySection = 2;
     else if (header3IsYesterday && showSection3) yesterdaySection = 3;
-    else if (header1IsYesterday) yesterdaySection = 1;
-    else if (header2IsYesterday) yesterdaySection = 2;
-    else if (header3IsYesterday) yesterdaySection = 3;
     
     // If we couldn't detect both, return null to indicate rollover not available
     if (todaySection === null || yesterdaySection === null) {

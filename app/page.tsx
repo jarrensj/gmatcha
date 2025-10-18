@@ -150,9 +150,6 @@ export default function Home() {
       setSection3Bullets(prev => [...prev, section3CurrentInput.trim()]);
       setSection3CurrentInput('');
     }
-    
-    // Set the pending action to execute after state updates
-    // (will be handled in useEffect)
   };
 
   // Handle unsaved changes modal cancellation

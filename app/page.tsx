@@ -421,33 +421,28 @@ export default function Home() {
     const header2IsYesterday = yesterdayPatterns.some(pattern => pattern.test(header2));
     const header3IsYesterday = yesterdayPatterns.some(pattern => pattern.test(header3));
     
-    // Find which sections match today and yesterday, prioritizing visible sections
-    let todaySection = null;
-    let yesterdaySection = null;
+    // Count how many visible sections match "today" and "yesterday"
+    const visibleTodaySections = [
+      header1IsToday && showSection1 ? 1 : null,
+      header2IsToday && showSection2 ? 2 : null,
+      header3IsToday && showSection3 ? 3 : null
+    ].filter(s => s !== null);
     
-    // Check all combinations, prioritizing visible sections
-    // For "today" - check in order, but prefer visible sections
-    if (header1IsToday && showSection1) todaySection = 1;
-    else if (header2IsToday && showSection2) todaySection = 2;
-    else if (header3IsToday && showSection3) todaySection = 3;
-    else if (header1IsToday) todaySection = 1;
-    else if (header2IsToday) todaySection = 2;
-    else if (header3IsToday) todaySection = 3;
+    const visibleYesterdaySections = [
+      header1IsYesterday && showSection1 ? 1 : null,
+      header2IsYesterday && showSection2 ? 2 : null,
+      header3IsYesterday && showSection3 ? 3 : null
+    ].filter(s => s !== null);
     
-    // For "yesterday" - check in order, but prefer visible sections
-    if (header1IsYesterday && showSection1) yesterdaySection = 1;
-    else if (header2IsYesterday && showSection2) yesterdaySection = 2;
-    else if (header3IsYesterday && showSection3) yesterdaySection = 3;
-    else if (header1IsYesterday) yesterdaySection = 1;
-    else if (header2IsYesterday) yesterdaySection = 2;
-    else if (header3IsYesterday) yesterdaySection = 3;
-    
-    // If we couldn't detect both, return null to indicate rollover not available
-    if (todaySection === null || yesterdaySection === null) {
+    // Only enable rollover if there's exactly one "today" and one "yesterday" among visible sections
+    if (visibleTodaySections.length !== 1 || visibleYesterdaySections.length !== 1) {
       return { todaySection: null, yesterdaySection: null };
     }
     
-    return { todaySection, yesterdaySection };
+    return { 
+      todaySection: visibleTodaySections[0], 
+      yesterdaySection: visibleYesterdaySections[0] 
+    };
   };
 
   // Handle rollover functionality

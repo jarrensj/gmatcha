@@ -827,7 +827,7 @@ export default function Home() {
           <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
             <h3 className="text-lg font-semibold mb-4">Unsaved Changes</h3>
             <p className="text-gray-600 mb-6">
-              You have unsaved text in your bullet points. Would you like to save this text as bullet points before {pendingAction === 'generate' ? 'generating markdown' : 'navigating away'}, or go back to finish editing?
+              You have unsaved text in your bullet points. Would you like to save this text as bullet points before <span className="font-semibold" style={{ color: 'var(--secondary-teal)' }}>{pendingAction === 'generate' ? 'generating markdown' : 'navigating away'}</span>, or go back to finish editing?
             </p>
             <div className="flex gap-3 justify-end">
               <Button

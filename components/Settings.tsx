@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SuperModeBadge } from "@/components/SuperModeBadge";
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft, GripVertical } from "lucide-react";
+import { useState } from "react";
 
 interface SettingsProps {
   defaultHeaderFormat: string;
@@ -24,6 +25,8 @@ interface SettingsProps {
   onShowSection3Change: (show: boolean) => void;
   superMode: boolean;
   onSuperModeChange: (enabled: boolean) => void;
+  sectionOrder: number[];
+  onSectionOrderChange: (order: number[]) => void;
   onBackToForm: () => void;
 }
 
@@ -44,8 +47,33 @@ export default function Settings({
   onShowSection3Change,
   superMode,
   onSuperModeChange,
+  sectionOrder,
+  onSectionOrderChange,
   onBackToForm 
 }: SettingsProps) {
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    
+    if (draggedIndex === null || draggedIndex === index) return;
+    
+    const newOrder = [...sectionOrder];
+    const draggedItem = newOrder[draggedIndex];
+    newOrder.splice(draggedIndex, 1);
+    newOrder.splice(index, 0, draggedItem);
+    
+    onSectionOrderChange(newOrder);
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
   
   const resetHeaders = () => {
     onHeader1Change(process.env.NEXT_PUBLIC_SECTION1_HEADER || 'Yesterday');
@@ -53,6 +81,7 @@ export default function Settings({
     onHeader3Change(process.env.NEXT_PUBLIC_SECTION3_HEADER || 'Blockers');
     onDefaultHeaderFormatChange('none');
     onSuperModeChange(false);
+    onSectionOrderChange([1, 2, 3]);
     // Also restore all hidden sections
     onShowSection1Change(true);
     onShowSection2Change(true);
@@ -66,6 +95,7 @@ export default function Settings({
     header3 !== (process.env.NEXT_PUBLIC_SECTION3_HEADER || 'Blockers') ||
     defaultHeaderFormat !== 'none' ||
     superMode ||
+    JSON.stringify(sectionOrder) !== JSON.stringify([1, 2, 3]) ||
     !showSection1 || !showSection2 || !showSection3;
 
   return (
@@ -95,48 +125,65 @@ export default function Settings({
         <CardHeader>
           <CardTitle>Section Header Titles</CardTitle>
           <CardDescription>
-            These titles will be used as the default headers for each section in your standup form.
+            These titles will be used as the default headers for each section in your standup form. Drag to reorder sections.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className={`space-y-2 ${!showSection1 ? 'opacity-50' : ''}`}>
-            <Label htmlFor="header1">
-              Header 1 {!showSection1 && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
-            </Label>
-            <Input
-              id="header1"
-              value={header1}
-              onChange={(e) => onHeader1Change(e.target.value)}
-              disabled={!showSection1}
-              placeholder="Enter first section header"
-            />
-          </div>
-          
-          <div className={`space-y-2 ${!showSection2 ? 'opacity-50' : ''}`}>
-            <Label htmlFor="header2">
-              Header 2 {!showSection2 && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
-            </Label>
-            <Input
-              id="header2"
-              value={header2}
-              onChange={(e) => onHeader2Change(e.target.value)}
-              disabled={!showSection2}
-              placeholder="Enter second section header"
-            />
-          </div>
-          
-          <div className={`space-y-2 ${!showSection3 ? 'opacity-50' : ''}`}>
-            <Label htmlFor="header3">
-              Header 3 {!showSection3 && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
-            </Label>
-            <Input
-              id="header3"
-              value={header3}
-              onChange={(e) => onHeader3Change(e.target.value)}
-              disabled={!showSection3}
-              placeholder="Enter third section header"
-            />
-          </div>
+          {sectionOrder.map((sectionNum, index) => {
+            const sectionData = {
+              1: {
+                header: header1,
+                onChange: onHeader1Change,
+                show: showSection1,
+                id: 'header1',
+                placeholder: 'Enter first section header'
+              },
+              2: {
+                header: header2,
+                onChange: onHeader2Change,
+                show: showSection2,
+                id: 'header2',
+                placeholder: 'Enter second section header'
+              },
+              3: {
+                header: header3,
+                onChange: onHeader3Change,
+                show: showSection3,
+                id: 'header3',
+                placeholder: 'Enter third section header'
+              }
+            }[sectionNum];
+
+            if (!sectionData) return null;
+
+            return (
+              <div
+                key={sectionNum}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+                className={`space-y-2 ${!sectionData.show ? 'opacity-50' : ''} ${
+                  draggedIndex === index ? 'opacity-50' : ''
+                } cursor-move transition-opacity`}
+              >
+                <div className="flex items-center gap-2">
+                  <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <Label htmlFor={sectionData.id} className="flex-grow">
+                    Header {sectionNum} {!sectionData.show && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
+                  </Label>
+                </div>
+                <Input
+                  id={sectionData.id}
+                  value={sectionData.header}
+                  onChange={(e) => sectionData.onChange(e.target.value)}
+                  disabled={!sectionData.show}
+                  placeholder={sectionData.placeholder}
+                  className="ml-6"
+                />
+              </div>
+            );
+          })}
         </CardContent>
       </Card>
 
@@ -148,62 +195,51 @@ export default function Settings({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-base">{header1}</Label>
-              <div className="text-sm text-muted-foreground">
-                Show or hide this section in the form
+          {sectionOrder.map((sectionNum) => {
+            const sectionData = {
+              1: {
+                header: header1,
+                show: showSection1,
+                onChange: onShowSection1Change
+              },
+              2: {
+                header: header2,
+                show: showSection2,
+                onChange: onShowSection2Change
+              },
+              3: {
+                header: header3,
+                show: showSection3,
+                onChange: onShowSection3Change
+              }
+            }[sectionNum];
+
+            if (!sectionData) return null;
+
+            const visibleCount = [showSection1, showSection2, showSection3].filter(Boolean).length;
+            const isOnlyVisible = sectionData.show && visibleCount === 1;
+
+            return (
+              <div key={sectionNum} className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-base">{sectionData.header}</Label>
+                  <div className="text-sm text-muted-foreground">
+                    Show or hide this section in the form
+                  </div>
+                </div>
+                <Switch
+                  checked={sectionData.show}
+                  onCheckedChange={() => {
+                    // Prevent hiding if it's the only visible section
+                    if (isOnlyVisible) return;
+                    sectionData.onChange(!sectionData.show);
+                  }}
+                  disabled={isOnlyVisible}
+                  className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
+                />
               </div>
-            </div>
-            <Switch
-              checked={showSection1}
-              onCheckedChange={() => {
-                // Prevent hiding if it's the only visible section
-                if (showSection1 && !showSection2 && !showSection3) return;
-                onShowSection1Change(!showSection1);
-              }}
-              disabled={showSection1 && !showSection2 && !showSection3}
-              className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-base">{header2}</Label>
-              <div className="text-sm text-muted-foreground">
-                Show or hide this section in the form
-              </div>
-            </div>
-            <Switch
-              checked={showSection2}
-              onCheckedChange={() => {
-                // Prevent hiding if it's the only visible section
-                if (showSection2 && !showSection1 && !showSection3) return;
-                onShowSection2Change(!showSection2);
-              }}
-              disabled={showSection2 && !showSection1 && !showSection3}
-              className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
-            />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-base">{header3}</Label>
-              <div className="text-sm text-muted-foreground">
-                Show or hide this section in the form
-              </div>
-            </div>
-            <Switch
-              checked={showSection3}
-              onCheckedChange={() => {
-                // Prevent hiding if it's the only visible section
-                if (showSection3 && !showSection1 && !showSection2) return;
-                onShowSection3Change(!showSection3);
-              }}
-              disabled={showSection3 && !showSection1 && !showSection2}
-              className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
-            />
-          </div>
+            );
+          })}
         </CardContent>
       </Card>
 

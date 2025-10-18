@@ -13,6 +13,7 @@ import Settings from '../components/Settings';
 import { StandupImageCard } from '../components/StandupImageCard';
 import { BulletInput } from '../components/BulletInput';
 import { SuperModeBadge } from '../components/SuperModeBadge';
+import { UnsavedChangesModal } from '../components/UnsavedChangesModal';
 import html2canvas from 'html2canvas';
 
 export default function Home() {
@@ -814,37 +815,12 @@ export default function Home() {
       )}
 
       {/* Unsaved Changes Warning Modal */}
-      {showUnsavedWarning && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={(e) => {
-            // Only close if clicking the backdrop, not the modal content
-            if (e.target === e.currentTarget) {
-              handleCancelUnsavedChanges();
-            }
-          }}
-        >
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold mb-4">Unsaved Changes</h3>
-            <p className="text-gray-600 mb-6">
-              You have unsaved text in your bullet points. Would you like to save this text as bullet points before {pendingAction === 'generate' ? 'generating markdown' : 'navigating away'}, or go back to finish editing?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={handleCancelUnsavedChanges}
-              >
-                Keep Editing
-              </Button>
-              <Button
-                onClick={handleSaveAndContinue}
-              >
-                Save & Continue
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <UnsavedChangesModal
+        isOpen={showUnsavedWarning}
+        pendingAction={pendingAction}
+        onCancel={handleCancelUnsavedChanges}
+        onSaveAndContinue={handleSaveAndContinue}
+      />
 
       {/* Rollover Confirmation Modal */}
       {showRolloverWarning && (

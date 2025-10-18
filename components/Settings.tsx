@@ -173,14 +173,15 @@ export default function Settings({
                     Header {sectionNum} {!sectionData.show && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
                   </Label>
                 </div>
-                <Input
-                  id={sectionData.id}
-                  value={sectionData.header}
-                  onChange={(e) => sectionData.onChange(e.target.value)}
-                  disabled={!sectionData.show}
-                  placeholder={sectionData.placeholder}
-                  className="ml-6"
-                />
+                <div className="pl-6">
+                  <Input
+                    id={sectionData.id}
+                    value={sectionData.header}
+                    onChange={(e) => sectionData.onChange(e.target.value)}
+                    disabled={!sectionData.show}
+                    placeholder={sectionData.placeholder}
+                  />
+                </div>
               </div>
             );
           })}

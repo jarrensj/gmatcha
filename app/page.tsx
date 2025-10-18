@@ -837,7 +837,7 @@ export default function Home() {
                 variant="outline"
                 onClick={handleCancelUnsavedChanges}
               >
-                Go Back
+                Keep Editing
               </Button>
               <Button
                 onClick={handleSaveAndContinue}

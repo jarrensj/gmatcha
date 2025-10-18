@@ -52,6 +52,7 @@ export default function Settings({
   onBackToForm 
 }: SettingsProps) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [isReorderMode, setIsReorderMode] = useState(false);
   
   const handleDragStart = (index: number) => {
     setDraggedIndex(index);
@@ -125,10 +126,20 @@ export default function Settings({
         <CardHeader>
           <CardTitle>Section Header Titles</CardTitle>
           <CardDescription>
-            These titles will be used as the default headers for each section in your standup form. Drag to reorder sections.
+            These titles will be used as the default headers for each section in your standup form.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b">
+            <Label className="text-xs text-muted-foreground font-normal">
+              Reorder Sections
+            </Label>
+            <Switch
+              checked={isReorderMode}
+              onCheckedChange={setIsReorderMode}
+              className="scale-90 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
+            />
+          </div>
           {sectionOrder.map((sectionNum, index) => {
             const sectionData = {
               1: {
@@ -159,21 +170,23 @@ export default function Settings({
             return (
               <div
                 key={sectionNum}
-                draggable
-                onDragStart={() => handleDragStart(index)}
-                onDragOver={(e) => handleDragOver(e, index)}
+                draggable={isReorderMode}
+                onDragStart={() => isReorderMode && handleDragStart(index)}
+                onDragOver={(e) => isReorderMode && handleDragOver(e, index)}
                 onDragEnd={handleDragEnd}
                 className={`space-y-2 ${!sectionData.show ? 'opacity-50' : ''} ${
                   draggedIndex === index ? 'opacity-50' : ''
-                } cursor-move transition-opacity`}
+                } ${isReorderMode ? 'cursor-move' : ''} transition-opacity`}
               >
                 <div className="flex items-center gap-2">
-                  <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  {isReorderMode && (
+                    <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  )}
                   <Label htmlFor={sectionData.id} className="flex-grow">
                     Header {sectionNum} {!sectionData.show && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
                   </Label>
                 </div>
-                <div className="pl-6">
+                <div className={isReorderMode ? "pl-6" : ""}>
                   <Input
                     id={sectionData.id}
                     value={sectionData.header}

@@ -106,7 +106,12 @@ function SortableBulletItem({
         />
       ) : (
         <>
-          <span className="flex-1 text-sm leading-relaxed mt-0.5">{bullet}</span>
+          <span 
+            className="flex-1 text-sm leading-relaxed mt-0.5 cursor-text" 
+            onDoubleClick={() => onStartEdit(index)}
+          >
+            {bullet}
+          </span>
           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
             <Button
               variant="ghost"

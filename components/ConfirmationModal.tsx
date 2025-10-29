@@ -7,6 +7,7 @@ interface ConfirmationModalProps {
   description: ReactNode;
   cancelText?: string;
   confirmText?: string;
+  confirmVariant?: "default" | "destructive";
   onCancel: () => void;
   onConfirm: () => void;
 }
@@ -17,6 +18,7 @@ export function ConfirmationModal({
   description,
   cancelText = "Cancel",
   confirmText = "Confirm",
+  confirmVariant = "default",
   onCancel,
   onConfirm
 }: ConfirmationModalProps) {
@@ -45,6 +47,7 @@ export function ConfirmationModal({
             {cancelText}
           </Button>
           <Button
+            variant={confirmVariant}
             onClick={onConfirm}
           >
             {confirmText}

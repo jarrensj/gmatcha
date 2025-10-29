@@ -790,30 +790,20 @@ export default function Home() {
       <Toaster toasts={toasts} onDismiss={dismiss} />
       
       {/* Mode Switch Warning Modal */}
-      {showModeWarning && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold mb-4">Switch Mode?</h3>
-            <p className="text-gray-600 mb-6">
-              Switching from modes will clear your current standup update. Are you sure you want to continue?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={handleCancelModeChange}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleConfirmModeChange}
-              >
-                Yes, Clear Data
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        isOpen={showModeWarning}
+        title="Switch Mode?"
+        description={
+          <p>
+            Switching from modes will clear your current standup update. Are you sure you want to continue?
+          </p>
+        }
+        cancelText="Cancel"
+        confirmText="Yes, Clear Data"
+        confirmVariant="destructive"
+        onCancel={handleCancelModeChange}
+        onConfirm={handleConfirmModeChange}
+      />
 
       {/* Unsaved Changes Warning Modal */}
       <UnsavedChangesModal

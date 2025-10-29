@@ -14,6 +14,7 @@ import { StandupImageCard } from '../components/StandupImageCard';
 import { BulletInput } from '../components/BulletInput';
 import { SuperModeBadge } from '../components/SuperModeBadge';
 import { UnsavedChangesModal } from '../components/UnsavedChangesModal';
+import { ConfirmationModal } from '../components/ConfirmationModal';
 import html2canvas from 'html2canvas';
 
 export default function Home() {
@@ -823,29 +824,19 @@ export default function Home() {
       />
 
       {/* Rollover Confirmation Modal */}
-      {showRolloverWarning && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Roll Today to Yesterday?</h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-6">
-              You already have content in the &ldquo;Yesterday&rdquo; section. Rolling over will replace it with today&apos;s content. Are you sure you want to continue?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={handleCancelRollover}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmRollover}
-              >
-                Yes, Roll Over
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        isOpen={showRolloverWarning}
+        title="Roll Today to Yesterday?"
+        description={
+          <p>
+            You already have content in the &ldquo;Yesterday&rdquo; section. Rolling over will replace it with today&apos;s content. Are you sure you want to continue?
+          </p>
+        }
+        cancelText="Cancel"
+        confirmText="Yes, Roll Over"
+        onCancel={handleCancelRollover}
+        onConfirm={handleConfirmRollover}
+      />
     </>
   );
 }

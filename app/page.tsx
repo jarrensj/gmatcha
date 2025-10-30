@@ -563,13 +563,31 @@ export default function Home() {
       setSection3Bullets([]);
     }
 
+    // Update headers if different ones were detected
+    if (parsedData.section1.detectedHeader) {
+      setHeader1(parsedData.section1.detectedHeader);
+    }
+    if (parsedData.section2.detectedHeader) {
+      setHeader2(parsedData.section2.detectedHeader);
+    }
+    if (parsedData.section3.detectedHeader) {
+      setHeader3(parsedData.section3.detectedHeader);
+    }
+
     // Reset output state
     setShowOutput(false);
     setMarkdownOutput('');
 
+    // Check if any headers were updated
+    const headersUpdated = parsedData.section1.detectedHeader || 
+                          parsedData.section2.detectedHeader || 
+                          parsedData.section3.detectedHeader;
+
     toast({
       title: "Update Pasted!",
-      description: "Your previous update has been loaded into the form.",
+      description: headersUpdated 
+        ? "Your previous update has been loaded and section headers have been updated to match."
+        : "Your previous update has been loaded into the form.",
     });
   };
 

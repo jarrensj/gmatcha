@@ -20,14 +20,17 @@ export interface ParsedUpdateData {
   section1: {
     text: string;
     bullets: string[];
+    detectedHeader?: string;
   };
   section2: {
     text: string;
     bullets: string[];
+    detectedHeader?: string;
   };
   section3: {
     text: string;
     bullets: string[];
+    detectedHeader?: string;
   };
 }
 
@@ -62,12 +65,45 @@ export function PasteUpdateModal({
       return new RegExp(`^\\s*(\\*\\*|#{1,3}\\s*)?${escaped}(\\*\\*)?\\s*:?\\s*$`, 'i');
     };
 
+    // Common standup header patterns for fallback detection
+    const yesterdayPatterns = [
+      /^\s*(\*\*|#{1,3}\s*)?(yesterday|what\s+i\s+did|completed?|finished?|worked\s+on|accomplished?|last\s+(week|sprint|day|time)|previous(ly)?)(\*\*)?\s*:?\s*$/i,
+    ];
+    
+    const todayPatterns = [
+      /^\s*(\*\*|#{1,3}\s*)?(today|what\s+i'?m\s+(doing|working\s+on)|working\s+on|current(ly)?|this\s+(week|sprint|day)|planning\s+to|going\s+to)(\*\*)?\s*:?\s*$/i,
+    ];
+    
+    const blockersPatterns = [
+      /^\s*(\*\*|#{1,3}\s*)?(blockers?|issues?|challenges?|impediments?|problems?|roadblocks?|stuck\s+on|needs?\s+help)(\*\*)?\s*:?\s*$/i,
+    ];
+
+    // Generic header detection - any line that looks like a header (short, not a bullet, possibly with markdown)
+    const isGenericHeader = (line: string): boolean => {
+      const trimmed = line.trim();
+      // Not a bullet point
+      if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('• ')) return false;
+      // Remove markdown formatting
+      const cleaned = trimmed.replace(/^\s*(\*\*|#{1,3}\s*)?/, '').replace(/(\*\*)?\s*:?\s*$/, '').trim();
+      // Short enough to be a header (not a sentence)
+      return cleaned.length > 0 && cleaned.length < 100 && !cleaned.includes('.');
+    };
+
     const header1Pattern = createHeaderPattern(header1);
     const header2Pattern = createHeaderPattern(header2);
     const header3Pattern = createHeaderPattern(header3);
 
     let currentSection: 'section1' | 'section2' | 'section3' | null = null;
     let sectionContent: string[] = [];
+    let detectedHeaders: Record<string, string> = {};
+    const sectionsUsed = new Set<string>(); // Track which sections have been assigned
+
+    const extractHeaderText = (line: string): string => {
+      // Remove markdown formatting and colons
+      return line.replace(/^\s*(\*\*|#{1,3}\s*)?/, '')
+                 .replace(/(\*\*)?\s*:?\s*$/, '')
+                 .trim();
+    };
 
     const processSection = (section: 'section1' | 'section2' | 'section3', content: string[]) => {
       const contentText = content.join('\n').trim();
@@ -90,6 +126,11 @@ export function PasteUpdateModal({
         result[section].text = contentText;
         result[section].bullets = [];
       }
+
+      // Store detected header if different from current
+      if (detectedHeaders[section]) {
+        result[section].detectedHeader = detectedHeaders[section];
+      }
     };
 
     for (const line of lines) {
@@ -98,28 +139,68 @@ export function PasteUpdateModal({
       // Skip empty lines at the start of sections
       if (!currentSection && !trimmedLine) continue;
 
-      // Check if this line is a section header
+      let matchedSection: 'section1' | 'section2' | 'section3' | null = null;
+      let matchedHeader: string | null = null;
+
+      // First, try to match against current headers exactly
       if (header1Pattern.test(trimmedLine)) {
+        console.log('Matched header1:', trimmedLine);
+        matchedSection = 'section1';
+        matchedHeader = extractHeaderText(trimmedLine);
+      } else if (header2Pattern.test(trimmedLine)) {
+        console.log('Matched header2:', trimmedLine);
+        matchedSection = 'section2';
+        matchedHeader = extractHeaderText(trimmedLine);
+      } else if (header3Pattern.test(trimmedLine)) {
+        console.log('Matched header3:', trimmedLine);
+        matchedSection = 'section3';
+        matchedHeader = extractHeaderText(trimmedLine);
+      } 
+      // Try to detect common standup headers
+      else if (yesterdayPatterns.some(p => p.test(trimmedLine))) {
+        console.log('Matched yesterday pattern:', trimmedLine);
+        matchedSection = 'section1';
+        matchedHeader = extractHeaderText(trimmedLine);
+      } else if (todayPatterns.some(p => p.test(trimmedLine))) {
+        console.log('Matched today pattern:', trimmedLine);
+        matchedSection = 'section2';
+        matchedHeader = extractHeaderText(trimmedLine);
+      } else if (blockersPatterns.some(p => p.test(trimmedLine))) {
+        console.log('Matched blockers pattern:', trimmedLine);
+        matchedSection = 'section3';
+        matchedHeader = extractHeaderText(trimmedLine);
+      }
+      // Fallback: if it looks like a generic header, treat it as the next available section
+      else if (isGenericHeader(trimmedLine)) {
+        console.log('Detected generic header:', trimmedLine);
+        // Assign to the next unused section
+        if (!sectionsUsed.has('section1')) {
+          matchedSection = 'section1';
+        } else if (!sectionsUsed.has('section2')) {
+          matchedSection = 'section2';
+        } else if (!sectionsUsed.has('section3')) {
+          matchedSection = 'section3';
+        }
+        if (matchedSection) {
+          matchedHeader = extractHeaderText(trimmedLine);
+        }
+      }
+
+      if (matchedSection) {
         // Save previous section if any
         if (currentSection && sectionContent.length > 0) {
           processSection(currentSection, sectionContent);
         }
-        currentSection = 'section1';
+        currentSection = matchedSection;
         sectionContent = [];
-        continue;
-      } else if (header2Pattern.test(trimmedLine)) {
-        if (currentSection && sectionContent.length > 0) {
-          processSection(currentSection, sectionContent);
+        sectionsUsed.add(matchedSection); // Mark this section as used
+        
+        // Store the detected header if it's different from the current one
+        const currentHeader = matchedSection === 'section1' ? header1 : 
+                             matchedSection === 'section2' ? header2 : header3;
+        if (matchedHeader && matchedHeader.toLowerCase() !== currentHeader.toLowerCase()) {
+          detectedHeaders[matchedSection] = matchedHeader;
         }
-        currentSection = 'section2';
-        sectionContent = [];
-        continue;
-      } else if (header3Pattern.test(trimmedLine)) {
-        if (currentSection && sectionContent.length > 0) {
-          processSection(currentSection, sectionContent);
-        }
-        currentSection = 'section3';
-        sectionContent = [];
         continue;
       }
 
@@ -141,6 +222,7 @@ export function PasteUpdateModal({
     if (!pastedText.trim()) return;
 
     const parsedData = parseUpdate(pastedText);
+    console.log('Parsed data:', parsedData);
     onPaste(parsedData);
     setPastedText('');
     onClose();
@@ -184,10 +266,11 @@ export function PasteUpdateModal({
           <div className="bg-muted p-4 rounded-lg text-xs space-y-2">
             <p className="font-medium">Supported formats:</p>
             <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+              <li>Automatically detects section headers (even if named differently)</li>
               <li>Headers with or without markdown formatting (**bold**, ##, ###)</li>
               <li>Bullet points starting with -, *, or •</li>
               <li>Plain text paragraphs</li>
-              <li>Mixed bullet and text content</li>
+              <li>Will update your section headers if different ones are detected</li>
             </ul>
           </div>
 

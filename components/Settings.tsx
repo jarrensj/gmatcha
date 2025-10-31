@@ -130,27 +130,31 @@ export default function Settings({
   const duplicateHeaders = getDuplicateHeaders();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 sm:px-6">
-      <div className="text-center space-y-3 md:space-y-2">
-        <div className="flex items-center justify-between gap-3">
-          <h1 className="text-2xl sm:text-3xl font-bold flex-1 text-left sm:text-center">Settings</h1>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onBackToForm}
-            className="min-h-[44px] min-w-[44px] px-3"
-          >
-            <ArrowLeft className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Back</span>
-          </Button>
+    <div className="space-y-6">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6">
+        <div className="text-center space-y-3 md:space-y-2">
+          <div className="relative flex items-center justify-between sm:justify-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-bold">Settings</h1>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onBackToForm}
+              className="min-h-[44px] min-w-[44px] px-3 sm:absolute sm:right-0"
+            >
+              <ArrowLeft className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Back</span>
+            </Button>
+          </div>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Configure your default formatting preferences
+          </p>
+          <p className="text-xs text-muted-foreground">
+            All changes are saved automatically
+          </p>
         </div>
-        <p className="text-muted-foreground text-sm sm:text-base">
-          Configure your default formatting preferences
-        </p>
-        <p className="text-xs text-muted-foreground">
-          All changes are saved automatically
-        </p>
       </div>
+      
+      <div className="mx-auto max-w-2xl px-4 sm:px-6 space-y-6">
 
       <Card>
         <CardHeader>
@@ -353,16 +357,17 @@ export default function Settings({
         </CardContent>
       </Card>
 
-      {hasChanges && (
-        <div className="flex justify-center pt-8">
-          <button
-            onClick={resetHeaders}
-            className="text-xs text-muted-foreground hover:text-foreground underline hover:no-underline transition-colors duration-200"
-          >
-            Reset all settings to defaults
-          </button>
-        </div>
-      )}
+        {hasChanges && (
+          <div className="flex justify-center pt-8">
+            <button
+              onClick={resetHeaders}
+              className="text-xs text-muted-foreground hover:text-foreground underline hover:no-underline transition-colors duration-200"
+            >
+              Reset all settings to defaults
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

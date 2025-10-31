@@ -132,19 +132,17 @@ export default function Settings({
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 sm:px-6">
       <div className="text-center space-y-3 md:space-y-2">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-          <h1 className="text-2xl sm:text-3xl font-bold order-2 sm:order-1 sm:flex-1 sm:text-left">Settings</h1>
-          <div className="order-1 sm:order-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onBackToForm}
-              className="w-full sm:w-auto min-h-[44px] sm:min-h-0"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Form
-            </Button>
-          </div>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold flex-1 text-left sm:text-center">Settings</h1>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onBackToForm}
+            className="min-h-[44px] min-w-[44px] px-3"
+          >
+            <ArrowLeft className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Back</span>
+          </Button>
         </div>
         <p className="text-muted-foreground text-sm sm:text-base">
           Configure your default formatting preferences

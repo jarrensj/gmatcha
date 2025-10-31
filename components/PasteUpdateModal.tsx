@@ -95,7 +95,7 @@ export function PasteUpdateModal({
 
     let currentSection: 'section1' | 'section2' | 'section3' | null = null;
     let sectionContent: string[] = [];
-    let detectedHeaders: Record<string, string> = {};
+    const detectedHeaders: Record<string, string> = {};
     const sectionsUsed = new Set<string>(); // Track which sections have been assigned
 
     const extractHeaderText = (line: string): string => {

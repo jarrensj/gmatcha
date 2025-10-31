@@ -234,7 +234,7 @@ export default function Home() {
         setPendingAction(null);
       }
     }
-  }, [section1Bullets, section2Bullets, section3Bullets, pendingAction]);
+  }, [section1Bullets, section2Bullets, section3Bullets, pendingAction, generateMarkdownForced, hasUnsavedChanges]);
 
   const generateMarkdownForced = () => {
     const formatHeader = (format: string, header: string) => {

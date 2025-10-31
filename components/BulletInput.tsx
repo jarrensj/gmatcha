@@ -39,7 +39,6 @@ interface SortableBulletItemProps {
   editValue: string;
   onStartEdit: (index: number) => void;
   onSaveEdit: () => void;
-  onCancelEdit: () => void;
   onDelete: (index: number) => void;
   onEditValueChange: (value: string) => void;
   onEditKeyPress: (e: React.KeyboardEvent) => void;
@@ -53,7 +52,6 @@ function SortableBulletItem({
   editValue,
   onStartEdit,
   onSaveEdit,
-  onCancelEdit,
   onDelete,
   onEditValueChange,
   onEditKeyPress,
@@ -65,7 +63,6 @@ function SortableBulletItem({
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging,
   } = useSortable({ id });
 
@@ -253,7 +250,6 @@ export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bu
                   editValue={editValue}
                   onStartEdit={handleStartEdit}
                   onSaveEdit={handleSaveEdit}
-                  onCancelEdit={handleCancelEdit}
                   onDelete={handleDeleteBullet}
                   onEditValueChange={setEditValue}
                   onEditKeyPress={handleEditKeyPress}

@@ -237,6 +237,9 @@ export function PasteUpdateModal({
               <CardTitle className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
                 Paste Previous Update
+                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-800">
+                  WIP
+                </span>
               </CardTitle>
               <CardDescription>
                 Paste your previous standup update and it will be automatically parsed into {superMode ? 'bullet points' : 'sections'}

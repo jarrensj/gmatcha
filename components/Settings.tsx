@@ -130,21 +130,23 @@ export default function Settings({
   const duplicateHeaders = getDuplicateHeaders();
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div className="text-center space-y-2">
-        <div className="relative">
-          <h1 className="text-3xl font-bold">Settings</h1>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onBackToForm}
-            className="absolute top-0 right-0"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Form
-          </Button>
+    <div className="mx-auto max-w-2xl space-y-6 px-4 sm:px-6">
+      <div className="text-center space-y-3 md:space-y-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+          <h1 className="text-2xl sm:text-3xl font-bold order-2 sm:order-1 sm:flex-1 sm:text-left">Settings</h1>
+          <div className="order-1 sm:order-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onBackToForm}
+              className="w-full sm:w-auto min-h-[44px] sm:min-h-0"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Form
+            </Button>
+          </div>
         </div>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Configure your default formatting preferences
         </p>
         <p className="text-xs text-muted-foreground">
@@ -219,19 +221,19 @@ export default function Settings({
                   {isReorderMode && (
                     <GripVertical className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                   )}
-                  <Label htmlFor={sectionData.id} className="flex-grow">
+                  <Label htmlFor={sectionData.id} className="flex-grow text-sm sm:text-base">
                     Header {sectionNum} {!sectionData.show && <span className="text-xs text-muted-foreground">(Section Hidden)</span>}
                     {isDuplicate && <span className="text-xs text-yellow-600 ml-2">(Duplicate)</span>}
                   </Label>
                 </div>
-                <div className={`space-y-1 ${isReorderMode ? "pl-6" : "ml-6"}`}>
+                <div className={`space-y-1 ${isReorderMode ? "pl-6" : "ml-0 sm:ml-6"}`}>
                   <Input
                     id={sectionData.id}
                     value={sectionData.header}
                     onChange={(e) => sectionData.onChange(e.target.value)}
                     disabled={!sectionData.show}
                     placeholder={sectionData.placeholder}
-                    className={isDuplicate ? 'border-yellow-400 focus:border-yellow-500 focus:ring-yellow-500' : ''}
+                    className={`min-h-[44px] sm:min-h-0 ${isDuplicate ? 'border-yellow-400 focus:border-yellow-500 focus:ring-yellow-500' : ''}`}
                   />
                   {isDuplicate && (
                     <div className="text-xs text-yellow-700 bg-yellow-50 px-2 py-1.5 rounded">
@@ -278,10 +280,10 @@ export default function Settings({
             const isOnlyVisible = sectionData.show && visibleCount === 1;
 
             return (
-              <div key={sectionNum} className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label className="text-base">{sectionData.header}</Label>
-                  <div className="text-sm text-muted-foreground">
+              <div key={sectionNum} className="flex items-center justify-between gap-4">
+                <div className="space-y-0.5 flex-1">
+                  <Label className="text-sm sm:text-base">{sectionData.header}</Label>
+                  <div className="text-xs sm:text-sm text-muted-foreground">
                     Show or hide this section in the form
                   </div>
                 </div>
@@ -293,7 +295,7 @@ export default function Settings({
                     sectionData.onChange(!sectionData.show);
                   }}
                   disabled={isOnlyVisible}
-                  className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
+                  className="scale-125 sm:scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300 flex-shrink-0"
                 />
               </div>
             );
@@ -312,17 +314,17 @@ export default function Settings({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-base">Enable Super Mode</Label>
-              <div className="text-sm text-muted-foreground">
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-0.5 flex-1">
+              <Label className="text-sm sm:text-base">Enable Super Mode</Label>
+              <div className="text-xs sm:text-sm text-muted-foreground">
                 Switch to bullet-point input for each section
               </div>
             </div>
             <Switch
               checked={superMode}
               onCheckedChange={onSuperModeChange}
-              className="scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300"
+              className="scale-125 sm:scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300 flex-shrink-0"
             />
           </div>
         </CardContent>
@@ -337,9 +339,9 @@ export default function Settings({
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Label htmlFor="format-select">Choose the default formatting for all section headers:</Label>
+            <Label htmlFor="format-select" className="text-sm sm:text-base">Choose the default formatting for all section headers:</Label>
             <Select value={defaultHeaderFormat} onValueChange={onDefaultHeaderFormatChange}>
-              <SelectTrigger id="format-select">
+              <SelectTrigger id="format-select" className="min-h-[44px] sm:min-h-0">
                 <SelectValue placeholder="Select format" />
               </SelectTrigger>
               <SelectContent>

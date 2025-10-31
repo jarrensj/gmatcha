@@ -144,35 +144,28 @@ export function PasteUpdateModal({
 
       // First, try to match against current headers exactly
       if (header1Pattern.test(trimmedLine)) {
-        console.log('Matched header1:', trimmedLine);
         matchedSection = 'section1';
         matchedHeader = extractHeaderText(trimmedLine);
       } else if (header2Pattern.test(trimmedLine)) {
-        console.log('Matched header2:', trimmedLine);
         matchedSection = 'section2';
         matchedHeader = extractHeaderText(trimmedLine);
       } else if (header3Pattern.test(trimmedLine)) {
-        console.log('Matched header3:', trimmedLine);
         matchedSection = 'section3';
         matchedHeader = extractHeaderText(trimmedLine);
       } 
       // Try to detect common standup headers
       else if (yesterdayPatterns.some(p => p.test(trimmedLine))) {
-        console.log('Matched yesterday pattern:', trimmedLine);
         matchedSection = 'section1';
         matchedHeader = extractHeaderText(trimmedLine);
       } else if (todayPatterns.some(p => p.test(trimmedLine))) {
-        console.log('Matched today pattern:', trimmedLine);
         matchedSection = 'section2';
         matchedHeader = extractHeaderText(trimmedLine);
       } else if (blockersPatterns.some(p => p.test(trimmedLine))) {
-        console.log('Matched blockers pattern:', trimmedLine);
         matchedSection = 'section3';
         matchedHeader = extractHeaderText(trimmedLine);
       }
       // Fallback: if it looks like a generic header, treat it as the next available section
       else if (isGenericHeader(trimmedLine)) {
-        console.log('Detected generic header:', trimmedLine);
         // Assign to the next unused section
         if (!sectionsUsed.has('section1')) {
           matchedSection = 'section1';
@@ -222,7 +215,6 @@ export function PasteUpdateModal({
     if (!pastedText.trim()) return;
 
     const parsedData = parseUpdate(pastedText);
-    console.log('Parsed data:', parsedData);
     onPaste(parsedData);
     setPastedText('');
     onClose();

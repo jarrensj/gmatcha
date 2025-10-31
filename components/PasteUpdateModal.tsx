@@ -13,7 +13,6 @@ interface PasteUpdateModalProps {
   header1: string;
   header2: string;
   header3: string;
-  superMode: boolean;
 }
 
 export interface ParsedUpdateData {
@@ -41,7 +40,6 @@ export function PasteUpdateModal({
   header1,
   header2,
   header3,
-  superMode,
 }: PasteUpdateModalProps) {
   const [pastedText, setPastedText] = useState('');
 

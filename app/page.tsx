@@ -928,7 +928,6 @@ export default function Home() {
         header1={header1}
         header2={header2}
         header3={header3}
-        superMode={superMode}
       />
 
       {/* Paste Confirmation Modal */}

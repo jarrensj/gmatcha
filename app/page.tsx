@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ProgressButton } from "@/components/ui/progress-button";
-import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown } from "lucide-react";
+import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown, ClipboardPaste } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toast";
 import Settings from '../components/Settings';
@@ -15,6 +15,7 @@ import { BulletInput } from '../components/BulletInput';
 import { SuperModeBadge } from '../components/SuperModeBadge';
 import { UnsavedChangesModal } from '../components/UnsavedChangesModal';
 import { ConfirmationModal } from '../components/ConfirmationModal';
+import { PasteUpdateModal, ParsedUpdateData } from '../components/PasteUpdateModal';
 import html2canvas from 'html2canvas';
 
 export default function Home() {
@@ -70,6 +71,11 @@ export default function Home() {
 
   // Modal state for rollover confirmation
   const [showRolloverWarning, setShowRolloverWarning] = useState(false);
+
+  // Modal state for paste update
+  const [showPasteModal, setShowPasteModal] = useState(false);
+  const [showPasteConfirmation, setShowPasteConfirmation] = useState(false);
+  const [pendingPasteData, setPendingPasteData] = useState<ParsedUpdateData | null>(null);
 
   // Function to detect unsaved changes in bullet mode
   const hasUnsavedChanges = () => {
@@ -228,6 +234,7 @@ export default function Home() {
         setPendingAction(null);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section1Bullets, section2Bullets, section3Bullets, pendingAction]);
 
   const generateMarkdownForced = () => {
@@ -509,6 +516,76 @@ export default function Home() {
     setShowRolloverWarning(false);
   };
 
+  // Handle paste update
+  const handlePasteUpdate = (parsedData: ParsedUpdateData) => {
+    // Feature only available in super mode
+    if (!superMode) return;
+
+    // Check if there's existing content that would be overwritten
+    const hasExistingContent = section1Bullets.length > 0 || section2Bullets.length > 0 || section3Bullets.length > 0;
+
+    if (hasExistingContent) {
+      // Show confirmation modal
+      setPendingPasteData(parsedData);
+      setShowPasteConfirmation(true);
+    } else {
+      // No existing content, apply directly
+      applyPastedData(parsedData);
+    }
+  };
+
+  const applyPastedData = (parsedData: ParsedUpdateData) => {
+    // Use bullets from parsed data
+    setSection1Bullets(parsedData.section1.bullets);
+    setSection2Bullets(parsedData.section2.bullets);
+    setSection3Bullets(parsedData.section3.bullets);
+    
+    // Clear any text
+    setSection1Text('');
+    setSection2Text('');
+    setSection3Text('');
+
+    // Update headers if different ones were detected
+    if (parsedData.section1.detectedHeader) {
+      setHeader1(parsedData.section1.detectedHeader);
+    }
+    if (parsedData.section2.detectedHeader) {
+      setHeader2(parsedData.section2.detectedHeader);
+    }
+    if (parsedData.section3.detectedHeader) {
+      setHeader3(parsedData.section3.detectedHeader);
+    }
+
+    // Reset output state
+    setShowOutput(false);
+    setMarkdownOutput('');
+
+    // Check if any headers were updated
+    const headersUpdated = parsedData.section1.detectedHeader || 
+                          parsedData.section2.detectedHeader || 
+                          parsedData.section3.detectedHeader;
+
+    toast({
+      title: "Update Pasted!",
+      description: headersUpdated 
+        ? "Your previous update has been loaded and section headers have been updated to match."
+        : "Your previous update has been loaded into the form.",
+    });
+  };
+
+  const handleConfirmPaste = () => {
+    if (pendingPasteData) {
+      applyPastedData(pendingPasteData);
+      setPendingPasteData(null);
+    }
+    setShowPasteConfirmation(false);
+  };
+
+  const handleCancelPaste = () => {
+    setPendingPasteData(null);
+    setShowPasteConfirmation(false);
+  };
+
   const handleDefaultHeaderFormatChange = (newFormat: string) => {
     setDefaultHeaderFormat(newFormat);
     // Apply the new format to all current sections immediately
@@ -573,13 +650,28 @@ export default function Home() {
         /* Input Form */
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              Standup Details
-              {superMode && <SuperModeBadge />}
-            </CardTitle>
-            <CardDescription>
-              Fill in your standup information below.
-            </CardDescription>
+            <div className="flex items-start justify-between">
+              <div className="space-y-1.5">
+                <CardTitle className="flex items-center gap-2">
+                  Standup Details
+                  {superMode && <SuperModeBadge />}
+                </CardTitle>
+                <CardDescription>
+                  Fill in your standup information below.
+                </CardDescription>
+              </div>
+              {superMode && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowPasteModal(true)}
+                  className="flex items-center gap-2"
+                >
+                  <ClipboardPaste className="w-4 h-4" />
+                  Paste Update
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {sectionOrder.map((sectionNum) => {
@@ -834,6 +926,32 @@ export default function Home() {
         confirmText="Yes, Roll Over"
         onCancel={handleCancelRollover}
         onConfirm={handleConfirmRollover}
+      />
+
+      {/* Paste Update Modal */}
+      <PasteUpdateModal
+        isOpen={showPasteModal}
+        onClose={() => setShowPasteModal(false)}
+        onPaste={handlePasteUpdate}
+        header1={header1}
+        header2={header2}
+        header3={header3}
+      />
+
+      {/* Paste Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showPasteConfirmation}
+        title="Replace Existing Content?"
+        description={
+          <p>
+            You already have content in your standup. Pasting will replace all existing content. Are you sure you want to continue?
+          </p>
+        }
+        cancelText="Cancel"
+        confirmText="Yes, Replace Content"
+        confirmVariant="destructive"
+        onCancel={handleCancelPaste}
+        onConfirm={handleConfirmPaste}
       />
     </>
   );

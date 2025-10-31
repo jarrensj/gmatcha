@@ -128,7 +128,6 @@ export default function Settings({
   };
 
   const duplicateHeaders = getDuplicateHeaders();
-  const hasDuplicates = duplicateHeaders.length > 0;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">

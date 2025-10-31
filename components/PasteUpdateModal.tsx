@@ -234,7 +234,7 @@ export function PasteUpdateModal({
                 </span>
               </CardTitle>
               <CardDescription>
-                Paste your previous standup update and it will be automatically parsed into {superMode ? 'bullet points' : 'sections'}
+                Paste your previous standup update and it will be automatically parsed into bullet points
               </CardDescription>
             </div>
             <Button

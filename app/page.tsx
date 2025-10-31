@@ -671,15 +671,17 @@ export default function Home() {
                   Fill in your standup information below.
                 </CardDescription>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowPasteModal(true)}
-                className="flex items-center gap-2"
-              >
-                <ClipboardPaste className="w-4 h-4" />
-                Paste Update
-              </Button>
+              {superMode && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowPasteModal(true)}
+                  className="flex items-center gap-2"
+                >
+                  <ClipboardPaste className="w-4 h-4" />
+                  Paste Update
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardContent className="space-y-4">

@@ -620,9 +620,9 @@ export default function Home() {
   const renderFormPage = () => (
     <div className="mx-auto max-w-4xl space-y-6 px-4 sm:px-6">
       <div className="text-center space-y-3 md:space-y-2">
-        <div className="flex items-center justify-between gap-3">
+        <div className="relative flex items-center justify-between sm:justify-center gap-3">
           <h1 
-            className="text-2xl sm:text-3xl font-bold text-balance cursor-pointer hover:opacity-80 transition-opacity flex-1 text-left sm:text-center"
+            className="text-2xl sm:text-3xl font-bold text-balance cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => {
               setCurrentPage('form');
               setShowOutput(false);
@@ -634,7 +634,7 @@ export default function Home() {
             variant="outline"
             size="sm"
             onClick={handleNavigateToSettings}
-            className="min-h-[44px] min-w-[44px] px-3"
+            className="min-h-[44px] min-w-[44px] px-3 sm:absolute sm:right-0"
           >
             <SettingsIcon className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Settings</span>

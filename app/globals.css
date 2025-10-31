@@ -95,7 +95,6 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Improve text readability on mobile */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -270,9 +269,7 @@ select {
   opacity: 0.6;
 }
 
-/* Mobile-specific improvements */
 @media (max-width: 640px) {
-  /* Ensure minimum touch target size of 44x44px on mobile */
   button, 
   input[type="button"],
   input[type="submit"],
@@ -280,12 +277,10 @@ select {
     min-height: 44px;
   }
 
-  /* Better spacing for mobile */
   .space-y-4 > * + * {
     margin-top: 1rem;
   }
 
-  /* Improve card padding on mobile */
   [class*="CardContent"],
   [class*="CardHeader"] {
     padding-left: 1rem;
@@ -293,7 +288,6 @@ select {
   }
 }
 
-/* Improve tap highlights on mobile */
 @media (hover: none) and (pointer: coarse) {
   button, 
   a,

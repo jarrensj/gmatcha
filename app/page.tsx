@@ -518,10 +518,11 @@ export default function Home() {
 
   // Handle paste update
   const handlePasteUpdate = (parsedData: ParsedUpdateData) => {
+    // Feature only available in super mode
+    if (!superMode) return;
+
     // Check if there's existing content that would be overwritten
-    const hasExistingContent = 
-      (superMode ? (section1Bullets.length > 0 || section2Bullets.length > 0 || section3Bullets.length > 0) : 
-                   (section1Text.trim() || section2Text.trim() || section3Text.trim()));
+    const hasExistingContent = section1Bullets.length > 0 || section2Bullets.length > 0 || section3Bullets.length > 0;
 
     if (hasExistingContent) {
       // Show confirmation modal
@@ -534,35 +535,15 @@ export default function Home() {
   };
 
   const applyPastedData = (parsedData: ParsedUpdateData) => {
-    if (superMode) {
-      // In super mode, use bullets
-      setSection1Bullets(parsedData.section1.bullets);
-      setSection2Bullets(parsedData.section2.bullets);
-      setSection3Bullets(parsedData.section3.bullets);
-      // Clear any text
-      setSection1Text('');
-      setSection2Text('');
-      setSection3Text('');
-    } else {
-      // In text mode, use text (convert bullets to text if needed)
-      const section1Text = parsedData.section1.bullets.length > 0 
-        ? parsedData.section1.bullets.map(b => `- ${b}`).join('\n')
-        : parsedData.section1.text;
-      const section2Text = parsedData.section2.bullets.length > 0
-        ? parsedData.section2.bullets.map(b => `- ${b}`).join('\n')
-        : parsedData.section2.text;
-      const section3Text = parsedData.section3.bullets.length > 0
-        ? parsedData.section3.bullets.map(b => `- ${b}`).join('\n')
-        : parsedData.section3.text;
-      
-      setSection1Text(section1Text);
-      setSection2Text(section2Text);
-      setSection3Text(section3Text);
-      // Clear bullets
-      setSection1Bullets([]);
-      setSection2Bullets([]);
-      setSection3Bullets([]);
-    }
+    // Use bullets from parsed data
+    setSection1Bullets(parsedData.section1.bullets);
+    setSection2Bullets(parsedData.section2.bullets);
+    setSection3Bullets(parsedData.section3.bullets);
+    
+    // Clear any text
+    setSection1Text('');
+    setSection2Text('');
+    setSection3Text('');
 
     // Update headers if different ones were detected
     if (parsedData.section1.detectedHeader) {

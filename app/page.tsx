@@ -649,27 +649,27 @@ export default function Home() {
         /* Input Form */
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-              <div className="space-y-1.5">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-3">
                 <CardTitle className="flex items-center gap-2">
                   Standup Details
                   {superMode && <SuperModeBadge />}
                 </CardTitle>
-                <CardDescription>
-                  Fill in your standup information below.
-                </CardDescription>
+                {superMode && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowPasteModal(true)}
+                    className="min-h-[44px] sm:min-h-0 min-w-[44px] px-3"
+                  >
+                    <ClipboardPaste className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Paste Update</span>
+                  </Button>
+                )}
               </div>
-              {superMode && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowPasteModal(true)}
-                  className="flex items-center justify-center gap-2 min-h-[44px] sm:min-h-0 w-full sm:w-auto"
-                >
-                  <ClipboardPaste className="w-4 h-4" />
-                  Paste Update
-                </Button>
-              )}
+              <CardDescription>
+                Fill in your standup information below.
+              </CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">

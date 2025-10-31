@@ -234,7 +234,8 @@ export default function Home() {
         setPendingAction(null);
       }
     }
-  }, [section1Bullets, section2Bullets, section3Bullets, pendingAction, generateMarkdownForced, hasUnsavedChanges]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [section1Bullets, section2Bullets, section3Bullets, pendingAction]);
 
   const generateMarkdownForced = () => {
     const formatHeader = (format: string, header: string) => {

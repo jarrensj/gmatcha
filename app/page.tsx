@@ -618,11 +618,11 @@ export default function Home() {
   };
 
   const renderFormPage = () => (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <div className="text-center space-y-2">
-        <div className="relative">
+    <div className="mx-auto max-w-4xl space-y-6 px-4 sm:px-6">
+      <div className="text-center space-y-3 md:space-y-2">
+        <div className="relative flex items-center justify-between sm:justify-center gap-3">
           <h1 
-            className="text-3xl font-bold text-balance cursor-pointer hover:opacity-80 transition-opacity"
+            className="text-2xl sm:text-3xl font-bold text-balance cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => {
               setCurrentPage('form');
               setShowOutput(false);
@@ -630,18 +630,17 @@ export default function Home() {
           >
             gmatcha
           </h1>
-          <div className="absolute top-0 right-0">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNavigateToSettings}
-            >
-              <SettingsIcon className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNavigateToSettings}
+            className="min-h-[44px] min-w-[44px] px-3 sm:absolute sm:right-0"
+          >
+            <SettingsIcon className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Settings</span>
+          </Button>
         </div>
-        <p className="text-muted-foreground text-pretty">
+        <p className="text-muted-foreground text-pretty text-sm sm:text-base">
           Write out your standup for easy copy and paste
         </p>
       </div>
@@ -650,27 +649,27 @@ export default function Home() {
         /* Input Form */
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <div className="flex items-start justify-between">
-              <div className="space-y-1.5">
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between gap-3">
                 <CardTitle className="flex items-center gap-2">
                   Standup Details
                   {superMode && <SuperModeBadge />}
                 </CardTitle>
-                <CardDescription>
-                  Fill in your standup information below.
-                </CardDescription>
+                {superMode && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowPasteModal(true)}
+                    className="min-h-[44px] sm:min-h-0 min-w-[44px] px-3"
+                  >
+                    <ClipboardPaste className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Paste Update</span>
+                  </Button>
+                )}
               </div>
-              {superMode && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowPasteModal(true)}
-                  className="flex items-center gap-2"
-                >
-                  <ClipboardPaste className="w-4 h-4" />
-                  Paste Update
-                </Button>
-              )}
+              <CardDescription>
+                Fill in your standup information below.
+              </CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -757,8 +756,8 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={copyToClipboard} className="flex-1">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
+                <Button variant="outline" onClick={copyToClipboard} className="flex-1 min-h-[44px] sm:min-h-0">
                   <Copy className="w-4 h-4 mr-2" />
                   Copy to Clipboard
                 </Button>
@@ -766,7 +765,7 @@ export default function Home() {
                   variant="outline" 
                   onClick={generateImage} 
                   disabled={isGeneratingImage}
-                  className="flex-1"
+                  className="flex-1 min-h-[44px] sm:min-h-0"
                 >
                   {isGeneratingImage ? (
                     <>
@@ -781,14 +780,14 @@ export default function Home() {
                   )}
                 </Button>
               </div>
-              <Button variant="outline" onClick={() => setShowOutput(false)} className="w-full">
+              <Button variant="outline" onClick={() => setShowOutput(false)} className="w-full min-h-[44px] sm:min-h-0">
                 Edit
               </Button>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
                 <Button 
                   variant="outline" 
                   onClick={resetForm}
-                  className="flex-1"
+                  className="flex-1 min-h-[44px] sm:min-h-0"
                 >
                   <RotateCcw className="w-4 h-4 mr-2" />
                   Create New Update
@@ -805,7 +804,7 @@ export default function Home() {
                   <Button 
                     variant="outline" 
                     onClick={handleRollover}
-                    className="flex-1"
+                    className="flex-1 min-h-[44px] sm:min-h-0"
                   >
                     <ArrowDown className="w-4 h-4 mr-2" />
                     Roll to Tomorrow
@@ -860,7 +859,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="min-h-screen bg-background p-4">
+      <div className="min-h-screen bg-background p-4 md:p-6">
         {currentPage === 'settings' ? (
           <Settings 
             defaultHeaderFormat={defaultHeaderFormat}

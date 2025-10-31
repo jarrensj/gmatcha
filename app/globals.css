@@ -95,6 +95,8 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Subtle sketch elements */
@@ -265,6 +267,33 @@ select {
   font-weight: 400;
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+@media (max-width: 640px) {
+  button:not([role="switch"]), 
+  input[type="button"],
+  input[type="submit"],
+  a[role="button"] {
+    min-height: 44px;
+  }
+
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+
+  [class*="CardContent"],
+  [class*="CardHeader"] {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  button, 
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: rgba(74, 144, 226, 0.2);
+  }
 }
 
 

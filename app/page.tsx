@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -83,6 +83,12 @@ export default function Home() {
     leftPosition: number;
   };
   const [fallingEmojis, setFallingEmojis] = useState<FallingEmoji[]>([]);
+  
+  // Use a counter for unique emoji IDs to prevent conflicts with rapidly created emojis
+  const emojiIdCounter = useRef(0);
+  
+  // Store timeout IDs for cleanup
+  const emojiTimeouts = useRef<Map<number, NodeJS.Timeout>>(new Map());
 
   // Function to detect unsaved changes in bullet mode
   const hasUnsavedChanges = () => {
@@ -202,6 +208,17 @@ export default function Home() {
         console.error('Error loading saved data:', error);
       }
     }
+  }, []);
+
+  // Cleanup emoji timeouts on component unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      // Clear all pending timeouts when component unmounts
+      emojiTimeouts.current.forEach((timeoutId) => {
+        clearTimeout(timeoutId);
+      });
+      emojiTimeouts.current.clear();
+    };
   }, []);
 
   // Save to localStorage whenever form data changes
@@ -635,17 +652,21 @@ export default function Home() {
               const isAlreadyOnForm = currentPage === 'form' && !showOutput;
               
               if (isAlreadyOnForm) {
-                // Trigger falling matcha emoji
+                // Trigger falling matcha emoji with unique ID from counter
+                const emojiId = ++emojiIdCounter.current;
                 const newEmoji: FallingEmoji = {
-                  id: Date.now(),
+                  id: emojiId,
                   leftPosition: Math.random() * 80 + 10, // Random position between 10% and 90%
                 };
                 setFallingEmojis(prev => [...prev, newEmoji]);
                 
-                // Remove emoji after animation completes
-                setTimeout(() => {
-                  setFallingEmojis(prev => prev.filter(emoji => emoji.id !== newEmoji.id));
+                // Remove emoji after animation completes and store timeout for cleanup
+                const timeoutId = setTimeout(() => {
+                  setFallingEmojis(prev => prev.filter(emoji => emoji.id !== emojiId));
+                  emojiTimeouts.current.delete(emojiId);
                 }, 3000); // 3 seconds total (fall + fade out)
+                
+                emojiTimeouts.current.set(emojiId, timeoutId);
               }
               
               setCurrentPage('form');

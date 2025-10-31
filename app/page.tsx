@@ -77,6 +77,13 @@ export default function Home() {
   const [showPasteConfirmation, setShowPasteConfirmation] = useState(false);
   const [pendingPasteData, setPendingPasteData] = useState<ParsedUpdateData | null>(null);
 
+  // Falling matcha emoji state
+  type FallingEmoji = {
+    id: number;
+    leftPosition: number;
+  };
+  const [fallingEmojis, setFallingEmojis] = useState<FallingEmoji[]>([]);
+
   // Function to detect unsaved changes in bullet mode
   const hasUnsavedChanges = () => {
     if (!superMode) return false;
@@ -624,6 +631,23 @@ export default function Home() {
           <h1 
             className="text-3xl font-bold text-balance cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => {
+              // Check if we're already on the form view (no-op click)
+              const isAlreadyOnForm = currentPage === 'form' && !showOutput;
+              
+              if (isAlreadyOnForm) {
+                // Trigger falling matcha emoji
+                const newEmoji: FallingEmoji = {
+                  id: Date.now(),
+                  leftPosition: Math.random() * 80 + 10, // Random position between 10% and 90%
+                };
+                setFallingEmojis(prev => [...prev, newEmoji]);
+                
+                // Remove emoji after animation completes
+                setTimeout(() => {
+                  setFallingEmojis(prev => prev.filter(emoji => emoji.id !== newEmoji.id));
+                }, 3000); // 3 seconds total (fall + fade out)
+              }
+              
               setCurrentPage('form');
               setShowOutput(false);
             }}
@@ -860,6 +884,17 @@ export default function Home() {
 
   return (
     <>
+      {/* Falling matcha emojis */}
+      {fallingEmojis.map(emoji => (
+        <div
+          key={emoji.id}
+          className="falling-emoji"
+          style={{ left: `${emoji.leftPosition}%` }}
+        >
+          ??
+        </div>
+      ))}
+      
       <div className="min-h-screen bg-background p-4">
         {currentPage === 'settings' ? (
           <Settings 

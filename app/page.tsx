@@ -891,7 +891,7 @@ export default function Home() {
           className="falling-emoji"
           style={{ left: `${emoji.leftPosition}%` }}
         >
-          ??
+          🍵
         </div>
       ))}
       

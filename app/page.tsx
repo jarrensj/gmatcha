@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,6 +76,19 @@ export default function Home() {
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [showPasteConfirmation, setShowPasteConfirmation] = useState(false);
   const [pendingPasteData, setPendingPasteData] = useState<ParsedUpdateData | null>(null);
+
+  // Falling matcha emoji state
+  type FallingEmoji = {
+    id: number;
+    leftPosition: number;
+  };
+  const [fallingEmojis, setFallingEmojis] = useState<FallingEmoji[]>([]);
+  
+  // Use a counter for unique emoji IDs to prevent conflicts with rapidly created emojis
+  const emojiIdCounter = useRef(0);
+  
+  // Store timeout IDs for cleanup
+  const emojiTimeouts = useRef<Map<number, NodeJS.Timeout>>(new Map());
 
   // Function to detect unsaved changes in bullet mode
   const hasUnsavedChanges = () => {
@@ -195,6 +208,17 @@ export default function Home() {
         console.error('Error loading saved data:', error);
       }
     }
+  }, []);
+
+  // Cleanup emoji timeouts on component unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      // Clear all pending timeouts when component unmounts
+      emojiTimeouts.current.forEach((timeoutId) => {
+        clearTimeout(timeoutId);
+      });
+      emojiTimeouts.current.clear();
+    };
   }, []);
 
   // Save to localStorage whenever form data changes
@@ -624,6 +648,27 @@ export default function Home() {
           <h1 
             className="text-2xl sm:text-3xl font-bold text-balance cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => {
+              // Check if we're already on the form view (no-op click)
+              const isAlreadyOnForm = currentPage === 'form' && !showOutput;
+              
+              if (isAlreadyOnForm) {
+                // Trigger falling matcha emoji with unique ID from counter
+                const emojiId = ++emojiIdCounter.current;
+                const newEmoji: FallingEmoji = {
+                  id: emojiId,
+                  leftPosition: Math.random() * 80 + 10, // Random position between 10% and 90%
+                };
+                setFallingEmojis(prev => [...prev, newEmoji]);
+                
+                // Remove emoji after animation completes and store timeout for cleanup
+                const timeoutId = setTimeout(() => {
+                  setFallingEmojis(prev => prev.filter(emoji => emoji.id !== emojiId));
+                  emojiTimeouts.current.delete(emojiId);
+                }, 3000); // 3 seconds total (fall + fade out)
+                
+                emojiTimeouts.current.set(emojiId, timeoutId);
+              }
+              
               setCurrentPage('form');
               setShowOutput(false);
             }}
@@ -859,6 +904,17 @@ export default function Home() {
 
   return (
     <>
+      {/* Falling matcha emojis */}
+      {fallingEmojis.map(emoji => (
+        <div
+          key={emoji.id}
+          className="falling-emoji"
+          style={{ left: `${emoji.leftPosition}%` }}
+        >
+          🍵
+        </div>
+      ))}
+      
       <div className="min-h-screen bg-background p-4 md:p-6">
         {currentPage === 'settings' ? (
           <Settings 

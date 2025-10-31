@@ -294,7 +294,7 @@ select {
 }
 
 @media (max-width: 640px) {
-  button, 
+  button:not([role="switch"]),
   input[type="button"],
   input[type="submit"],
   a[role="button"] {

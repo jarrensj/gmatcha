@@ -357,6 +357,28 @@ export default function Settings({
         </CardContent>
       </Card>
 
+      <Card className="border-blue-200 bg-blue-50/50">
+        <CardHeader>
+          <CardTitle className="text-base">💾 Local Storage</CardTitle>
+          <CardDescription className="text-sm">
+            All your updates and settings are stored locally in your browser. Your data never leaves your device and is completely private.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-xs sm:text-sm text-muted-foreground">
+            For more information, visit the{' '}
+            <a 
+              href="https://github.com/jarrensj/gmatcha" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 underline font-medium"
+            >
+              GitHub repository
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
         {hasChanges && (
           <div className="flex justify-center pt-8">
             <button

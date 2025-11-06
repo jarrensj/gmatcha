@@ -90,6 +90,10 @@ export default function Home() {
   // Store timeout IDs for cleanup
   const emojiTimeouts = useRef<Map<number, NodeJS.Timeout>>(new Map());
 
+  // Center action notification state
+  const [showCenterNotification, setShowCenterNotification] = useState<string | null>(null);
+  const centerNotificationTimeout = useRef<NodeJS.Timeout | null>(null);
+
   // Function to detect unsaved changes in bullet mode
   const hasUnsavedChanges = () => {
     if (!superMode) return false;
@@ -218,6 +222,11 @@ export default function Home() {
         clearTimeout(timeoutId);
       });
       emojiTimeouts.current.clear();
+      
+      // Clear center notification timeout
+      if (centerNotificationTimeout.current) {
+        clearTimeout(centerNotificationTimeout.current);
+      }
     };
   }, []);
 
@@ -354,6 +363,15 @@ export default function Home() {
         title: "Copied!",
         description: "Standup markdown copied to clipboard",
       });
+      
+      // Show center notification
+      if (centerNotificationTimeout.current) {
+        clearTimeout(centerNotificationTimeout.current);
+      }
+      setShowCenterNotification("Copied");
+      centerNotificationTimeout.current = setTimeout(() => {
+        setShowCenterNotification(null);
+      }, 1500);
     } catch {
       toast({
         title: "Error",
@@ -914,6 +932,13 @@ export default function Home() {
           🍵
         </div>
       ))}
+      
+      {/* Center action notification */}
+      {showCenterNotification && (
+        <div className="center-action-notification">
+          {showCenterNotification}
+        </div>
+      )}
       
       <div className="min-h-screen bg-background p-4 md:p-6">
         {currentPage === 'settings' ? (

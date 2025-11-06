@@ -76,6 +76,8 @@ export default function Home() {
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [showPasteConfirmation, setShowPasteConfirmation] = useState(false);
   const [pendingPasteData, setPendingPasteData] = useState<ParsedUpdateData | null>(null);
+  const [feedback, setFeedback] = useState<{ message: 'Copied' | 'Pasted'; key: number } | null>(null);
+  const feedbackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Falling matcha emoji state
   type FallingEmoji = {
@@ -218,6 +220,9 @@ export default function Home() {
         clearTimeout(timeoutId);
       });
       emojiTimeouts.current.clear();
+      if (feedbackTimeout.current) {
+        clearTimeout(feedbackTimeout.current);
+      }
     };
   }, []);
 
@@ -260,6 +265,17 @@ export default function Home() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section1Bullets, section2Bullets, section3Bullets, pendingAction]);
+
+  const triggerFeedback = (message: 'Copied' | 'Pasted') => {
+    if (feedbackTimeout.current) {
+      clearTimeout(feedbackTimeout.current);
+    }
+    const key = Date.now();
+    setFeedback({ message, key });
+    feedbackTimeout.current = setTimeout(() => {
+      setFeedback((current) => (current && current.key === key ? null : current));
+    }, 1200);
+  };
 
   const generateMarkdownForced = () => {
     const formatHeader = (format: string, header: string) => {
@@ -354,6 +370,7 @@ export default function Home() {
         title: "Copied!",
         description: "Standup markdown copied to clipboard",
       });
+      triggerFeedback('Copied');
     } catch {
       toast({
         title: "Error",
@@ -595,6 +612,7 @@ export default function Home() {
         ? "Your previous update has been loaded and section headers have been updated to match."
         : "Your previous update has been loaded into the form.",
     });
+    triggerFeedback('Pasted');
   };
 
   const handleConfirmPaste = () => {
@@ -943,7 +961,21 @@ export default function Home() {
         )}
       </div>
       <Toaster toasts={toasts} onDismiss={dismiss} />
-      
+
+      {feedback && (
+        <div
+          key={feedback.key}
+          className={`feedback-overlay ${feedback.message === 'Copied' ? 'feedback-overlay--copied' : 'feedback-overlay--pasted'}`}
+        >
+          {feedback.message === 'Copied' ? (
+            <Copy className="w-6 h-6" />
+          ) : (
+            <ClipboardPaste className="w-6 h-6" />
+          )}
+          <span>{feedback.message}</span>
+        </div>
+      )}
+
       {/* Mode Switch Warning Modal */}
       <ConfirmationModal
         isOpen={showModeWarning}

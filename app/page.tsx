@@ -62,6 +62,14 @@ export default function Home() {
   const [section2CurrentInput, setSection2CurrentInput] = useState('');
   const [section3CurrentInput, setSection3CurrentInput] = useState('');
 
+  // Undo history for deleted bullets
+  type DeletedBullet = {
+    section: 1 | 2 | 3;
+    bullet: string;
+    index: number;
+  };
+  const [deletionHistory, setDeletionHistory] = useState<DeletedBullet[]>([]);
+
   // Modal state for mode switch warning
   const [showModeWarning, setShowModeWarning] = useState(false);
   const [pendingModeChange, setPendingModeChange] = useState<boolean | null>(null);
@@ -131,6 +139,7 @@ export default function Home() {
       setSection1Bullets([]);
       setSection2Bullets([]);
       setSection3Bullets([]);
+      setDeletionHistory([]);
       
       // Reset to input form (not generated output page)
       setShowOutput(false);
@@ -220,6 +229,78 @@ export default function Home() {
       emojiTimeouts.current.clear();
     };
   }, []);
+
+  // Keyboard listener for undo (Cmd+Z / Ctrl+Z)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check for Cmd+Z (Mac) or Ctrl+Z (Windows/Linux)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+        // Only handle undo in super mode and when not focused in an input/textarea
+        if (superMode && deletionHistory.length > 0) {
+          const target = e.target as HTMLElement;
+          const isInputField = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+          
+          // Only handle if not in an input field
+          if (!isInputField) {
+            e.preventDefault();
+            
+            // Handle undo deletion inline to avoid stale closure issues
+            const lastDeleted = deletionHistory[deletionHistory.length - 1];
+            
+            // Restore the bullet to its original position
+            if (lastDeleted.section === 1) {
+              setSection1Bullets(prevBullets => {
+                const newBullets = [...prevBullets];
+                newBullets.splice(lastDeleted.index, 0, lastDeleted.bullet);
+                return newBullets;
+              });
+            } else if (lastDeleted.section === 2) {
+              setSection2Bullets(prevBullets => {
+                const newBullets = [...prevBullets];
+                newBullets.splice(lastDeleted.index, 0, lastDeleted.bullet);
+                return newBullets;
+              });
+            } else if (lastDeleted.section === 3) {
+              setSection3Bullets(prevBullets => {
+                const newBullets = [...prevBullets];
+                newBullets.splice(lastDeleted.index, 0, lastDeleted.bullet);
+                return newBullets;
+              });
+            }
+
+            // Remove the last item from history
+            setDeletionHistory(prev => prev.slice(0, -1));
+
+            toast({
+              title: "Restored",
+              description: "Bullet point has been restored",
+            });
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [superMode, deletionHistory, toast]);
+
+  // Create bullet deletion handlers that record to history
+  const createDeleteHandler = (section: 1 | 2 | 3, bullets: string[], setBullets: (bullets: string[]) => void) => {
+    return (index: number) => {
+      const deletedBullet = bullets[index];
+      
+      // Record deletion to history
+      setDeletionHistory(prev => [...prev, {
+        section,
+        bullet: deletedBullet,
+        index
+      }]);
+
+      // Remove the bullet
+      const newBullets = bullets.filter((_, i) => i !== index);
+      setBullets(newBullets);
+    };
+  };
 
   // Save to localStorage whenever form data changes
   useEffect(() => {
@@ -430,6 +511,7 @@ export default function Home() {
     setSection1Bullets([]);
     setSection2Bullets([]);
     setSection3Bullets([]);
+    setDeletionHistory([]);
     setMarkdownOutput('');
     setShowOutput(false);
   };
@@ -568,6 +650,9 @@ export default function Home() {
     setSection1Text('');
     setSection2Text('');
     setSection3Text('');
+
+    // Clear deletion history since we're replacing all content
+    setDeletionHistory([]);
 
     // Update headers if different ones were detected
     if (parsedData.section1.detectedHeader) {
@@ -725,6 +810,7 @@ export default function Home() {
                   header: header1,
                   bullets: section1Bullets,
                   onBulletsChange: setSection1Bullets,
+                  onDeleteBullet: createDeleteHandler(1, section1Bullets, setSection1Bullets),
                   text: section1Text,
                   onTextChange: setSection1Text,
                   onCurrentInputChange: setSection1CurrentInput,
@@ -735,6 +821,7 @@ export default function Home() {
                   header: header2,
                   bullets: section2Bullets,
                   onBulletsChange: setSection2Bullets,
+                  onDeleteBullet: createDeleteHandler(2, section2Bullets, setSection2Bullets),
                   text: section2Text,
                   onTextChange: setSection2Text,
                   onCurrentInputChange: setSection2CurrentInput,
@@ -745,6 +832,7 @@ export default function Home() {
                   header: header3,
                   bullets: section3Bullets,
                   onBulletsChange: setSection3Bullets,
+                  onDeleteBullet: createDeleteHandler(3, section3Bullets, setSection3Bullets),
                   text: section3Text,
                   onTextChange: setSection3Text,
                   onCurrentInputChange: setSection3CurrentInput,
@@ -761,6 +849,7 @@ export default function Home() {
                     <BulletInput
                       bullets={sectionData.bullets}
                       onBulletsChange={sectionData.onBulletsChange}
+                      onDeleteBullet={sectionData.onDeleteBullet}
                       placeholder={`Add a bullet point for ${sectionData.header.toLowerCase().replace(/\?$/, '')}`}
                       onCurrentInputChange={sectionData.onCurrentInputChange}
                     />

@@ -29,6 +29,7 @@ interface BulletInputProps {
   onBulletsChange: (bullets: string[]) => void;
   placeholder?: string;
   onCurrentInputChange?: (input: string) => void;
+  onDeleteBullet?: (index: number) => void;
 }
 
 interface SortableBulletItemProps {
@@ -133,7 +134,7 @@ function SortableBulletItem({
   );
 }
 
-export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bullet point...", onCurrentInputChange }: BulletInputProps) {
+export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bullet point...", onCurrentInputChange, onDeleteBullet }: BulletInputProps) {
   const [currentInput, setCurrentInput] = useState('');
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -222,8 +223,14 @@ export function BulletInput({ bullets, onBulletsChange, placeholder = "Type a bu
   };
 
   const handleDeleteBullet = (index: number) => {
-    const newBullets = bullets.filter((_, i) => i !== index);
-    onBulletsChange(newBullets);
+    if (onDeleteBullet) {
+      // Use custom delete handler if provided
+      onDeleteBullet(index);
+    } else {
+      // Fallback to default behavior
+      const newBullets = bullets.filter((_, i) => i !== index);
+      onBulletsChange(newBullets);
+    }
   };
 
   return (

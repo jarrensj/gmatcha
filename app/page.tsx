@@ -867,6 +867,21 @@ export default function Home() {
         </p>
       )}
 
+      {/* Footer note about data storage */}
+      <div className="text-center max-w-2xl mx-auto mt-8 pt-6 border-t border-muted">
+        <p className="text-xs text-muted-foreground">
+          Your data is stored locally in your browser. Open source on{' '}
+          <a 
+            href="https://github.com/jarrensj/gmatcha" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-primary hover:underline"
+          >
+            GitHub
+          </a>
+        </p>
+      </div>
+
       {/* Hidden component for image generation */}
       <div 
         id="standup-image-card" 

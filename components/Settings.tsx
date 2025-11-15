@@ -367,6 +367,30 @@ export default function Settings({
             </button>
           </div>
         )}
+
+        <Card className="border-muted">
+          <CardHeader>
+            <CardTitle className="text-base">About Your Data</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              All your standup data and settings are stored locally in your browser&apos;s local storage. Nothing is sent to any server - your data stays private and secure on your device.
+            </p>
+            <div className="pt-2 border-t">
+              <p className="text-xs text-muted-foreground">
+                Open source on GitHub:{' '}
+                <a 
+                  href="https://github.com/jarrensj/gmatcha" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline font-medium"
+                >
+                  github.com/jarrensj/gmatcha
+                </a>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

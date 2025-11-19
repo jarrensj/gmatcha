@@ -377,14 +377,18 @@ export default function Settings({
               All your standup data and settings are stored locally in your browser&apos;s local storage. Nothing is sent to any server - your data stays private and secure on your device.
             </p>
               <div className="pt-2 border-t">
-                <a
-                  href="https://github.com/jarrensj/gmatcha"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex text-xs font-medium text-primary hover:text-primary/80 underline-offset-2 hover:underline"
-                >
-                  Open source on GitHub
-                </a>
+                <p className="text-xs text-muted-foreground">
+                  Open source on the{' '}
+                  <a
+                    href="https://github.com/jarrensj/gmatcha"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary hover:text-primary/80 underline-offset-2 hover:underline"
+                  >
+                    GitHub repo
+                  </a>
+                  .
+                </p>
               </div>
           </CardContent>
         </Card>

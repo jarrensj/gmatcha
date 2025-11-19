@@ -868,19 +868,19 @@ export default function Home() {
       )}
 
       {/* Footer note about data storage */}
-      <div className="text-center max-w-2xl mx-auto mt-8 pt-6 border-t border-muted">
-        <p className="text-xs text-muted-foreground">
-          Your data is stored locally in your browser. Open source on{' '}
-          <a 
-            href="https://github.com/jarrensj/gmatcha" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="text-primary hover:underline"
-          >
-            GitHub
-          </a>
-        </p>
-      </div>
+        <div className="text-center max-w-2xl mx-auto mt-8 pt-6 border-t border-muted">
+          <p className="text-xs text-muted-foreground">
+            Your data is stored locally in your browser.{' '}
+            <a
+              href="https://github.com/jarrensj/gmatcha"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary hover:text-primary/80 underline-offset-2 hover:underline"
+            >
+              Open source on GitHub
+            </a>
+          </p>
+        </div>
 
       {/* Hidden component for image generation */}
       <div 

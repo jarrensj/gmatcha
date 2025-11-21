@@ -87,6 +87,7 @@ export default function Settings({
     onDefaultHeaderFormatChange('none');
     onSuperModeChange(true);
     onSectionOrderChange([1, 2, 3]);
+    onWrapWithCodeBlockChange(false);
     // Also restore all hidden sections
     onShowSection1Change(true);
     onShowSection2Change(true);
@@ -101,6 +102,7 @@ export default function Settings({
     defaultHeaderFormat !== 'none' ||
     !superMode ||
     JSON.stringify(sectionOrder) !== JSON.stringify([1, 2, 3]) ||
+    wrapWithCodeBlock !== false ||
     !showSection1 || !showSection2 || !showSection3;
 
   // Check for duplicate headers among visible sections

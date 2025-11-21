@@ -338,6 +338,30 @@ export default function Settings({
 
       <Card>
         <CardHeader>
+          <CardTitle>Copy Settings</CardTitle>
+          <CardDescription>
+            Configure how your standup is copied to the clipboard.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-0.5 flex-1">
+              <Label className="text-sm sm:text-base">Wrap with code block</Label>
+              <div className="text-xs sm:text-sm text-muted-foreground">
+                When enabled, wraps copied text with ``` for markdown code blocks
+              </div>
+            </div>
+            <Switch
+              checked={wrapWithCodeBlock}
+              onCheckedChange={onWrapWithCodeBlockChange}
+              className="scale-125 sm:scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300 flex-shrink-0"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
           <CardTitle>Default Header Format</CardTitle>
           <CardDescription>
             This setting applies to all sections immediately and will be used for new updates.
@@ -357,30 +381,6 @@ export default function Settings({
                 <SelectItem value="###">### Header 3</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Copy Settings</CardTitle>
-          <CardDescription>
-            Configure how your standup is copied to the clipboard.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between gap-4">
-            <div className="space-y-0.5 flex-1">
-              <Label className="text-sm sm:text-base">Wrap with code block</Label>
-              <div className="text-xs sm:text-sm text-muted-foreground">
-                When enabled, wraps copied text with ``` for markdown code blocks
-              </div>
-            </div>
-            <Switch
-              checked={wrapWithCodeBlock}
-              onCheckedChange={onWrapWithCodeBlockChange}
-              className="scale-125 sm:scale-125 data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300 flex-shrink-0"
-            />
           </div>
         </CardContent>
       </Card>

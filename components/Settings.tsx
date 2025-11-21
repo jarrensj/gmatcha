@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SuperModeBadge } from "@/components/SuperModeBadge";
 import { ArrowLeft, GripVertical } from "lucide-react";
 import { useState } from "react";
-import Link from "next/link";
 
 interface SettingsProps {
   defaultHeaderFormat: string;
@@ -369,30 +368,6 @@ export default function Settings({
           </div>
         )}
 
-        <Card className="border-muted">
-          <CardHeader>
-            <CardTitle className="text-base">About Your Data</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              All your data and settings are stored in local storage.
-            </p>
-              <div className="pt-2 border-t">
-                <p className="text-xs text-muted-foreground">
-                  You can visit the{' '}
-                  <Link
-                    href="https://github.com/jarrensj/gmatcha"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-medium text-primary hover:text-primary/80 underline-offset-2 hover:underline"
-                  >
-                    GitHub repository
-                  </Link>
-                  .
-                </p>
-              </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

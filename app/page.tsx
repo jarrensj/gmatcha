@@ -899,9 +899,14 @@ export default function Home() {
             </div>
 
             <div className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
-              <Label htmlFor="wrap-code-block" className="text-sm cursor-pointer">
-                Wrap with code block (```) when copying
-              </Label>
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="wrap-code-block" className="text-sm cursor-pointer font-medium">
+                  Wrap with code block (```) when copying
+                </Label>
+                <span className="text-xs text-muted-foreground">
+                  {wrapWithCodeBlock ? "✓ Enabled - will wrap with ```" : "Disabled - plain markdown only"}
+                </span>
+              </div>
               <Switch
                 id="wrap-code-block"
                 checked={wrapWithCodeBlock}

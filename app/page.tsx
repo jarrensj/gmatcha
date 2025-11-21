@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ProgressButton } from "@/components/ui/progress-button";
 import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown, ClipboardPaste } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toast";
 import Settings from '../components/Settings';
@@ -56,6 +57,9 @@ export default function Home() {
   const [section1Bullets, setSection1Bullets] = useState<string[]>([]);
   const [section2Bullets, setSection2Bullets] = useState<string[]>([]);
   const [section3Bullets, setSection3Bullets] = useState<string[]>([]);
+  
+  // Copy as code block preference
+  const [copyAsCodeBlock, setCopyAsCodeBlock] = useState(false);
 
   // Track current unsaved input in bullet mode
   const [section1CurrentInput, setSection1CurrentInput] = useState('');
@@ -213,6 +217,7 @@ export default function Home() {
         setSection1Bullets(parsed.section1Bullets || parsed.workingOnBullets || []);
         setSection2Bullets(parsed.section2Bullets || parsed.workedOnYesterdayBullets || []);
         setSection3Bullets(parsed.section3Bullets || parsed.blockersBullets || []);
+        setCopyAsCodeBlock(parsed.copyAsCodeBlock || false);
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -322,10 +327,11 @@ export default function Home() {
       sectionOrder,
       section1Bullets,
       section2Bullets,
-      section3Bullets
+      section3Bullets,
+      copyAsCodeBlock
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, sectionOrder, section1Bullets, section2Bullets, section3Bullets]);
+  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, sectionOrder, section1Bullets, section2Bullets, section3Bullets, copyAsCodeBlock]);
 
   // Execute pending action after saving unsaved changes
   useEffect(() => {
@@ -430,10 +436,15 @@ export default function Home() {
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(markdownOutput);
+      const textToCopy = copyAsCodeBlock 
+        ? `\`\`\`\n${markdownOutput}\`\`\``
+        : markdownOutput;
+      await navigator.clipboard.writeText(textToCopy);
       toast({
         title: "Copied!",
-        description: "Standup markdown copied to clipboard",
+        description: copyAsCodeBlock 
+          ? "Standup markdown copied as code block"
+          : "Standup markdown copied to clipboard",
       });
     } catch {
       toast({
@@ -887,6 +898,17 @@ export default function Home() {
               <pre className="bg-muted p-4 rounded-md text-sm overflow-auto max-h-96 whitespace-pre-wrap">
                 {markdownOutput}
               </pre>
+            </div>
+
+            <div className="flex items-center justify-between px-1 py-2">
+              <Label htmlFor="copy-code-block" className="text-sm font-normal cursor-pointer flex items-center gap-2">
+                <Switch
+                  id="copy-code-block"
+                  checked={copyAsCodeBlock}
+                  onCheckedChange={setCopyAsCodeBlock}
+                />
+                <span>Copy with code block formatting</span>
+              </Label>
             </div>
 
             <div className="flex flex-col gap-3">

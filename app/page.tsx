@@ -85,6 +85,9 @@ export default function Home() {
   const [showPasteConfirmation, setShowPasteConfirmation] = useState(false);
   const [pendingPasteData, setPendingPasteData] = useState<ParsedUpdateData | null>(null);
 
+  // Toggle for wrapping with code blocks
+  const [wrapWithCodeBlock, setWrapWithCodeBlock] = useState(false);
+
   // Falling matcha emoji state
   type FallingEmoji = {
     id: number;
@@ -213,6 +216,7 @@ export default function Home() {
         setSection1Bullets(parsed.section1Bullets || parsed.workingOnBullets || []);
         setSection2Bullets(parsed.section2Bullets || parsed.workedOnYesterdayBullets || []);
         setSection3Bullets(parsed.section3Bullets || parsed.blockersBullets || []);
+        setWrapWithCodeBlock(parsed.wrapWithCodeBlock || false);
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -322,10 +326,11 @@ export default function Home() {
       sectionOrder,
       section1Bullets,
       section2Bullets,
-      section3Bullets
+      section3Bullets,
+      wrapWithCodeBlock
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, sectionOrder, section1Bullets, section2Bullets, section3Bullets]);
+  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, sectionOrder, section1Bullets, section2Bullets, section3Bullets, wrapWithCodeBlock]);
 
   // Execute pending action after saving unsaved changes
   useEffect(() => {
@@ -430,10 +435,15 @@ export default function Home() {
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(markdownOutput);
+      const textToCopy = wrapWithCodeBlock 
+        ? `\`\`\`\n${markdownOutput}\`\`\``
+        : markdownOutput;
+      await navigator.clipboard.writeText(textToCopy);
       toast({
         title: "Copied!",
-        description: "Standup markdown copied to clipboard",
+        description: wrapWithCodeBlock 
+          ? "Standup markdown copied with code block formatting"
+          : "Standup markdown copied to clipboard",
       });
     } catch {
       toast({
@@ -888,6 +898,18 @@ export default function Home() {
                 {markdownOutput}
               </pre>
             </div>
+            {wrapWithCodeBlock && (
+              <div className="text-xs text-muted-foreground">
+                Content will be wrapped with ``` when copied (configured in{' '}
+                <button 
+                  onClick={handleNavigateToSettings}
+                  className="underline hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Settings
+                </button>
+                )
+              </div>
+            )}
 
             <div className="flex flex-col gap-3">
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
@@ -1025,6 +1047,8 @@ export default function Home() {
             onSuperModeChange={handleSuperModeChange}
             sectionOrder={sectionOrder}
             onSectionOrderChange={setSectionOrder}
+            wrapWithCodeBlock={wrapWithCodeBlock}
+            onWrapWithCodeBlockChange={setWrapWithCodeBlock}
             onBackToForm={() => setCurrentPage('form')}
           />
         ) : (

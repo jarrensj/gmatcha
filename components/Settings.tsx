@@ -375,7 +375,7 @@ export default function Settings({
           </CardHeader>
           <CardContent className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              All your data and settings are stored locally in your browser&apos;s local storage.
+              All your data and settings are stored in local storage.
             </p>
               <div className="pt-2 border-t">
                 <p className="text-xs text-muted-foreground">

@@ -900,7 +900,14 @@ export default function Home() {
             </div>
             {wrapWithCodeBlock && (
               <div className="text-xs text-muted-foreground">
-                Content will be wrapped with ``` when copied (configured in Settings)
+                Content will be wrapped with ``` when copied (configured in{' '}
+                <button 
+                  onClick={handleNavigateToSettings}
+                  className="underline hover:text-foreground transition-colors cursor-pointer"
+                >
+                  Settings
+                </button>
+                )
               </div>
             )}
 

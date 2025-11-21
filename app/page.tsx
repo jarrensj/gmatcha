@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { ProgressButton } from "@/components/ui/progress-button";
 import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown, ClipboardPaste } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -84,6 +85,9 @@ export default function Home() {
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [showPasteConfirmation, setShowPasteConfirmation] = useState(false);
   const [pendingPasteData, setPendingPasteData] = useState<ParsedUpdateData | null>(null);
+
+  // Toggle for wrapping with code blocks
+  const [wrapWithCodeBlock, setWrapWithCodeBlock] = useState(false);
 
   // Falling matcha emoji state
   type FallingEmoji = {
@@ -430,10 +434,15 @@ export default function Home() {
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(markdownOutput);
+      const textToCopy = wrapWithCodeBlock 
+        ? `\`\`\`\n${markdownOutput}\`\`\``
+        : markdownOutput;
+      await navigator.clipboard.writeText(textToCopy);
       toast({
         title: "Copied!",
-        description: "Standup markdown copied to clipboard",
+        description: wrapWithCodeBlock 
+          ? "Standup markdown copied with code block formatting"
+          : "Standup markdown copied to clipboard",
       });
     } catch {
       toast({
@@ -887,6 +896,17 @@ export default function Home() {
               <pre className="bg-muted p-4 rounded-md text-sm overflow-auto max-h-96 whitespace-pre-wrap">
                 {markdownOutput}
               </pre>
+            </div>
+
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
+              <Label htmlFor="wrap-code-block" className="text-sm cursor-pointer">
+                Wrap with code block (```) when copying
+              </Label>
+              <Switch
+                id="wrap-code-block"
+                checked={wrapWithCodeBlock}
+                onCheckedChange={setWrapWithCodeBlock}
+              />
             </div>
 
             <div className="flex flex-col gap-3">

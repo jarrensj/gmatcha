@@ -898,6 +898,11 @@ export default function Home() {
                 {markdownOutput}
               </pre>
             </div>
+            {wrapWithCodeBlock && (
+              <div className="text-xs text-muted-foreground">
+                Content will be wrapped with ``` when copied (configured in Settings)
+              </div>
+            )}
 
             <div className="flex flex-col gap-3">
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">

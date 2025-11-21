@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ProgressButton } from "@/components/ui/progress-button";
 import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown, ClipboardPaste } from "lucide-react";
+import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toast";
 import Settings from '../components/Settings';
@@ -871,14 +872,14 @@ export default function Home() {
         <div className="text-center max-w-2xl mx-auto mt-8 pt-6 border-t border-muted">
           <p className="text-xs text-muted-foreground">
             Your data is stored locally in your browser.{' '}
-            <a
+            <Link
               href="https://github.com/jarrensj/gmatcha"
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-primary hover:text-primary/80 underline-offset-2 hover:underline"
             >
               Open source on GitHub
-            </a>
+            </Link>
           </p>
         </div>
 

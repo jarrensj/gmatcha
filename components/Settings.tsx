@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SuperModeBadge } from "@/components/SuperModeBadge";
 import { ArrowLeft, GripVertical } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 interface SettingsProps {
   defaultHeaderFormat: string;
@@ -379,14 +380,14 @@ export default function Settings({
               <div className="pt-2 border-t">
                 <p className="text-xs text-muted-foreground">
                   Open source on the{' '}
-                  <a
+                  <Link
                     href="https://github.com/jarrensj/gmatcha"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-medium text-primary hover:text-primary/80 underline-offset-2 hover:underline"
                   >
                     GitHub repo
-                  </a>
+                  </Link>
                   .
                 </p>
               </div>

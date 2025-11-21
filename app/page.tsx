@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { ProgressButton } from "@/components/ui/progress-button";
 import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown, ClipboardPaste } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -217,6 +216,7 @@ export default function Home() {
         setSection1Bullets(parsed.section1Bullets || parsed.workingOnBullets || []);
         setSection2Bullets(parsed.section2Bullets || parsed.workedOnYesterdayBullets || []);
         setSection3Bullets(parsed.section3Bullets || parsed.blockersBullets || []);
+        setWrapWithCodeBlock(parsed.wrapWithCodeBlock || false);
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -326,10 +326,11 @@ export default function Home() {
       sectionOrder,
       section1Bullets,
       section2Bullets,
-      section3Bullets
+      section3Bullets,
+      wrapWithCodeBlock
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, sectionOrder, section1Bullets, section2Bullets, section3Bullets]);
+  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, sectionOrder, section1Bullets, section2Bullets, section3Bullets, wrapWithCodeBlock]);
 
   // Execute pending action after saving unsaved changes
   useEffect(() => {
@@ -898,22 +899,6 @@ export default function Home() {
               </pre>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-md">
-              <div className="flex flex-col gap-1">
-                <Label htmlFor="wrap-code-block" className="text-sm cursor-pointer font-medium">
-                  Wrap with code block (```) when copying
-                </Label>
-                <span className="text-xs text-muted-foreground">
-                  {wrapWithCodeBlock ? "✓ Enabled - will wrap with ```" : "Disabled - plain markdown only"}
-                </span>
-              </div>
-              <Switch
-                id="wrap-code-block"
-                checked={wrapWithCodeBlock}
-                onCheckedChange={setWrapWithCodeBlock}
-              />
-            </div>
-
             <div className="flex flex-col gap-3">
               <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
                 <Button variant="outline" onClick={copyToClipboard} className="flex-1 min-h-[44px] sm:min-h-0">
@@ -1050,6 +1035,8 @@ export default function Home() {
             onSuperModeChange={handleSuperModeChange}
             sectionOrder={sectionOrder}
             onSectionOrderChange={setSectionOrder}
+            wrapWithCodeBlock={wrapWithCodeBlock}
+            onWrapWithCodeBlockChange={setWrapWithCodeBlock}
             onBackToForm={() => setCurrentPage('form')}
           />
         ) : (

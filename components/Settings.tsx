@@ -367,7 +367,6 @@ export default function Settings({
             </button>
           </div>
         )}
-
       </div>
     </div>
   );

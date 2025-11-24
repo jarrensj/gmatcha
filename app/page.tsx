@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ProgressButton } from "@/components/ui/progress-button";
 import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown, ClipboardPaste } from "lucide-react";
+import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toast";
 import Settings from '../components/Settings';
@@ -977,6 +978,21 @@ export default function Home() {
           Advanced image styling and formatting options for Generate Image are coming soon
         </p>
       )}
+
+      {/* Footer note about data storage */}
+        <div className="text-center max-w-2xl mx-auto mt-8">
+          <p className="text-xs text-muted-foreground">
+            Your data is stored in local storage.{' '}
+            <Link
+              href="https://github.com/jarrensj/gmatcha"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary hover:text-primary/80 underline-offset-2 hover:underline"
+            >
+              The code is public on GitHub
+            </Link>
+          </p>
+        </div>
 
       {/* Hidden component for image generation */}
       <div 

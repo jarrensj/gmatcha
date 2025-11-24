@@ -320,4 +320,60 @@ select {
   }
 }
 
+/* Centered action notification animation */
+@keyframes center-pop-fade {
+  0% {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 0;
+  }
+  15% {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0;
+  }
+}
+
+.center-action-notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(92, 179, 166, 0.95);
+  color: white;
+  padding: 1.5rem 3rem;
+  border-radius: 1rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  pointer-events: none;
+  z-index: 10000;
+  box-shadow: 0 8px 24px rgba(92, 179, 166, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: center-pop-fade 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  backdrop-filter: blur(8px);
+}
+
+@media (prefers-color-scheme: dark) {
+  .center-action-notification {
+    background: rgba(124, 199, 186, 0.95);
+    box-shadow: 0 8px 24px rgba(124, 199, 186, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+}
+
+@media (max-width: 640px) {
+  .center-action-notification {
+    font-size: 1.5rem;
+    padding: 1.25rem 2.5rem;
+  }
+}
+
 

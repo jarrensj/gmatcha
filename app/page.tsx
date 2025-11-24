@@ -869,7 +869,7 @@ export default function Home() {
       )}
 
       {/* Footer note about data storage */}
-        <div className="text-center max-w-2xl mx-auto mt-8 pt-6 border-t border-muted">
+        <div className="text-center max-w-2xl mx-auto mt-8">
           <p className="text-xs text-muted-foreground">
             Your data is stored in local storage.{' '}
             <Link

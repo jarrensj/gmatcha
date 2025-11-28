@@ -555,21 +555,36 @@ export default function Home() {
       /\bdone\b/i                            // "done"
     ];
     
-    // Test headers against patterns
+    // Test all three headers against patterns
     const header1IsToday = todayPatterns.some(pattern => pattern.test(header1));
     const header2IsToday = todayPatterns.some(pattern => pattern.test(header2));
+    const header3IsToday = todayPatterns.some(pattern => pattern.test(header3));
     const header1IsYesterday = yesterdayPatterns.some(pattern => pattern.test(header1));
     const header2IsYesterday = yesterdayPatterns.some(pattern => pattern.test(header2));
+    const header3IsYesterday = yesterdayPatterns.some(pattern => pattern.test(header3));
     
-    // Determine which section is today vs yesterday
-    if (header1IsToday && header2IsYesterday) {
-      return { todaySection: 1, yesterdaySection: 2 };
-    } else if (header2IsToday && header1IsYesterday) {
-      return { todaySection: 2, yesterdaySection: 1 };
-    } else {
-      // Fallback to default assumption: section1 = today, section2 = yesterday
-      return { todaySection: 1, yesterdaySection: 2 };
+    // Count how many visible sections match "today" and "yesterday"
+    const visibleTodaySections = [
+      header1IsToday && showSection1 ? 1 : null,
+      header2IsToday && showSection2 ? 2 : null,
+      header3IsToday && showSection3 ? 3 : null
+    ].filter(s => s !== null);
+    
+    const visibleYesterdaySections = [
+      header1IsYesterday && showSection1 ? 1 : null,
+      header2IsYesterday && showSection2 ? 2 : null,
+      header3IsYesterday && showSection3 ? 3 : null
+    ].filter(s => s !== null);
+    
+    // Only enable rollover if there's exactly one "today" and one "yesterday" among visible sections
+    if (visibleTodaySections.length !== 1 || visibleYesterdaySections.length !== 1) {
+      return { todaySection: null, yesterdaySection: null };
     }
+    
+    return { 
+      todaySection: visibleTodaySections[0], 
+      yesterdaySection: visibleYesterdaySections[0] 
+    };
   };
 
   // Handle rollover functionality
@@ -577,9 +592,14 @@ export default function Home() {
     const { yesterdaySection } = detectSections();
     
     // Check if there's existing yesterday content that would be overwritten
-    const hasYesterdayContent = yesterdaySection === 1 
-      ? (superMode ? section1Bullets.length > 0 : section1Text.trim() !== '')
-      : (superMode ? section2Bullets.length > 0 : section2Text.trim() !== '');
+    let hasYesterdayContent = false;
+    if (yesterdaySection === 1) {
+      hasYesterdayContent = superMode ? section1Bullets.length > 0 : section1Text.trim() !== '';
+    } else if (yesterdaySection === 2) {
+      hasYesterdayContent = superMode ? section2Bullets.length > 0 : section2Text.trim() !== '';
+    } else if (yesterdaySection === 3) {
+      hasYesterdayContent = superMode ? section3Bullets.length > 0 : section3Text.trim() !== '';
+    }
     
     if (hasYesterdayContent) {
       // Show confirmation modal
@@ -593,24 +613,65 @@ export default function Home() {
   const performRollover = () => {
     const { todaySection, yesterdaySection } = detectSections();
     
-    // Move today's content to yesterday
-    if (todaySection === 1 && yesterdaySection === 2) {
-      // Section 1 is today, Section 2 is yesterday
+    // If we can't detect both sections, don't proceed
+    if (todaySection === null || yesterdaySection === null) {
+      return;
+    }
+    
+    // Get today's content based on which section it is
+    let todayContent = '';
+    let todayBullets: string[] = [];
+    
+    if (todaySection === 1) {
+      todayContent = section1Text;
+      todayBullets = [...section1Bullets];
+    } else if (todaySection === 2) {
+      todayContent = section2Text;
+      todayBullets = [...section2Bullets];
+    } else if (todaySection === 3) {
+      todayContent = section3Text;
+      todayBullets = [...section3Bullets];
+    }
+    
+    // Move today's content to yesterday's section
+    if (yesterdaySection === 1) {
       if (superMode) {
-        setSection2Bullets([...section1Bullets]);
+        setSection1Bullets(todayBullets);
+      } else {
+        setSection1Text(todayContent);
+      }
+    } else if (yesterdaySection === 2) {
+      if (superMode) {
+        setSection2Bullets(todayBullets);
+      } else {
+        setSection2Text(todayContent);
+      }
+    } else if (yesterdaySection === 3) {
+      if (superMode) {
+        setSection3Bullets(todayBullets);
+      } else {
+        setSection3Text(todayContent);
+      }
+    }
+    
+    // Clear today's section
+    if (todaySection === 1) {
+      if (superMode) {
         setSection1Bullets([]);
       } else {
-        setSection2Text(section1Text);
         setSection1Text('');
       }
-    } else if (todaySection === 2 && yesterdaySection === 1) {
-      // Section 2 is today, Section 1 is yesterday
+    } else if (todaySection === 2) {
       if (superMode) {
-        setSection1Bullets([...section2Bullets]);
         setSection2Bullets([]);
       } else {
-        setSection1Text(section2Text);
         setSection2Text('');
+      }
+    } else if (todaySection === 3) {
+      if (superMode) {
+        setSection3Bullets([]);
+      } else {
+        setSection3Text('');
       }
     }
     
@@ -950,13 +1011,34 @@ export default function Home() {
                   Create New Update
                 </Button>
                 
-                {/* Rollover button - only show if there's content in today's section and both sections are visible */}
+                {/* Rollover button - only show if there's content in today's section and both today/yesterday sections are visible */}
                 {(() => {
-                  const { todaySection } = detectSections();
-                  const hasTodayContent = todaySection === 1 
-                    ? (superMode ? section1Bullets.length > 0 : section1Text.trim() !== '')
-                    : (superMode ? section2Bullets.length > 0 : section2Text.trim() !== '');
-                  return showSection1 && showSection2 && hasTodayContent;
+                  const { todaySection, yesterdaySection } = detectSections();
+                  
+                  // If we can't detect both sections, don't show button
+                  if (todaySection === null || yesterdaySection === null) {
+                    return false;
+                  }
+                  
+                  // Check if today's section has content
+                  let hasTodayContent = false;
+                  if (todaySection === 1) {
+                    hasTodayContent = superMode ? section1Bullets.length > 0 : section1Text.trim() !== '';
+                  } else if (todaySection === 2) {
+                    hasTodayContent = superMode ? section2Bullets.length > 0 : section2Text.trim() !== '';
+                  } else if (todaySection === 3) {
+                    hasTodayContent = superMode ? section3Bullets.length > 0 : section3Text.trim() !== '';
+                  }
+                  
+                  // Check if both today and yesterday sections are visible
+                  const isTodayVisible = (todaySection === 1 && showSection1) || 
+                                         (todaySection === 2 && showSection2) || 
+                                         (todaySection === 3 && showSection3);
+                  const isYesterdayVisible = (yesterdaySection === 1 && showSection1) || 
+                                             (yesterdaySection === 2 && showSection2) || 
+                                             (yesterdaySection === 3 && showSection3);
+                  
+                  return isTodayVisible && isYesterdayVisible && hasTodayContent;
                 })() && (
                   <Button 
                     variant="outline" 

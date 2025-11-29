@@ -651,6 +651,63 @@ export default function Home() {
     }
   };
 
+  // Handle parse and rollover - parses the pasted update and rolls "Today" to "Yesterday"
+  const handleParseAndRollover = (parsedData: ParsedUpdateData) => {
+    // Feature only available in super mode
+    if (!superMode) return;
+
+    const { todaySection, yesterdaySection } = detectSections();
+    
+    // Get the "Today" content from the parsed data and put it into "Yesterday"
+    // The parsed section1 contains what was labeled "Today" (or similar) in the pasted update
+    // We need to move that to our current "Yesterday" section
+    
+    if (todaySection === 1 && yesterdaySection === 2) {
+      // Section 1 is Today, Section 2 is Yesterday
+      // Move parsed section1 (Today from paste) to section2 (our Yesterday)
+      setSection2Bullets(parsedData.section1.bullets);
+      setSection1Bullets([]); // Clear Today for new input
+      setSection3Bullets(parsedData.section3.bullets); // Keep blockers from paste
+    } else if (todaySection === 2 && yesterdaySection === 1) {
+      // Section 2 is Today, Section 1 is Yesterday
+      // Move parsed section2 (Today from paste) to section1 (our Yesterday)
+      setSection1Bullets(parsedData.section2.bullets);
+      setSection2Bullets([]); // Clear Today for new input
+      setSection3Bullets(parsedData.section3.bullets); // Keep blockers from paste
+    }
+
+    // Clear any text
+    setSection1Text('');
+    setSection2Text('');
+    setSection3Text('');
+
+    // Clear deletion history since we're replacing content
+    setDeletionHistory([]);
+
+    // Update headers if different ones were detected (only for yesterday section)
+    if (todaySection === 1 && yesterdaySection === 2) {
+      if (parsedData.section1.detectedHeader) {
+        // The detected header was for "Today" in the paste, keep our current header2
+      }
+    } else {
+      if (parsedData.section2.detectedHeader) {
+        // The detected header was for "Today" in the paste, keep our current header1
+      }
+    }
+    if (parsedData.section3.detectedHeader) {
+      setHeader3(parsedData.section3.detectedHeader);
+    }
+
+    // Reset output state
+    setShowOutput(false);
+    setMarkdownOutput('');
+
+    toast({
+      title: "Rollover Complete!",
+      description: "Previous \"Today\" items have been rolled over to \"Yesterday\". Ready for your new update.",
+    });
+  };
+
   const applyPastedData = (parsedData: ParsedUpdateData) => {
     // Use bullets from parsed data
     setSection1Bullets(parsedData.section1.bullets);
@@ -1117,6 +1174,7 @@ export default function Home() {
         isOpen={showPasteModal}
         onClose={() => setShowPasteModal(false)}
         onPaste={handlePasteUpdate}
+        onParseAndRollover={handleParseAndRollover}
         header1={header1}
         header2={header2}
         header3={header3}

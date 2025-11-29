@@ -10,6 +10,7 @@ interface PasteUpdateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPaste: (parsedData: ParsedUpdateData) => void;
+  onParseAndRollover: (parsedData: ParsedUpdateData) => void;
   header1: string;
   header2: string;
   header3: string;
@@ -37,6 +38,7 @@ export function PasteUpdateModal({
   isOpen,
   onClose,
   onPaste,
+  onParseAndRollover,
   header1,
   header2,
   header3,
@@ -218,6 +220,15 @@ export function PasteUpdateModal({
     onClose();
   };
 
+  const handleParseAndRollover = () => {
+    if (!pastedText.trim()) return;
+
+    const parsedData = parseUpdate(pastedText);
+    onParseAndRollover(parsedData);
+    setPastedText('');
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={onClose}>
       <Card className="w-full max-w-2xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
@@ -267,11 +278,19 @@ export function PasteUpdateModal({
             </ul>
           </div>
 
-          <div className="flex gap-2 justify-end">
-            <Button variant="outline" onClick={onClose}>
+          <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+            <Button variant="outline" onClick={onClose} className="min-h-[44px] sm:min-h-0">
               Cancel
             </Button>
-            <Button onClick={handlePaste} disabled={!pastedText.trim()}>
+            <Button 
+              variant="outline"
+              onClick={handleParseAndRollover} 
+              disabled={!pastedText.trim()}
+              className="min-h-[44px] sm:min-h-0"
+            >
+              Parse & Rollover
+            </Button>
+            <Button onClick={handlePaste} disabled={!pastedText.trim()} className="min-h-[44px] sm:min-h-0">
               Parse & Fill Sections
             </Button>
           </div>

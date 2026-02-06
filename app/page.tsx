@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ProgressButton } from "@/components/ui/progress-button";
-import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown, ClipboardPaste } from "lucide-react";
+import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown, ClipboardPaste, Pencil } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toast";
@@ -52,6 +52,9 @@ export default function Home() {
   
   // Section order (default: 1, 2, 3)
   const [sectionOrder, setSectionOrder] = useState<number[]>([1, 2, 3]);
+
+  // Inline editing state for section headers
+  const [editingHeader, setEditingHeader] = useState<number | null>(null);
   
   // Bullet point storage for super mode
   const [section1Bullets, setSection1Bullets] = useState<string[]>([]);
@@ -819,6 +822,7 @@ export default function Home() {
                 1: {
                   show: showSection1,
                   header: header1,
+                  onHeaderChange: setHeader1,
                   bullets: section1Bullets,
                   onBulletsChange: setSection1Bullets,
                   onDeleteBullet: createDeleteHandler(1, section1Bullets, setSection1Bullets),
@@ -830,6 +834,7 @@ export default function Home() {
                 2: {
                   show: showSection2,
                   header: header2,
+                  onHeaderChange: setHeader2,
                   bullets: section2Bullets,
                   onBulletsChange: setSection2Bullets,
                   onDeleteBullet: createDeleteHandler(2, section2Bullets, setSection2Bullets),
@@ -841,6 +846,7 @@ export default function Home() {
                 3: {
                   show: showSection3,
                   header: header3,
+                  onHeaderChange: setHeader3,
                   bullets: section3Bullets,
                   onBulletsChange: setSection3Bullets,
                   onDeleteBullet: createDeleteHandler(3, section3Bullets, setSection3Bullets),
@@ -855,7 +861,33 @@ export default function Home() {
 
               return (
                 <div key={sectionNum} className="space-y-2">
-                  <Label htmlFor={sectionData.id}>{sectionData.header}</Label>
+                  {editingHeader === sectionNum ? (
+                    <input
+                      type="text"
+                      value={sectionData.header}
+                      onChange={(e) => sectionData.onHeaderChange(e.target.value)}
+                      onBlur={() => setEditingHeader(null)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === 'Escape') {
+                          setEditingHeader(null);
+                        }
+                      }}
+                      className="text-sm font-medium leading-none bg-transparent border-b border-ring outline-none w-full py-0.5"
+                      autoFocus
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingHeader(sectionNum);
+                      }}
+                      className="group flex items-center gap-1.5 text-sm font-medium leading-none cursor-pointer hover:text-foreground/70 transition-colors"
+                      title="Click to edit section title"
+                    >
+                      {sectionData.header}
+                      <Pencil className="h-3 w-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+                    </button>
+                  )}
                   {superMode ? (
                     <BulletInput
                       bullets={sectionData.bullets}

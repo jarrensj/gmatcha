@@ -89,6 +89,11 @@ export default function Home() {
   // Toggle for wrapping with code blocks
   const [wrapWithCodeBlock, setWrapWithCodeBlock] = useState(false);
 
+  // Form title (the card title above the standup form)
+  const [formTitle, setFormTitle] = useState('Standup Details');
+  const [isEditingFormTitle, setIsEditingFormTitle] = useState(false);
+  const formTitleInputRef = useRef<HTMLInputElement>(null);
+
   // Falling matcha emoji state
   type FallingEmoji = {
     id: number;
@@ -218,6 +223,7 @@ export default function Home() {
         setSection2Bullets(parsed.section2Bullets || parsed.workedOnYesterdayBullets || []);
         setSection3Bullets(parsed.section3Bullets || parsed.blockersBullets || []);
         setWrapWithCodeBlock(parsed.wrapWithCodeBlock || false);
+        if (parsed.formTitle) setFormTitle(parsed.formTitle);
       } catch (error) {
         console.error('Error loading saved data:', error);
       }
@@ -328,10 +334,11 @@ export default function Home() {
       section1Bullets,
       section2Bullets,
       section3Bullets,
-      wrapWithCodeBlock
+      wrapWithCodeBlock,
+      formTitle
     };
     localStorage.setItem('standupFormData', JSON.stringify(formData));
-  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, sectionOrder, section1Bullets, section2Bullets, section3Bullets, wrapWithCodeBlock]);
+  }, [section1Text, section2Text, section3Text, header1, header2, header3, header1Format, header2Format, header3Format, showSection1, showSection2, showSection3, defaultHeaderFormat, superMode, sectionOrder, section1Bullets, section2Bullets, section3Bullets, wrapWithCodeBlock, formTitle]);
 
   // Execute pending action after saving unsaved changes
   useEffect(() => {
@@ -793,7 +800,39 @@ export default function Home() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between gap-3">
                 <CardTitle className="flex items-center gap-2">
-                  Standup Details
+                  {isEditingFormTitle ? (
+                    <input
+                      ref={formTitleInputRef}
+                      type="text"
+                      value={formTitle}
+                      onChange={(e) => setFormTitle(e.target.value)}
+                      onBlur={() => {
+                        if (!formTitle.trim()) setFormTitle('Standup Details');
+                        setIsEditingFormTitle(false);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          if (!formTitle.trim()) setFormTitle('Standup Details');
+                          setIsEditingFormTitle(false);
+                        }
+                        if (e.key === 'Escape') {
+                          setIsEditingFormTitle(false);
+                        }
+                      }}
+                      className="font-semibold leading-none tracking-tight bg-transparent border-b border-foreground/30 outline-none w-full"
+                    />
+                  ) : (
+                    <span
+                      className="cursor-pointer hover:opacity-70 transition-opacity"
+                      onClick={() => {
+                        setIsEditingFormTitle(true);
+                        setTimeout(() => formTitleInputRef.current?.focus(), 0);
+                      }}
+                      title="Click to edit title"
+                    >
+                      {formTitle}
+                    </span>
+                  )}
                   {superMode && <SuperModeBadge />}
                 </CardTitle>
                 {superMode && (

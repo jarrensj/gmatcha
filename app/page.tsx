@@ -863,10 +863,15 @@ export default function Home() {
       </div>
 
       <div className="max-w-2xl mx-auto flex items-center justify-between gap-3 rounded-lg border bg-muted/50 px-4 py-3">
-        <p className="text-sm text-muted-foreground text-left text-pretty">
-          <span className="font-medium text-foreground">Using an AI agent?</span>{' '}
-          Copy this prompt into your terminal and it will write your standup update for you.
-        </p>
+        <div className="space-y-1 text-left">
+          <p className="text-sm text-muted-foreground text-pretty">
+            <span className="font-medium text-foreground">Using an AI agent?</span>{' '}
+            Copy this prompt into your terminal and it will write your standup update for you.
+          </p>
+          <p className="text-xs text-muted-foreground text-pretty">
+            Or just type <code className="rounded bg-background px-1 py-0.5 text-foreground">write me a standup update using gmatcha.com</code> in Claude Code — the site will teach your agent the rest.
+          </p>
+        </div>
         <Button
           variant="outline"
           size="sm"

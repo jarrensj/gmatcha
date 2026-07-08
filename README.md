@@ -33,7 +33,7 @@ your agent summarizes your actual work into bullets, gmatcha formats them, and y
 
 no api key, no setup, nothing stored — the api formats and forgets, and the edit link carries the standup in the url itself.
 
-tip: in the app's banner, tick "include what's currently in my standup details" before copying the prompt — the agent then sees your previous update (your form is saved locally between visits) and can write the new Yesterday section from what you'd planned.
+tip: in the app's banner, tick "include what's currently in my standup details" (it appears once your form has content) before copying the prompt — the agent then sees your previous update (your form is saved locally between visits) and can write the new Yesterday section from what you'd planned.
 
 ## getting started
 

@@ -487,11 +487,9 @@ export default function Home() {
       await navigator.clipboard.writeText(prompt);
       toast({
         title: "Prompt copied!",
-        description: includePromptDetails && !withDetails
-          ? "Your standup is empty, so the prompt was copied without details"
-          : withDetails
-            ? "Prompt copied with your current standup details included"
-            : "Paste it into your agent and it will write your standup update",
+        description: withDetails
+          ? "Prompt copied with your current standup details included"
+          : "Paste it into your agent and it will write your standup update",
       });
     } catch {
       toast({
@@ -501,6 +499,9 @@ export default function Home() {
       });
     }
   };
+
+  // The include-details checkbox is only offered when there's something to include
+  const hasCurrentStandupDetails = buildCurrentMarkdown().trim() !== '';
 
   const generateImage = async () => {
     setIsGeneratingImage(true);
@@ -909,15 +910,17 @@ export default function Home() {
             <span className="font-medium text-foreground">Using an AI agent?</span>{' '}
             Copy this prompt into your terminal and it will write your standup update for you.
           </p>
-          <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer w-fit">
-            <input
-              type="checkbox"
-              checked={includePromptDetails}
-              onChange={(event) => setIncludePromptDetails(event.target.checked)}
-              className="accent-primary"
-            />
-            include what&apos;s currently in my standup details (helps the agent write the Yesterday section)
-          </label>
+          {hasCurrentStandupDetails && (
+            <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer w-fit">
+              <input
+                type="checkbox"
+                checked={includePromptDetails}
+                onChange={(event) => setIncludePromptDetails(event.target.checked)}
+                className="accent-primary"
+              />
+              include what&apos;s currently in my standup details (helps the agent write the Yesterday section)
+            </label>
+          )}
         </div>
         <Button
           variant="outline"

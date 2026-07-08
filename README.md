@@ -16,7 +16,7 @@ write out your standup in the app — three customizable sections (yesterday, to
 - **local-only storage**: nothing is pushed to a database
 - **rollover**: roll today's section into yesterday's section for the following day's standup update
 - **formatter api**: hit `/api/standup` from the command line or an ai agent to format an update without opening the app
-- **share links**: the api returns a url that opens the standup pre-filled in the web editor — the link carries the data, nothing is stored
+- **share links**: the api returns a url that opens the standup pre-filled in the web editor, and generating in the app puts the same link in the page url (with a copy link button) — the link carries the data, nothing is stored
 
 ## write your standup from the terminal
 

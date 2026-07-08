@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { buildStandupMarkdown, formatBullets, wrapMarkdownWithCodeBlock, parseStandupParam, STANDUP_QUERY_PARAM } from '@/lib/standup';
+import { buildStandupMarkdown, buildStandupShareUrl, formatBullets, wrapMarkdownWithCodeBlock, parseStandupParam, STANDUP_QUERY_PARAM, type StandupPayload, type StandupPayloadSection } from '@/lib/standup';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ProgressButton } from "@/components/ui/progress-button";
-import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown, ClipboardPaste, Pencil } from "lucide-react";
+import { Copy, Settings as SettingsIcon, RotateCcw, Download, ArrowDown, ClipboardPaste, Pencil, Link2 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toast";
@@ -355,6 +355,38 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section1Bullets, section2Bullets, section3Bullets, pendingAction]);
 
+  // Build the current standup as a share-url payload (visible sections with
+  // content, in display order). Returns null when there's nothing to share.
+  const buildCurrentStandupPayload = (): StandupPayload | null => {
+    const sections = [
+      { num: 1, header: header1, format: header1Format, bullets: section1Bullets, text: section1Text, show: showSection1 },
+      { num: 2, header: header2, format: header2Format, bullets: section2Bullets, text: section2Text, show: showSection2 },
+      { num: 3, header: header3, format: header3Format, bullets: section3Bullets, text: section3Text, show: showSection3 },
+    ];
+
+    const payloadSections: StandupPayloadSection[] = [];
+    for (const sectionNum of sectionOrder) {
+      const section = sections.find(s => s.num === sectionNum);
+      if (!section || !section.show) continue;
+
+      const hasBullets = superMode && section.bullets.length > 0;
+      const text = section.text.trim();
+      if (!hasBullets && !text) continue;
+
+      const payloadSection: StandupPayloadSection = {};
+      if (section.header) payloadSection.header = section.header;
+      if (section.format !== 'none') payloadSection.format = section.format;
+      if (hasBullets) {
+        payloadSection.bullets = section.bullets;
+      } else {
+        payloadSection.text = text;
+      }
+      payloadSections.push(payloadSection);
+    }
+
+    return payloadSections.length > 0 ? { sections: payloadSections } : null;
+  };
+
   const generateMarkdownForced = () => {
     const formatContent = (content: string, bullets: string[]) => {
       if (superMode && bullets.length > 0) {
@@ -396,6 +428,13 @@ export default function Home() {
 
     if (!markdown.trim()) {
       markdown = "# Daily Standup\n\nPlease fill in at least one field to generate your standup.";
+    }
+
+    // Reflect the generated standup in the page url so the address bar
+    // holds a shareable link to exactly what's on screen
+    const payload = buildCurrentStandupPayload();
+    if (payload) {
+      window.history.replaceState(null, '', `?${STANDUP_QUERY_PARAM}=${encodeURIComponent(JSON.stringify(payload))}`);
     }
 
     setMarkdownOutput(markdown);
@@ -755,22 +794,39 @@ export default function Home() {
     // Check saved data directly — state set by the localStorage effect
     // hasn't committed yet when this effect runs on mount
     let hasExistingContent = false;
+    let matchesSaved = false;
     try {
       const savedData = localStorage.getItem('standupFormData');
       if (savedData) {
         const saved = JSON.parse(savedData);
-        hasExistingContent = Boolean(
-          (saved.section1Bullets || saved.workingOnBullets || []).length ||
-          (saved.section2Bullets || saved.workedOnYesterdayBullets || []).length ||
-          (saved.section3Bullets || saved.blockersBullets || []).length ||
-          (saved.section1Text || saved.workingOn || '').trim() ||
-          (saved.section2Text || saved.workedOnYesterday || '').trim() ||
-          (saved.section3Text || saved.blockers || '').trim()
+        const savedBullets = [
+          saved.section1Bullets || saved.workingOnBullets || [],
+          saved.section2Bullets || saved.workedOnYesterdayBullets || [],
+          saved.section3Bullets || saved.blockersBullets || [],
+        ];
+        const savedTexts = [
+          saved.section1Text || saved.workingOn || '',
+          saved.section2Text || saved.workedOnYesterday || '',
+          saved.section3Text || saved.blockers || '',
+        ];
+        hasExistingContent =
+          savedBullets.some((bullets: string[]) => bullets.length > 0) ||
+          savedTexts.some((text: string) => text.trim() !== '');
+
+        // A link carrying exactly what's already saved (e.g. refreshing a
+        // just-generated standup) shouldn't prompt or re-apply
+        const savedHeaders = [saved.header1, saved.header2, saved.header3];
+        const incoming = [parsedData.section1, parsedData.section2, parsedData.section3];
+        matchesSaved = incoming.every((section, index) =>
+          JSON.stringify(section.bullets) === JSON.stringify(savedBullets[index]) &&
+          (!section.detectedHeader || section.detectedHeader === savedHeaders[index])
         );
       }
     } catch {
       // Unreadable saved data — treat as no existing content
     }
+
+    if (matchesSaved) return;
 
     if (hasExistingContent) {
       setPendingPasteSource('link');
@@ -781,6 +837,34 @@ export default function Home() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Clear the share url when leaving the generated output view — the
+  // content can change afterwards, so a stale url shouldn't linger
+  const prevShowOutput = useRef(false);
+  useEffect(() => {
+    if (prevShowOutput.current && !showOutput) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+    prevShowOutput.current = showOutput;
+  }, [showOutput]);
+
+  const copyShareLink = async () => {
+    const payload = buildCurrentStandupPayload();
+    if (!payload) return;
+    try {
+      await navigator.clipboard.writeText(buildStandupShareUrl(payload, window.location.origin));
+      toast({
+        title: "Link copied!",
+        description: "Opening it loads this standup into the editor, ready to edit",
+      });
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to copy to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleDefaultHeaderFormatChange = (newFormat: string) => {
     setDefaultHeaderFormat(newFormat);
@@ -1038,6 +1122,10 @@ export default function Home() {
                 <Button variant="outline" onClick={copyToClipboard} className="flex-1 min-h-[44px] sm:min-h-0">
                   <Copy className="w-4 h-4 mr-2" />
                   Copy to Clipboard
+                </Button>
+                <Button variant="outline" onClick={copyShareLink} className="flex-1 min-h-[44px] sm:min-h-0">
+                  <Link2 className="w-4 h-4 mr-2" />
+                  Copy Link
                 </Button>
                 <Button 
                   variant="outline" 

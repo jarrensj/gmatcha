@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { buildStandupMarkdown, formatBullets, wrapMarkdownWithCodeBlock } from '@/lib/standup';
+import { buildStandupMarkdown, formatBullets, wrapMarkdownWithCodeBlock, parseStandupParam, STANDUP_QUERY_PARAM } from '@/lib/standup';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -91,6 +91,7 @@ export default function Home() {
   const [showPasteModal, setShowPasteModal] = useState(false);
   const [showPasteConfirmation, setShowPasteConfirmation] = useState(false);
   const [pendingPasteData, setPendingPasteData] = useState<ParsedUpdateData | null>(null);
+  const [pendingPasteSource, setPendingPasteSource] = useState<'paste' | 'link'>('paste');
 
   // Toggle for wrapping with code blocks
   const [wrapWithCodeBlock, setWrapWithCodeBlock] = useState(false);
@@ -656,7 +657,10 @@ export default function Home() {
     }
   };
 
-  const applyPastedData = (parsedData: ParsedUpdateData) => {
+  const applyPastedData = (parsedData: ParsedUpdateData, source: 'paste' | 'link' = 'paste') => {
+    // Incoming content is bullet-shaped, so make sure super mode is on
+    setSuperMode(true);
+
     // Use bullets from parsed data
     setSection1Bullets(parsedData.section1.bullets);
     setSection2Bullets(parsedData.section2.bullets);
@@ -691,25 +695,92 @@ export default function Home() {
                           parsedData.section3.detectedHeader;
 
     toast({
-      title: "Update Pasted!",
-      description: headersUpdated 
-        ? "Your previous update has been loaded and section headers have been updated to match."
-        : "Your previous update has been loaded into the form.",
+      title: source === 'link' ? "Standup loaded!" : "Update Pasted!",
+      description: source === 'link'
+        ? (headersUpdated
+            ? "The standup from your link has been loaded and section headers have been updated to match."
+            : "The standup from your link has been loaded into the form.")
+        : (headersUpdated
+            ? "Your previous update has been loaded and section headers have been updated to match."
+            : "Your previous update has been loaded into the form."),
     });
   };
 
   const handleConfirmPaste = () => {
     if (pendingPasteData) {
-      applyPastedData(pendingPasteData);
+      applyPastedData(pendingPasteData, pendingPasteSource);
       setPendingPasteData(null);
     }
+    setPendingPasteSource('paste');
     setShowPasteConfirmation(false);
   };
 
   const handleCancelPaste = () => {
     setPendingPasteData(null);
+    setPendingPasteSource('paste');
     setShowPasteConfirmation(false);
   };
+
+  // Load a standup from the URL query param (links returned by /api/standup)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const raw = params.get(STANDUP_QUERY_PARAM);
+    if (raw === null) return;
+
+    // Consume the param so a refresh doesn't re-apply it
+    window.history.replaceState(null, '', window.location.pathname);
+
+    const sections = parseStandupParam(raw);
+    if (!sections || !sections.some(section => section.bullets.length > 0)) {
+      toast({
+        title: "Couldn't load standup from link",
+        description: "The link is missing standup data or the data is malformed.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const toParsedSection = (index: number) => ({
+      text: '',
+      bullets: sections[index]?.bullets ?? [],
+      detectedHeader: sections[index]?.header,
+    });
+
+    const parsedData: ParsedUpdateData = {
+      section1: toParsedSection(0),
+      section2: toParsedSection(1),
+      section3: toParsedSection(2),
+    };
+
+    // Check saved data directly — state set by the localStorage effect
+    // hasn't committed yet when this effect runs on mount
+    let hasExistingContent = false;
+    try {
+      const savedData = localStorage.getItem('standupFormData');
+      if (savedData) {
+        const saved = JSON.parse(savedData);
+        hasExistingContent = Boolean(
+          (saved.section1Bullets || saved.workingOnBullets || []).length ||
+          (saved.section2Bullets || saved.workedOnYesterdayBullets || []).length ||
+          (saved.section3Bullets || saved.blockersBullets || []).length ||
+          (saved.section1Text || saved.workingOn || '').trim() ||
+          (saved.section2Text || saved.workedOnYesterday || '').trim() ||
+          (saved.section3Text || saved.blockers || '').trim()
+        );
+      }
+    } catch {
+      // Unreadable saved data — treat as no existing content
+    }
+
+    if (hasExistingContent) {
+      setPendingPasteSource('link');
+      setPendingPasteData(parsedData);
+      setShowPasteConfirmation(true);
+    } else {
+      applyPastedData(parsedData, 'link');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleDefaultHeaderFormatChange = (newFormat: string) => {
     setDefaultHeaderFormat(newFormat);
@@ -1178,7 +1249,7 @@ export default function Home() {
         title="Replace Existing Content?"
         description={
           <p>
-            You already have content in your standup. Pasting will replace all existing content. Are you sure you want to continue?
+            You already have content in your standup. {pendingPasteSource === 'link' ? 'Loading this link' : 'Pasting'} will replace all existing content. Are you sure you want to continue?
           </p>
         }
         cancelText="Cancel"

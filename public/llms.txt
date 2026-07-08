@@ -19,7 +19,9 @@ Request body:
   - text: optional preformatted string body, used when bullets are not provided
 - wrapInCodeBlock: optional boolean — wraps the result in a ``` code block so the markdown pastes literally into Slack (default false)
 
-Response: { "markdown": "..." }
+Response: { "markdown": "...", "url": "https://gmatcha.com/?standup=..." }
+
+The "url" field is a clickable link that opens gmatcha with the standup pre-filled in the web editor (the editor loads the first three sections), so the user can keep editing it in the UI. It is omitted for very large payloads.
 
 Sections with no bullets and no text are omitted from the output.
 
@@ -31,4 +33,4 @@ curl -s https://gmatcha.com/api/standup \
 
 ## Using from an AI agent (e.g. Claude Code)
 
-Summarize the user's work into short bullet points, POST them to https://gmatcha.com/api/standup with sections like "Yesterday" / "Today" / "Blockers", and return the "markdown" field from the response so the user can paste it to their team.
+Summarize the user's work into short bullet points, POST them to https://gmatcha.com/api/standup with sections like "Yesterday" / "Today" / "Blockers", and return the "markdown" field from the response so the user can paste it to their team. Also share the "url" field so they can open the standup in the gmatcha web editor and tweak it there.

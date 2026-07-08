@@ -33,6 +33,12 @@ your agent summarizes your actual work into bullets, gmatcha formats them, and y
 
 no api key, no setup, nothing stored — the api formats and forgets, and the edit link carries the standup in the url itself.
 
+don't even want to copy a prompt? a one-liner is enough — gmatcha's [/llms.txt](https://gmatcha.com/llms.txt) and self-documenting api teach your agent the rest:
+
+```text
+write me a standup update using gmatcha.com
+```
+
 ## getting started
 
 install dependencies:

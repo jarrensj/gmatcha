@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { buildStandupMarkdown, formatBullets, wrapMarkdownWithCodeBlock } from '@/lib/standup';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -352,29 +353,13 @@ export default function Home() {
   }, [section1Bullets, section2Bullets, section3Bullets, pendingAction]);
 
   const generateMarkdownForced = () => {
-    const formatHeader = (format: string, header: string) => {
-      switch (format) {
-        case 'bold':
-          return `**${header}**`;
-        case '##':
-          return `## ${header}`;
-        case '###':
-          return `### ${header}`;
-        case 'none':
-        default:
-          return header;
-      }
-    };
-
     const formatContent = (content: string, bullets: string[]) => {
       if (superMode && bullets.length > 0) {
-        return bullets.map(bullet => `- ${bullet}`).join('\n');
+        return formatBullets(bullets);
       }
       return content.trim();
     };
-    
-    let markdown = '';
-    
+
     const sections = [
       {
         num: 1,
@@ -400,13 +385,12 @@ export default function Home() {
     ];
     
     // Generate markdown in the order specified by sectionOrder
-    for (const sectionNum of sectionOrder) {
-      const section = sections.find(s => s.num === sectionNum);
-      if (section && section.show && section.content) {
-        markdown += `${formatHeader(section.format, section.header)}\n${section.content}\n\n`;
-      }
-    }
-    
+    const orderedSections = sectionOrder
+      .map(sectionNum => sections.find(s => s.num === sectionNum))
+      .filter((section): section is NonNullable<typeof section> => !!section && section.show);
+
+    let markdown = buildStandupMarkdown(orderedSections);
+
     if (!markdown.trim()) {
       markdown = "# Daily Standup\n\nPlease fill in at least one field to generate your standup.";
     }
@@ -439,8 +423,8 @@ export default function Home() {
 
   const copyToClipboard = async () => {
     try {
-      const textToCopy = wrapWithCodeBlock 
-        ? `\`\`\`\n${markdownOutput}\`\`\``
+      const textToCopy = wrapWithCodeBlock
+        ? wrapMarkdownWithCodeBlock(markdownOutput)
         : markdownOutput;
       await navigator.clipboard.writeText(textToCopy);
       toast({

@@ -13,6 +13,7 @@ speedrun writing your standup update
 - **reset functionality**: easily clear form data or reset all settings to app defaults
 - **local-only storage**: nothing is pushed to a database
 - **rollover**: roll today's section into yesterday's section for the following day's standup update
+- **formatter api**: hit `/api/standup` from the command line or an ai agent to format an update without opening the app
 
 ## getting started
 
@@ -30,3 +31,26 @@ npm run dev
 open: 
 
 [http://localhost:3000](http://localhost:3000)
+
+## api
+
+format a standup without opening the app — send structured sections, get back paste-ready markdown for Slack. deterministic, no auth, nothing is stored.
+
+```bash
+curl -s https://gmatcha.com/api/standup \
+  -H 'Content-Type: application/json' \
+  -d '{"sections":[{"header":"Yesterday","bullets":["shipped the release"]},{"header":"Today","bullets":["code review"]}]}'
+```
+
+returns:
+
+```json
+{ "markdown": "Yesterday\n- shipped the release\n\nToday\n- code review\n\n" }
+```
+
+- `header`: section title; `format`: header style (`none` | `bold` | `##` | `###`, default `none`)
+- `bullets`: array of strings rendered as `- item` lines, or pass `text` for a preformatted body
+- `wrapInCodeBlock: true` wraps the output in a code block so the markdown pastes literally into Slack
+- `GET /api/standup` returns machine-readable usage docs (also described in [/llms.txt](https://gmatcha.com/llms.txt))
+
+works with ai agents too — tell claude code: "summarize today's work as standup bullets, post them to https://gmatcha.com/api/standup, and give it to me in markdown to paste to my team"

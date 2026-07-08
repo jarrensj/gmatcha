@@ -1,0 +1,34 @@
+# gmatcha
+
+> gmatcha (https://gmatcha.com) helps you speedrun writing your daily standup update. The web app keeps all data in the browser's localStorage — no accounts, nothing stored server-side.
+
+## Standup formatter API
+
+Deterministic formatter for standup updates: send structured sections as JSON, get back paste-ready markdown for Slack. No auth, no storage — content is formatted, returned, and forgotten.
+
+- Endpoint: POST https://gmatcha.com/api/standup
+- Content-Type: application/json
+- Docs: GET https://gmatcha.com/api/standup returns machine-readable usage docs
+
+Request body:
+
+- sections: array of section objects, each with:
+  - header: string section title (e.g. "Yesterday", "Today", "Blockers")
+  - format: optional markdown style for the header — "none" | "bold" | "##" | "###" (default "none")
+  - bullets: optional array of strings, rendered as "- item" lines
+  - text: optional preformatted string body, used when bullets are not provided
+- wrapInCodeBlock: optional boolean — wraps the result in a ``` code block so the markdown pastes literally into Slack (default false)
+
+Response: { "markdown": "..." }
+
+Sections with no bullets and no text are omitted from the output.
+
+Example:
+
+curl -s https://gmatcha.com/api/standup \
+  -H 'Content-Type: application/json' \
+  -d '{"sections":[{"header":"Yesterday","bullets":["shipped the release"]},{"header":"Today","bullets":["code review"]},{"header":"Blockers","bullets":[]}]}'
+
+## Using from an AI agent (e.g. Claude Code)
+
+Summarize the user's work into short bullet points, POST them to https://gmatcha.com/api/standup with sections like "Yesterday" / "Today" / "Blockers", and return the "markdown" field from the response so the user can paste it to their team.

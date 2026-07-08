@@ -2,6 +2,8 @@
 
 speedrun writing your standup update 
 
+write out your standup in the app — three customizable sections (yesterday, today, blockers), one click to turn them into markdown, copy, paste to your team. everything stays in your browser's local storage; there's no account and no database. or skip the typing entirely and [let your ai agent write it for you](#write-your-standup-from-the-terminal).
+
 ## features
 
 - **customizable sections**: three default sections (today's work, yesterday's work, blockers) that can be fully customized
@@ -14,6 +16,22 @@ speedrun writing your standup update
 - **local-only storage**: nothing is pushed to a database
 - **rollover**: roll today's section into yesterday's section for the following day's standup update
 - **formatter api**: hit `/api/standup` from the command line or an ai agent to format an update without opening the app
+- **share links**: the api returns a url that opens the standup pre-filled in the web editor — the link carries the data, nothing is stored
+
+## write your standup from the terminal
+
+if you work with an ai coding agent (claude code, cursor, codex, …), your standup is one paste away — the agent already knows what you did today. copy this into your terminal:
+
+```text
+Write my standup update: from my recent work (git commits, our conversation), summarize my last working day and what I'm working on today as short bullets. Then POST them to https://gmatcha.com/api/standup (GET that URL first for usage docs) and reply with the returned markdown to paste to my team, plus the edit url.
+```
+
+your agent summarizes your actual work into bullets, gmatcha formats them, and you get back:
+
+- **markdown** ready to paste to your team
+- **an edit link** that opens the standup pre-filled in the gmatcha editor, in case you want to tweak it by hand
+
+no api key, no setup, nothing stored — the api formats and forgets, and the edit link carries the standup in the url itself.
 
 ## getting started
 
@@ -57,4 +75,4 @@ returns:
 - the returned `url` opens gmatcha with the standup pre-filled in the web editor, ready to edit
 - `GET /api/standup` returns machine-readable usage docs (also described in [/llms.txt](https://gmatcha.com/llms.txt))
 
-works with ai agents too — tell claude code: "summarize today's work as standup bullets, post them to https://gmatcha.com/api/standup, and give it to me in markdown to paste to my team"
+using an ai agent instead of curl? see [write your standup from the terminal](#write-your-standup-from-the-terminal).

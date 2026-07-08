@@ -20,6 +20,8 @@ import { ConfirmationModal } from '../components/ConfirmationModal';
 import { PasteUpdateModal, ParsedUpdateData } from '../components/PasteUpdateModal';
 import html2canvas from 'html2canvas';
 
+const AGENT_PROMPT = `Write my standup update: from my recent work (git commits, our conversation), summarize my last working day and what I'm working on today as short bullets. Then POST them to https://gmatcha.com/api/standup (GET that URL first for usage docs) and reply with the returned markdown to paste to my team, plus the edit url.`;
+
 export default function Home() {
   const [section1Text, setSection1Text] = useState('');
   const [section2Text, setSection2Text] = useState('');
@@ -443,6 +445,22 @@ export default function Home() {
     }
   };
 
+  const copyAgentPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(AGENT_PROMPT);
+      toast({
+        title: "Prompt copied!",
+        description: "Paste it into your agent and it will write your standup update",
+      });
+    } catch {
+      toast({
+        title: "Error",
+        description: "Failed to copy to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
   const generateImage = async () => {
     setIsGeneratingImage(true);
     try {
@@ -842,6 +860,22 @@ export default function Home() {
         <p className="text-muted-foreground text-pretty text-sm sm:text-base">
           Write out your standup for easy copy and paste
         </p>
+      </div>
+
+      <div className="max-w-2xl mx-auto flex items-center justify-between gap-3 rounded-lg border bg-muted/50 px-4 py-3">
+        <p className="text-sm text-muted-foreground text-left text-pretty">
+          <span className="font-medium text-foreground">Using an AI agent?</span>{' '}
+          Copy this prompt into your terminal and it will write your standup update for you.
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={copyAgentPrompt}
+          className="min-h-[44px] sm:min-h-0 min-w-[44px] px-3 shrink-0"
+        >
+          <Copy className="w-4 h-4 sm:mr-2" />
+          <span className="hidden sm:inline">Copy Prompt</span>
+        </Button>
       </div>
 
       {!showOutput ? (

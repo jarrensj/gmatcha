@@ -20,7 +20,7 @@ import { ConfirmationModal } from '../components/ConfirmationModal';
 import { PasteUpdateModal, ParsedUpdateData } from '../components/PasteUpdateModal';
 import html2canvas from 'html2canvas';
 
-const AGENT_PROMPT = `Write my standup update: look at my recent work (e.g. git commits, changed files, our conversation) and summarize what I did on my last working day and what I'm working on today as short bullet points. Then POST them as JSON to https://gmatcha.com/api/standup with a body like {"sections":[{"header":"Yesterday","bullets":["..."]},{"header":"Today","bullets":["..."]},{"header":"Blockers","bullets":["..."]}]} (GET that URL for usage docs) and reply with the "markdown" field from the response so I can paste it to my team.`;
+const AGENT_PROMPT = `Write my standup update: from my recent work (git commits, our conversation), summarize my last working day and what I'm working on today as short bullets. Then POST them to https://gmatcha.com/api/standup (GET that URL first for usage docs) and reply with the returned markdown to paste to my team, plus the edit url.`;
 
 export default function Home() {
   const [section1Text, setSection1Text] = useState('');

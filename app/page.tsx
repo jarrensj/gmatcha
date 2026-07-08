@@ -96,6 +96,9 @@ export default function Home() {
   // Toggle for wrapping with code blocks
   const [wrapWithCodeBlock, setWrapWithCodeBlock] = useState(false);
 
+  // Toggle for including the current standup details in the copied agent prompt
+  const [includePromptDetails, setIncludePromptDetails] = useState(false);
+
   // Falling matcha emoji state
   type FallingEmoji = {
     id: number;
@@ -445,12 +448,50 @@ export default function Home() {
     }
   };
 
+  // Markdown for whatever is currently in the form ('' when empty) — same
+  // section building as generateMarkdownForced, without the placeholder
+  const buildCurrentMarkdown = () => {
+    const formatContent = (content: string, bullets: string[]) => {
+      if (superMode && bullets.length > 0) {
+        return formatBullets(bullets);
+      }
+      return content.trim();
+    };
+
+    const sections = [
+      { num: 1, content: formatContent(section1Text, section1Bullets), header: header1, format: header1Format, show: showSection1 },
+      { num: 2, content: formatContent(section2Text, section2Bullets), header: header2, format: header2Format, show: showSection2 },
+      { num: 3, content: formatContent(section3Text, section3Bullets), header: header3, format: header3Format, show: showSection3 },
+    ];
+
+    const orderedSections = sectionOrder
+      .map(sectionNum => sections.find(s => s.num === sectionNum))
+      .filter((section): section is NonNullable<typeof section> => !!section && section.show);
+
+    return buildStandupMarkdown(orderedSections);
+  };
+
   const copyAgentPrompt = async () => {
+    let prompt = AGENT_PROMPT;
+    let withDetails = false;
+
+    if (includePromptDetails) {
+      const current = buildCurrentMarkdown().trim();
+      if (current) {
+        withDetails = true;
+        prompt += `\n\nFor context, here is my current standup from the gmatcha editor (my previous update) — use it to inform the new update's Yesterday section:\n\n${current}`;
+      }
+    }
+
     try {
-      await navigator.clipboard.writeText(AGENT_PROMPT);
+      await navigator.clipboard.writeText(prompt);
       toast({
         title: "Prompt copied!",
-        description: "Paste it into your agent and it will write your standup update",
+        description: includePromptDetails && !withDetails
+          ? "Your standup is empty, so the prompt was copied without details"
+          : withDetails
+            ? "Prompt copied with your current standup details included"
+            : "Paste it into your agent and it will write your standup update",
       });
     } catch {
       toast({
@@ -863,10 +904,21 @@ export default function Home() {
       </div>
 
       <div className="max-w-2xl mx-auto flex items-center justify-between gap-3 rounded-lg border bg-muted/50 px-4 py-3">
-        <p className="text-sm text-muted-foreground text-left text-pretty">
-          <span className="font-medium text-foreground">Using an AI agent?</span>{' '}
-          Copy this prompt into your terminal and it will write your standup update for you.
-        </p>
+        <div className="space-y-1.5 text-left">
+          <p className="text-sm text-muted-foreground text-pretty">
+            <span className="font-medium text-foreground">Using an AI agent?</span>{' '}
+            Copy this prompt into your terminal and it will write your standup update for you.
+          </p>
+          <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer w-fit">
+            <input
+              type="checkbox"
+              checked={includePromptDetails}
+              onChange={(event) => setIncludePromptDetails(event.target.checked)}
+              className="accent-primary"
+            />
+            include what&apos;s currently in my standup details (helps the agent write the Yesterday section)
+          </label>
+        </div>
         <Button
           variant="outline"
           size="sm"

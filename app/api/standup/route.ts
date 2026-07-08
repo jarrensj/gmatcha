@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server';
 import {
   HEADER_FORMATS,
   buildStandupMarkdown,
+  buildStandupShareUrl,
   formatBullets,
   wrapMarkdownWithCodeBlock,
   type RenderableSection,
+  type StandupPayloadSection,
 } from '@/lib/standup';
 
 const MAX_BODY_BYTES = 100_000;
@@ -12,6 +14,7 @@ const MAX_SECTIONS = 20;
 const MAX_BULLETS_PER_SECTION = 200;
 const MAX_HEADER_LENGTH = 500;
 const MAX_TEXT_LENGTH = 20_000;
+const MAX_SHARE_URL_LENGTH = 8192;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -39,6 +42,7 @@ const USAGE = {
   },
   response: {
     markdown: 'string — the formatted standup, ready to paste',
+    url: 'string — link that opens gmatcha with this standup pre-filled in the web editor (loads the first three sections); omitted for very large payloads',
   },
   example: {
     curl: 'curl -s https://gmatcha.com/api/standup -H \'Content-Type: application/json\' -d \'{"sections":[{"header":"Yesterday","bullets":["shipped the release"]},{"header":"Today","bullets":["code review","pairing session"]}]}\'',
@@ -97,6 +101,7 @@ export async function POST(request: Request) {
   }
 
   const rendered: RenderableSection[] = [];
+  const shareSections: StandupPayloadSection[] = [];
   for (let i = 0; i < sections.length; i++) {
     const section: unknown = sections[i];
     if (typeof section !== 'object' || section === null || Array.isArray(section)) {
@@ -132,15 +137,27 @@ export async function POST(request: Request) {
       return badRequest(`sections[${i}].text must be at most ${MAX_TEXT_LENGTH} characters`);
     }
 
+    const headerValue = (header as string | undefined) ?? '';
+    const formatValue = (format as string | undefined) ?? 'none';
     const bulletList = (bullets as string[] | undefined) ?? [];
-    const content =
-      bulletList.length > 0 ? formatBullets(bulletList) : ((text as string | undefined) ?? '').trim();
+    const textValue = ((text as string | undefined) ?? '').trim();
+    const content = bulletList.length > 0 ? formatBullets(bulletList) : textValue;
 
     rendered.push({
-      header: (header as string | undefined) ?? '',
-      format: (format as string | undefined) ?? 'none',
+      header: headerValue,
+      format: formatValue,
       content,
     });
+
+    const shareSection: StandupPayloadSection = {};
+    if (headerValue) shareSection.header = headerValue;
+    if (formatValue !== 'none') shareSection.format = formatValue;
+    if (bulletList.length > 0) {
+      shareSection.bullets = bulletList;
+    } else if (textValue) {
+      shareSection.text = textValue;
+    }
+    shareSections.push(shareSection);
   }
 
   const markdown = buildStandupMarkdown(rendered);
@@ -148,8 +165,13 @@ export async function POST(request: Request) {
     return badRequest('No content to format — provide at least one section with bullets or text');
   }
 
+  const shareUrl = buildStandupShareUrl({ sections: shareSections }, new URL(request.url).origin);
+
   return NextResponse.json(
-    { markdown: wrapInCodeBlock === true ? wrapMarkdownWithCodeBlock(markdown) : markdown },
+    {
+      markdown: wrapInCodeBlock === true ? wrapMarkdownWithCodeBlock(markdown) : markdown,
+      ...(shareUrl.length <= MAX_SHARE_URL_LENGTH ? { url: shareUrl } : {}),
+    },
     { headers: CORS_HEADERS }
   );
 }

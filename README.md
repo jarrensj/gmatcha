@@ -45,12 +45,16 @@ curl -s https://gmatcha.com/api/standup \
 returns:
 
 ```json
-{ "markdown": "Yesterday\n- shipped the release\n\nToday\n- code review\n\n" }
+{
+  "markdown": "Yesterday\n- shipped the release\n\nToday\n- code review\n\n",
+  "url": "https://gmatcha.com/?standup=%7B%22sections%22%3A..."
+}
 ```
 
 - `header`: section title; `format`: header style (`none` | `bold` | `##` | `###`, default `none`)
 - `bullets`: array of strings rendered as `- item` lines, or pass `text` for a preformatted body
 - `wrapInCodeBlock: true` wraps the output in a code block so the markdown pastes literally into Slack
+- the returned `url` opens gmatcha with the standup pre-filled in the web editor, ready to edit
 - `GET /api/standup` returns machine-readable usage docs (also described in [/llms.txt](https://gmatcha.com/llms.txt))
 
 works with ai agents too — tell claude code: "summarize today's work as standup bullets, post them to https://gmatcha.com/api/standup, and give it to me in markdown to paste to my team"
